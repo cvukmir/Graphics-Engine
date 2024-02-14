@@ -128,10 +128,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Arc2DLine.cpp" />
+    <ClCompile Include="Arc2DPoint.cpp" />
+    <ClCompile Include="ArcColor.cpp" />
     <ClCompile Include="ArcMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\Desktop\Chris-Vukmir-Final-Project\ArcticAG-Admin\AutoGrader\08 Assets\ArcticIcon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Arc2DLine.h" />
+    <ClInclude Include="Arc2DPoint.h" />
+    <ClInclude Include="ArcColor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
