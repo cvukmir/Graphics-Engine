@@ -3,6 +3,7 @@
 #include <SDKDDKVer.h> // Including SDKDDKVer.h defines the highest available Windows platform.
 //#include <gdiplus.h>
 
+#include "ArcConstants.h"
 #include "ArcColor.h"
 #include "Arc2DLine.h"
 #include "Arc2DPoint.h"
@@ -18,8 +19,6 @@ HINSTANCE hInst;                                // current instance
 //WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 //WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 
-const LPCWSTR WINDOW_CLASS = L"ArcEngineClass";
-const LPCWSTR WINDOW_TITLE = L"ArcEngine";
 
 int WIDTH = 0;
 int HEIGHT = 0;
@@ -37,7 +36,12 @@ ATOM             MyRegisterClass(HINSTANCE hInstance);
 BOOL             InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-void drawLine(Arc2DPoint startPoint, Arc2DPoint endPoint, ArcColor color);
+void drawLine(const Arc2DPoint startPoint, const Arc2DPoint endPoint, const ArcColor color);
+void drawCircle(const Arc2DPoint startPoint, int radius, const ArcColor color);
+void drawPixel(const int xPos, const int yPos, const ArcColor color);
+bool findspan(int& startX, int& endX, const int y, const ArcColor seedColor);
+void fff4(const int startX, const int endX, const int y, ArcColor seedColor);
+
 
 // hInstance     - Instance of application.
 // hPrevInstance - Not used, for 16-bit windows.
@@ -78,13 +82,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	// Clear the screen
 	for (int i = 0; i < WIDTH * HEIGHT; ++i)
 	{
-		*(pixel++) = 0xFFFFFF;
+		*(pixel++) = ArcColor::WHITE;
 	}
 
-	Arc2DPoint startPoint(50, 50);
+	Arc2DPoint startPoint(50, 100);
 	Arc2DPoint endPoint(100, 100);
 
-	drawLine(startPoint, endPoint, ArcColor());
+	Arc2DPoint circlePoint(150, 150);
+
+	drawLine(startPoint, endPoint, ArcColor(ArcColor::GREEN));
+
+	drawLine(Arc2DPoint(100, 100), Arc2DPoint(50, 100), ArcColor(ArcColor::BLUE));
+
+	drawCircle(circlePoint, 50, ArcColor(ArcColor::MAGENTA));
 
 	// Main message loop:
 	MSG msg;
@@ -192,7 +202,7 @@ void drawLine(const Arc2DPoint startPoint, const Arc2DPoint endPoint, ArcColor c
 	const int endX = endPoint.x();
 	for (; x <= endX; ++x)
 	{
-		*((UINT32*)MEMORY + (sizeof(UINT32) * y) + x) = 0x0000FFFF;
+		drawPixel(x, y, color);
 		if (p > 0)
 		{
 			y++;
@@ -203,4 +213,82 @@ void drawLine(const Arc2DPoint startPoint, const Arc2DPoint endPoint, ArcColor c
 			p += 2 * deltaY;
 		}
 	}
+}
+
+void drawCircle(const Arc2DPoint startPoint, const int radius, const ArcColor color)
+{
+	const int startPointX = startPoint.x();
+	const int startPointY = startPoint.y();
+
+	int x = 0;
+	int y = radius;
+	int p = 1 - radius;
+
+	while (y >= x)
+	{
+		drawPixel(startPointX + x, startPointY + y, color);
+		drawPixel(startPointY + y, startPointX + x, color);
+		drawPixel(startPointY + y, startPointX - x, color);
+		drawPixel(startPointX - x, startPointY + y, color);
+		drawPixel(startPointX - x, startPointY - y, color);
+		drawPixel(startPointY - y, startPointX - x, color);
+		drawPixel(startPointY - y, startPointX + x, color);
+		drawPixel(startPointX + x, startPointY - y, color);
+
+		++x;
+		if (p >= 0)
+		{
+			--y;
+			p += (2 * x) + 1 - (2 * y);
+		}
+		else
+		{
+			p += (2 * x) + 1;
+		}
+	}
+}
+
+void drawPixel(const int xPos, const int yPos, const ArcColor color)
+{
+	if (xPos < 0 || xPos >= WIDTH || 
+		yPos < 0 || yPos >= HEIGHT)
+	{
+		return;
+	}
+
+	*((UINT32*)MEMORY + (WIDTH * yPos) + xPos) = color.color();
+}
+
+bool findspan(int& startX, int& endX, const int y, const ArcColor seedcolor)
+{
+//	x = xs = xe
+//	if (color(x,y) != seedcolor)
+//		return false
+//	// go right
+//	While (xe < screenlength)
+//		If (color(xe, y) != seedcolor)
+//			Break;
+//		Xe++
+//	// go left
+//	While(xe > 0)
+//		If color(x, y) != seedcolor
+//			Break
+//		Xs = x
+//		x—
+//	return true
+	int x = endX;
+	startX = endX;
+	return true;
+}
+
+void fff4(const int startX, const int endX, const int y, ArcColor seedColor)
+{
+//	fillspan()
+//		for (newxs = newxe = xs; newxe < xe; newxs = newxe)
+//			if (findspan(newxs, newxe, y + 1…))
+//				fff4(newxs, newxe, y + 1, …)
+//			else
+//				newxe++
+//				// add same call but y-1 instead for checking down
+
 }
