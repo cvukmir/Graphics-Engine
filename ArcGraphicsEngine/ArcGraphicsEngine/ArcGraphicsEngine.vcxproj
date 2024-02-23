@@ -134,6 +134,8 @@
     <ClCompile Include="ArcColor.cpp" />
     <ClCompile Include="ArcMain.cpp" />
     <ClCompile Include="ArcPnmParser.cpp" />
+    <ClCompile Include="ArcRdParser.cpp" />
+    <ClCompile Include="ArcWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\Desktop\Chris-Vukmir-Final-Project\ArcticAG-Admin\AutoGrader\08 Assets\ArcticIcon.ico" />
@@ -142,8 +144,13 @@
     <ClInclude Include="Arc2DLine.h" />
     <ClInclude Include="Arc2DPoint.h" />
     <ClInclude Include="ArcColor.h" />
+    <ClInclude Include="ArcRdCommand.h" />
     <ClInclude Include="ArcConstants.h" />
+    <ClInclude Include="ArcEnums.h" />
     <ClInclude Include="ArcPnmParser.h" />
+    <ClInclude Include="ArcRdParser.h" />
+    <ClInclude Include="ArcTypedefs.h" />
+    <ClInclude Include="ArcWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

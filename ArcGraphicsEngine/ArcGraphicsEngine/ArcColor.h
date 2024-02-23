@@ -14,6 +14,10 @@ public:
 
 	~ArcColor();
 
+	static unsigned int getRedComponent(const unsigned int value);
+	static unsigned int getGreenComponent(const unsigned int value);
+	static unsigned int getBlueComponent(const unsigned int value);
+
 	void               color(const unsigned int value);
 	const unsigned int color() const;
 
