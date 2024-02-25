@@ -38,11 +38,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\Desktop\Chris-Vukmir-Final-Project\ArcticAG-Admin\AutoGrader\08 Assets\ArcticIcon.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="ArcColor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -73,5 +68,31 @@
     <ClInclude Include="ArcRdCommand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="s01.rd">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="s02.rd">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="s03.rd">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="s04.rd">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="s05.rd">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="s06.rd">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="s07.rd">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="s08.rd">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

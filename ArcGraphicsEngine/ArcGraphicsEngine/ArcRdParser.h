@@ -19,15 +19,26 @@ public:
 
 	bool openFile(const std::string fileName);
 
+	const bool executeCommands(ArcWindow* pWindow);
+
+	const std::string      displayName() const;
+	const ArcRdDisplayType displayType() const;
+	const ArcRdDisplayMode displayMode() const;
+	const int              width()       const;
+	const int              height()      const;
+
+private:
+
 	void closeFile();
-	
+
 	bool readFile();
 
 	const bool isFileOpen() const;
 
-	const std::string displayName() const;
-	const int displayType() const;
-	const int displayMode() const;
+	const ArcRdCommandType commandTypeFromString(std::string value);
+	const ArcRdDisplayType displayTypeFromString(std::string value);
+	const ArcRdDisplayMode displayModeFromString(std::string value);
+
 
 
 private:
@@ -35,8 +46,10 @@ private:
 	std::string              _fileName;
 	std::ifstream            _stream;
 	std::string              _displayName;
-	int                      _displayType;
-	int                      _displayMode;
+	ArcRdDisplayType         _displayType;
+	ArcRdDisplayMode         _displayMode;
+	int                      _width;
+	int                      _height;
 	std::queue<ArcRdCommand> _commandQueue;
 };
 

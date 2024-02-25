@@ -27,8 +27,6 @@ public: // Static methods
 
 public: // Properties
 
-	void drawPixel(const int xPos, const int yPos, const ArcColor color);
-
 	void          memory(UINT32* value);
 	const UINT32* memory() const;
 
@@ -38,6 +36,15 @@ public: // Properties
 	void      windowWidth(const int value);
 	const int windowWidth() const;
 
+	void       isRunning(const bool value);
+	const bool isRunning() const;
+
+	void      frameNumber(const int value);
+	const int frameNumber() const;
+
+	void           currentColor(const ArcColor value);
+	const ArcColor currentColor() const;
+
 public: // Methods
 
 	// Delete copy constructor
@@ -45,13 +52,23 @@ public: // Methods
 
 	void initializeMemory();
 
-	void drawLine(const Arc2DPoint startPoint, const Arc2DPoint endPoint, const ArcColor color);
-	void drawCircle(const Arc2DPoint startPoint, int radius, const ArcColor color);
-	bool findspan(int& startX, int& endX, const int y, const ArcColor seedColor);
-	void fff4(const int startX, const int endX, const int y, ArcColor seedColor);
-
+	void fillBackground(const ArcColor color);
+	void drawPoint(const Arc2DPoint point);
+	void drawLine(const Arc2DPoint startPoint, const Arc2DPoint endPoint);
+	void drawCircle(const Arc2DPoint startPoint, int radius);
+	void fill(const Arc2DPoint startPoint);
 
 private: // Methods
+
+	ArcColor colorAt(const int xPos, const int yPos);
+
+	void fillSpan(const int startX, const int endX, const int y);
+
+	bool findspan(int& startX, int& endX, const int y);
+
+	void fff4(const int startX, const int endX, const int y);
+
+	void drawPixel(const int xPos, const int yPos);
 
 	bool inWindow(const int xPos, const int yPos);
 
@@ -63,10 +80,12 @@ private: // Static variables
 
 private:
 
-	int     _height;
-	UINT32* _pMemory;
-	int     _width;
-
+	int      _height;
+	UINT32*  _pMemory;
+	int      _width;
+	bool     _isRunning;
+	int      _frameNumber;
+	ArcColor _currentColor;
 };
 
 #endif // !ARCWINDOWS_H

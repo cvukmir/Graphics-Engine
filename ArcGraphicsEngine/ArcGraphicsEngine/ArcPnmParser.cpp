@@ -32,9 +32,9 @@ bool ArcPnmParser::readPnmAndDraw(std::string fileName)
 
 bool ArcPnmParser::writeToPnmFile(std::string fileName)
 {
-	ArcWindow* pWindow = ArcWindow::window();
-	const int   height = pWindow->windowHeight();
-	const int    width = pWindow->windowWidth();
+	ArcWindow*    pWindow = ArcWindow::window();
+	const int      height = pWindow->windowHeight();
+	const int       width = pWindow->windowWidth();
 	const UINT32* pMemory = pWindow->memory();
 
 	std::ofstream outputStream(fileName, std::ios::binary);

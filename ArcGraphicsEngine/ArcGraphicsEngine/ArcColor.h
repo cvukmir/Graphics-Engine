@@ -10,9 +10,12 @@ class ArcColor
 public:
 
 	ArcColor();
-	ArcColor(unsigned int color);
+	ArcColor(const unsigned int color);
+	ArcColor(const float red, const float green, const float blue);
 
 	~ArcColor();
+
+	const int colorFromFloat(const float red, const float green, const float blue);
 
 	static unsigned int getRedComponent(const unsigned int value);
 	static unsigned int getGreenComponent(const unsigned int value);
@@ -29,6 +32,7 @@ public:
 	static const unsigned int RED     = 0x00FF0000;
 	static const unsigned int WHITE   = 0x00FFFFFF;
 	static const unsigned int YELLOW  = 0x00FFFF00;
+	static const unsigned int NOCOLOR = 0xFF000000;
 
 
 private:

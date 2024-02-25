@@ -4,36 +4,40 @@
 #define ARCENUMS_H
 
 
-enum ArcIOState
+enum class ArcIOState
 {
 	Read  =  0,
 	Write =  1,
 };
 
-enum ArcPnmType
+enum class ArcPnmType
 {
-	P1    = 0,
-	P2    = 0,
-	P3    = 0,
-	P4    = 0,
-	P5    = 0,
-	P6    = 0,
+	Invalid = -1,
+	P1      =  1,
+	P2      =  2,
+	P3      =  3,
+	P4      =  4,
+	P5      =  5,
+	P6      =  6,
 };
 
-enum ArcRdDisplayType
+enum class ArcRdDisplayType
 {
-	Screen = 0,
-	Pnm    = 1
+	Invalid = -1,
+	Screen  =  0,
+	Pnm     =  1
 };
 
-enum ArcRdDisplayMode
+enum class ArcRdDisplayMode
 {
-	RGBSingle = 0,
-	RGBObject = 1,
-	RGBDouble = 2
+	Invalid   = -1,
+	RGBSingle =  0,
+	RGBObject =  1,
+	RGBDouble =  2,
+	RGB       =  3
 };
 
-enum ArcRdCommandType
+enum class ArcRdCommandType
 {
 	Invalid = -1,
 	Display,

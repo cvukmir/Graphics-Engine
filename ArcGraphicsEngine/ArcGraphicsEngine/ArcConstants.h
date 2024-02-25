@@ -9,6 +9,11 @@ const LPCWSTR WINDOW_TITLE = L"ArcEngine";
 
 const bool PARSE_COMMAND_LINE = true;
 
+
+
+const int INITIAL_WIDTH = 1920;
+const int INITIAL_HEIGHT = 1080;
+
 // PNM File
 const std::string PNM_HEADER        = "P6";
 const int         PNM_MAX_INTENSITY = 255;

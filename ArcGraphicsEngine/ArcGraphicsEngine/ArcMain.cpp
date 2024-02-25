@@ -1,7 +1,6 @@
 // Windows Header Files
 #include <windows.h>
 #include <SDKDDKVer.h> // Including SDKDDKVer.h defines the highest available Windows platform.
-//#include <gdiplus.h>
 #include <comdef.h>
 
 #include "ArcConstants.h"
@@ -14,35 +13,21 @@
 #include "ArcRdParser.h"
 
 #define WIN32_LEAN_AND_MEAN  // Exclude rarely-used stuff from Windows headers
-#define UNICODE
-#define _UNICODE
-
-//#define MAX_LOADSTRING 100
 
 // Global Variables:
-HINSTANCE hInst;                                // current instance
-//WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
-//WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
-
-//ArcWindow* ArcWindow::_pInstancePtr = nullptr;
-
-bool IS_RUNNING = true;
-
-BITMAPINFO BITMAP_INFO;
-
-HWND WINDOW;
+HINSTANCE  hInst;       // Current instance
+BITMAPINFO BITMAP_INFO; // Bitmap
+HWND       WINDOW;      // Window
 
 ArcWindow* ArcWindow::_pInstancePtr = nullptr;
 ArcWindow* ARC_WINDOW = nullptr;
-
-const int INITIAL_WIDTH = 1920;
-const int INITIAL_HEIGHT = 1080;
 
 
 // Forward declarations of functions included in this code module:
 ATOM             MyRegisterClass(HINSTANCE hInstance);
 BOOL             InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+void             CreateBitmap();
 
 
 
@@ -59,29 +44,29 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		return 0;
 	}
 
-	std::string fileName = std::string(_bstr_t(lpCmdLine[0]));
-	if (!fileName.ends_with(".rd"))
-	{
-		return 0;
-	}
+	std::string fileName = std::string(_bstr_t(lpCmdLine));
+	ArcRdParser renderer;
 
-	ArcRdParser rd;
-	if (!rd.openFile(fileName))
+	if (!renderer.openFile(fileName))
 	{
 		return 0;
 	}
 
 	ARC_WINDOW = ArcWindow::window();
 
-	if (rd.displayType() == ArcRdDisplayType::Pnm)
-	{
-		ArcPnmParser::writeToPnmFile("test.pnm");
+	ARC_WINDOW->windowWidth(renderer.width());
+	ARC_WINDOW->windowHeight(renderer.height());
 
-		return 0;
+	ARC_WINDOW->initializeMemory();
+
+	renderer.executeCommands(ARC_WINDOW);
+
+	if (renderer.displayType() == ArcRdDisplayType::Pnm)
+	{
+		return ArcPnmParser::writeToPnmFile(renderer.displayName() + ".pnm");
 	}
 
-//	GetWindowRect(test, rect1);
-
+	// Creating a window to display the image.
 	MyRegisterClass(hInstance);
 
 	// Perform application initialization:
@@ -90,38 +75,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		return FALSE;
 	}
 
-	RECT rect;
-	GetClientRect(WINDOW, &rect);
+//	RECT rect;
+//	GetClientRect(WINDOW, &rect);
+//
+//	ARC_WINDOW->windowWidth( rect.right  - rect.left);
+//	ARC_WINDOW->windowHeight(rect.bottom - rect.top);
 
-	ARC_WINDOW->windowWidth( rect.right - rect.left);
-	ARC_WINDOW->windowHeight(rect.bottom - rect.top);
-
-	ARC_WINDOW->initializeMemory();
-
-	BITMAP_INFO.bmiHeader.biSize        = sizeof(BITMAP_INFO.bmiHeader);
-	BITMAP_INFO.bmiHeader.biWidth       = ARC_WINDOW->windowWidth();
-	BITMAP_INFO.bmiHeader.biHeight      = -ARC_WINDOW->windowHeight(); // Make this negative to start at the bottom left,
-	BITMAP_INFO.bmiHeader.biPlanes      = 1;
-	BITMAP_INFO.bmiHeader.biBitCount    = 32;
-	BITMAP_INFO.bmiHeader.biCompression = BI_RGB;
+	CreateBitmap();
 
 	HDC hdc = GetDC(WINDOW);
 
-	Arc2DPoint startPoint(50, 100);
-	Arc2DPoint endPoint(100, 100);
-
-	Arc2DPoint circlePoint(150, 150);
-
-	ARC_WINDOW->drawLine(startPoint, endPoint, ArcColor(ArcColor::GREEN));
-
-	ARC_WINDOW->drawLine(Arc2DPoint(100, 100), Arc2DPoint(50, 100), ArcColor(ArcColor::BLUE));
-
-	ARC_WINDOW->drawCircle(circlePoint, 50, ArcColor(ArcColor::MAGENTA));
-
-
 	// Main message loop:
 	MSG msg;
-	while (IS_RUNNING)
+	while (ARC_WINDOW->isRunning())
 	{
 		while (PeekMessage(&msg, WINDOW, 0, 0, PM_REMOVE))
 		{
@@ -171,11 +137,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	WINDOW = CreateWindowW(
 		WINDOW_CLASS,
 		WINDOW_TITLE,
-		WS_OVERLAPPEDWINDOW,
+		WS_POPUP | WS_VISIBLE | WS_SYSMENU,
 		0,
 		0,
-		256,
-		256,
+		ARC_WINDOW->windowWidth(),
+		ARC_WINDOW->windowHeight(),
 		nullptr,
 		nullptr,
 		hInstance,
@@ -202,13 +168,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 //			// TODO: Add any drawing code that uses hdc here...
 //			EndPaint(hWnd, &ps);
 //			break;
+		case WM_KEYDOWN:
+		case WM_LBUTTONDOWN:
 		case WM_CLOSE:
 		case WM_DESTROY:
 			PostQuitMessage(0);
-			IS_RUNNING = false;
+			ARC_WINDOW->isRunning(false);
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
+}
+
+void CreateBitmap()
+{
+	BITMAP_INFO.bmiHeader.biSize        = sizeof(BITMAP_INFO.bmiHeader);
+	BITMAP_INFO.bmiHeader.biWidth       = ARC_WINDOW->windowWidth();
+	BITMAP_INFO.bmiHeader.biHeight      = -ARC_WINDOW->windowHeight(); // Make this negative to start at the bottom left,
+	BITMAP_INFO.bmiHeader.biPlanes      = 1;
+	BITMAP_INFO.bmiHeader.biBitCount    = 32;
+	BITMAP_INFO.bmiHeader.biCompression = BI_RGB;
 }
