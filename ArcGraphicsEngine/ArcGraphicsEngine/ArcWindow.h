@@ -64,9 +64,9 @@ private: // Methods
 
 	void fillSpan(const int startX, const int endX, const int y);
 
-	bool findspan(int& startX, int& endX, const int y);
+	bool findspan(int& startX, int& endX, const int y, ArcColor seedColor);
 
-	void fff4(const int startX, const int endX, const int y);
+	void fff4(const int startX, const int endX, const int y, const int offset, ArcColor seedColor);
 
 	void drawPixel(const int xPos, const int yPos);
 

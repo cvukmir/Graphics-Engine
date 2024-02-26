@@ -58,7 +58,7 @@ void ArcWindow::initializeMemory()
 {
 	_pMemory = new UINT32[_width * _height];
 
-	fillBackground(ArcColor::NOCOLOR);
+	fillBackground(ArcColor::BLACK);
 }
 
 void ArcWindow::fillBackground(const ArcColor color)
@@ -85,14 +85,14 @@ void ArcWindow::drawLine(const Arc2DPoint startPoint, const Arc2DPoint endPoint)
 
 	if (deltaX == 0 && deltaY > 0)
 	{
-		for (int y = startPoint.y(); y < endPoint.y(); ++y)
+		for (int y = startPoint.y(); y <= endPoint.y(); ++y)
 		{
 			drawPixel(startPoint.x(), y);
 		}
 	}
 	else if (deltaX == 0 && deltaY < 0)
 	{
-		for (int y = startPoint.y(); y > endPoint.y(); --y)
+		for (int y = startPoint.y(); y >= endPoint.y(); --y)
 		{
 			drawPixel(startPoint.x(), y);
 		}
@@ -178,8 +178,10 @@ void ArcWindow::fill(const Arc2DPoint startPoint)
 {
 	int newStartX = startPoint.x();
 	int newEndX   = newStartX;
-	findspan(newStartX, newEndX, startPoint.y());
-	fff4(newStartX, newEndX, startPoint.y());
+	ArcColor seedColor = colorAt(startPoint.x(), startPoint.y());
+	findspan(newStartX, newEndX, startPoint.y(), seedColor);
+	fff4(newStartX, newEndX, startPoint.y(), 1, seedColor);
+	fff4(newStartX, newEndX, startPoint.y(), -1, seedColor);
 }
 
 ArcColor ArcWindow::colorAt(const int xPos, const int yPos)
@@ -195,7 +197,7 @@ void ArcWindow::fillSpan(const int startX, const int endX, const int y)
 	}
 }
 
-bool ArcWindow::findspan(int& startX, int& endX, const int y)
+bool ArcWindow::findspan(int& startX, int& endX, const int y, ArcColor seedColor)
 {
 	if (!inWindow(startX, y))
 	{
@@ -204,7 +206,7 @@ bool ArcWindow::findspan(int& startX, int& endX, const int y)
 
 	endX = startX;
 	int x = startX;
-	if (colorAt(x,y).color() == _currentColor.color())
+	if (colorAt(x, y).color() != seedColor.color())
 	{
 		return false;
 	}
@@ -212,7 +214,7 @@ bool ArcWindow::findspan(int& startX, int& endX, const int y)
 	while (endX < _width)
 	{
 		// go right
-		if (colorAt(endX, y).color() != _currentColor.color() && colorAt(x, y).color() != ArcColor::NOCOLOR)
+		if (colorAt(endX, y).color() != seedColor.color())
 		{
 			break;
 		}
@@ -221,7 +223,7 @@ bool ArcWindow::findspan(int& startX, int& endX, const int y)
 	// go left
 	while(endX > 0)
 	{
-		if (colorAt(x, y).color() != _currentColor.color() && colorAt(x, y).color() != ArcColor::NOCOLOR)
+		if (colorAt(x, y).color() != seedColor.color())
 		{
 			break;
 		}
@@ -231,28 +233,25 @@ bool ArcWindow::findspan(int& startX, int& endX, const int y)
 	return true;
 }
 
-void ArcWindow::fff4(const int startX, const int endX, const int y)
+void ArcWindow::fff4(const int startX, const int endX, const int y, const int offset, ArcColor seedColor)
 {
 	fillSpan(startX, endX, y);
+	int holdX = startX;
+
 	//findspan(xs, xe, y);
 	int newxs = startX;
 	int newxe = startX;
 	for (; newxe < endX; newxs = newxe)
 	{
-		if (findspan(newxs, newxe, y + 1))
+		if (findspan(newxs, newxe, y + offset, seedColor))
 		{
-			fff4(newxs, newxe, y + 1);
+			fff4(newxs, newxe, y + offset, offset, seedColor);
 		}
 		else
 		{
 			newxe++;
 		}
-
-
-		// add same call but y-1 instead for checking down
-
 	}
-
 }
 
 bool ArcWindow::inWindow(const int xPos, const int yPos)
