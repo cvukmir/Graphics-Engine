@@ -1,20 +1,30 @@
+// ArcMain
 #include "ArcWindow.h"
 #include "ArcColor.h"
 
+
+// Private Constructor //
+
 ArcWindow::ArcWindow()
-	: _height      (256)
-	, _pMemory     (nullptr)
-	, _width       (256) 
-	, _isRunning   (true)
+	: _currentColor(ArcColor::WHITE)
 	, _frameNumber (0)
-	, _currentColor(ArcColor::WHITE)
+	, _height      (256)
+	, _isRunning   (true)
+	, _pMemory     (nullptr)
+	, _width       (256)
 {
 }
+
+
+// Public Destructor //
 
 ArcWindow::~ArcWindow()
 {
 	delete _pMemory;
 }
+
+
+// Public Static Methods (Singleton) //
 
 ArcWindow* ArcWindow::window()
 {
@@ -26,120 +36,28 @@ ArcWindow* ArcWindow::window()
 	return _pInstancePtr;
 }
 
-void ArcWindow::drawPixel(const int xPos, const int yPos)
-{
-	if (!inWindow(xPos, yPos))
-	{
-		return;
-	}
 
-	*(_pMemory + (_width * yPos) + xPos) = _currentColor.color();
-}
+// Public Properties //
 
-void           ArcWindow::memory(UINT32* value)     { _pMemory = value; }
-const UINT32*  ArcWindow::memory()            const { return _pMemory; }
+const UINT32*  ArcWindow::memory() const                     { return _pMemory; }
 
-void           ArcWindow::windowHeight(const int value) { _height = value; }
-const int      ArcWindow::windowHeight()          const { return _height; }
+void           ArcWindow::windowHeight(const int value)      { _height = value; }
+const int      ArcWindow::windowHeight() const               { return _height;  }
 
-void           ArcWindow::windowWidth(const int value) { _width = value; }
-const int      ArcWindow::windowWidth()          const { return _width; }
+void           ArcWindow::windowWidth(const int value)       { _width = value; }
+const int      ArcWindow::windowWidth() const                { return _width;  }
 
-void           ArcWindow::isRunning(const bool value) { _isRunning = value; }
-const bool     ArcWindow::isRunning() const           { return _isRunning; }
+void           ArcWindow::isRunning(const bool value)        { _isRunning = value; }
+const bool     ArcWindow::isRunning() const                  { return _isRunning;  }
 
-void           ArcWindow::frameNumber(const int value) { _frameNumber = value; }
-const int      ArcWindow::frameNumber() const          { return _frameNumber; }
+void           ArcWindow::frameNumber(const int value)       { _frameNumber = value; }
+const int      ArcWindow::frameNumber() const                { return _frameNumber;  }
 
 void           ArcWindow::currentColor(const ArcColor value) { _currentColor = value; }
-const ArcColor ArcWindow::currentColor() const               { return _currentColor; }
+const ArcColor ArcWindow::currentColor() const               { return _currentColor;  }
 
-void ArcWindow::initializeMemory()
-{
-	_pMemory = new UINT32[_width * _height];
 
-	fillBackground(ArcColor::BLACK);
-}
-
-void ArcWindow::fillBackground(const ArcColor color)
-{
-	UINT32* pixel = _pMemory;
-	for (int i = 0; i < _width * _height; ++i, ++pixel)
-	{
-		*pixel = color.color();
-	}
-}
-
-void ArcWindow::drawPoint(const Arc2DPoint point)
-{
-	drawPixel(point.x(), point.y());
-}
-
-void ArcWindow::drawLine(const Arc2DPoint startPoint, const Arc2DPoint endPoint)
-{
-	const int deltaX = endPoint.x() - startPoint.x();
-	const int deltaY = endPoint.y() - startPoint.y();
-
-	const int twoDeltaX = 2 * abs(deltaX);
-	const int twoDeltaY = 2 * abs(deltaY);
-
-	if (deltaX == 0 && deltaY > 0)
-	{
-		for (int y = startPoint.y(); y <= endPoint.y(); ++y)
-		{
-			drawPixel(startPoint.x(), y);
-		}
-	}
-	else if (deltaX == 0 && deltaY < 0)
-	{
-		for (int y = startPoint.y(); y >= endPoint.y(); --y)
-		{
-			drawPixel(startPoint.x(), y);
-		}
-	}
-	else if (abs(deltaY) <= abs(deltaX))
-	{
-		int x = startPoint.x();
-		int y = startPoint.y();
-		int p = twoDeltaY - deltaX;
-		const int endX = deltaX > 0 ? endPoint.x() : endPoint.x() + (2 * abs(deltaX));
-		for (; x <= endX; ++x)
-		{
-			int xOffset = deltaX > 0 ? 0 : 2 * (x - startPoint.x());
-			drawPixel(x - xOffset, y);
-			if (p > 0)
-			{
-				deltaY > 0 ? ++y : --y;
-				p += twoDeltaY - twoDeltaX;
-			}
-			else
-			{
-				p += twoDeltaY;
-			}
-		}
-	}
-	else if (abs(deltaY) > abs(deltaX))
-	{
-		int x = startPoint.x();
-		int y = startPoint.y();
-		int p = twoDeltaX - deltaY;
-		const int endY = deltaY > 0 ? endPoint.y() : endPoint.y() + (2 * abs(deltaY));
-		for (; y <= endY; ++y)
-		{
-			int yOffset = deltaY > 0 ? 0 : 2 * (y - startPoint.y());
-			drawPixel(x, y - yOffset);
-			if (p > 0)
-			{
-				deltaX > 0 ? ++x : --x;
-				p += twoDeltaX - twoDeltaY;
-			}
-			else
-			{
-				p += twoDeltaX;
-			}
-		}
-	}
-}
+// Public Methods //
 
 void ArcWindow::drawCircle(const Arc2DPoint startPoint, const int radius)
 {
@@ -174,19 +92,160 @@ void ArcWindow::drawCircle(const Arc2DPoint startPoint, const int radius)
 	}
 }
 
+void ArcWindow::drawLine(const Arc2DPoint startPoint, const Arc2DPoint endPoint)
+{
+	const int deltaX = endPoint.x() - startPoint.x();
+	const int deltaY = endPoint.y() - startPoint.y();
+
+	const int twoDeltaX = 2 * abs(deltaX);
+	const int twoDeltaY = 2 * abs(deltaY);
+
+	int x = startPoint.x();
+	int y = startPoint.y();
+
+	if (deltaX == 0 && deltaY > 0)
+	{
+		// Vertical line that increases in y.
+		for (int y = startPoint.y(); y <= endPoint.y(); ++y)
+		{
+			drawPixel(startPoint.x(), y);
+		}
+	}
+	else if (deltaX == 0 && deltaY < 0)
+	{
+		// Vertical line that decreases in y.
+		for (int y = startPoint.y(); y >= endPoint.y(); --y)
+		{
+			drawPixel(startPoint.x(), y);
+		}
+	}
+	else if (abs(deltaY) <= abs(deltaX))
+	{
+		// Line no greater that 45 degrees from x-axis in any direction.
+		int       p    = twoDeltaY - abs(deltaX);
+		const int endX = deltaX > 0 ? endPoint.x() : endPoint.x() + (2 * abs(deltaX));
+		for (; x <= endX; ++x)
+		{
+			int xOffset = deltaX > 0 ? 0 : 2 * (x - startPoint.x());
+			drawPixel(x - xOffset, y);
+			if (p > 0)
+			{
+				deltaY > 0 ? ++y : --y;
+				p += twoDeltaY - twoDeltaX;
+			}
+			else
+			{
+				p += twoDeltaY;
+			}
+		}
+	}
+	else if (abs(deltaY) > abs(deltaX))
+	{
+		// Line greater than 45 degrees from x-axis in any direction.
+		int       p    = twoDeltaX - abs(deltaY);
+		const int endY = deltaY > 0 ? endPoint.y() : endPoint.y() + (2 * abs(deltaY));
+		for (; y <= endY; ++y)
+		{
+			int yOffset = deltaY > 0 ? 0 : 2 * (y - startPoint.y());
+			drawPixel(x, y - yOffset);
+			if (p > 0)
+			{
+				deltaX > 0 ? ++x : --x;
+				p += twoDeltaX - twoDeltaY;
+			}
+			else
+			{
+				p += twoDeltaX;
+			}
+		}
+	}
+}
+
+void ArcWindow::drawPoint(const Arc2DPoint point)
+{
+	drawPixel(point.x(), point.y());
+}
+
 void ArcWindow::fill(const Arc2DPoint startPoint)
 {
-	int newStartX = startPoint.x();
-	int newEndX   = newStartX;
-	ArcColor seedColor = colorAt(startPoint.x(), startPoint.y());
+	int            newStartX = startPoint.x();
+	int            newEndX   = newStartX;
+	const ArcColor seedColor = colorAt(startPoint.x(), startPoint.y());
+
+	// Find the span for this first y position.
 	findspan(newStartX, newEndX, startPoint.y(), seedColor);
-	fff4(newStartX, newEndX, startPoint.y(), 1, seedColor);
-	fff4(newStartX, newEndX, startPoint.y(), -1, seedColor);
+
+	// Find any spans above this first position.
+	fastFloodFill(newStartX, newEndX, startPoint.y(), seedColor);
+
+	// Find any spans below this first position.
+	fastFloodFill(newStartX, newEndX, startPoint.y(), seedColor);
 }
+
+void ArcWindow::fillBackground(const ArcColor color)
+{
+	UINT32* pixel = _pMemory;
+	for (int i = 0; i < _width * _height; ++i, ++pixel)
+	{
+		*pixel = color.color();
+	}
+}
+
+void ArcWindow::initializeMemory()
+{
+	_pMemory = new UINT32[_width * _height];
+
+	fillBackground(ArcColor::BLACK);
+}
+
+
+// Private Methods //
 
 ArcColor ArcWindow::colorAt(const int xPos, const int yPos)
 {
 	return ArcColor(*(_pMemory + (_width * yPos) + xPos));
+}
+
+void ArcWindow::drawPixel(const int xPos, const int yPos)
+{
+	if (!inWindow(xPos, yPos))
+	{
+		return;
+	}
+
+	*(_pMemory + (_width * yPos) + xPos) = _currentColor.color();
+}
+
+void ArcWindow::fastFloodFill(const int startX, const int endX, const int y, const ArcColor seedColor)
+{
+	fillSpan(startX, endX, y);
+	int newStartX = startX;
+	int newEndX   = startX;
+	for (; newEndX < endX; newStartX = newEndX)
+	{
+		if (findspan(newStartX, newEndX, y + 1, seedColor))
+		{
+			fastFloodFill(newStartX, newEndX, y + 1, seedColor);
+		}
+		else
+		{
+			++newEndX;
+		}
+	}
+
+	newStartX = startX;
+	newEndX   = startX;
+	for (; newEndX < endX; newStartX = newEndX)
+	{
+		if (findspan(newStartX, newEndX, y - 1, seedColor))
+		{
+			fastFloodFill(newStartX, newEndX, y - 1, seedColor);
+		}
+		else
+		{
+			++newEndX;
+		}
+	}
 }
 
 void ArcWindow::fillSpan(const int startX, const int endX, const int y)
@@ -197,70 +256,38 @@ void ArcWindow::fillSpan(const int startX, const int endX, const int y)
 	}
 }
 
-bool ArcWindow::findspan(int& startX, int& endX, const int y, ArcColor seedColor)
+bool ArcWindow::findspan(int& startX, int& endX, const int y, const ArcColor seedColor)
 {
-	if (!inWindow(startX, y))
+	// Ensure the current position is valid.
+	if (!inWindow(startX, y) || colorAt(startX, y) != seedColor)
 	{
 		return false;
 	}
 
-	endX = startX;
-	int x = startX;
-	if (colorAt(x, y).color() != seedColor.color())
-	{
-		return false;
-	}
-
+	// Find the rightmost point on the span.
 	while (endX < _width)
 	{
-		// go right
-		if (colorAt(endX, y).color() != seedColor.color())
+		if (colorAt(endX, y) != seedColor)
 		{
 			break;
 		}
 		++endX;
 	}
-	// go left
-	while(endX > 0)
+
+	// Find the leftmost point on the span.
+	while (startX > 0)
 	{
-		if (colorAt(x, y).color() != seedColor.color())
+		if (colorAt(startX - 1, y) != seedColor)
 		{
 			break;
 		}
-		startX = x;
-		--x;
+		--startX;
 	}
+
 	return true;
-}
-
-void ArcWindow::fff4(const int startX, const int endX, const int y, const int offset, ArcColor seedColor)
-{
-	fillSpan(startX, endX, y);
-	int holdX = startX;
-
-	//findspan(xs, xe, y);
-	int newxs = startX;
-	int newxe = startX;
-	for (; newxe < endX; newxs = newxe)
-	{
-		if (findspan(newxs, newxe, y + offset, seedColor))
-		{
-			fff4(newxs, newxe, y + offset, offset, seedColor);
-		}
-		else
-		{
-			newxe++;
-		}
-	}
 }
 
 bool ArcWindow::inWindow(const int xPos, const int yPos)
 {
-	if (xPos < 0 || xPos >= _width ||
-		yPos < 0 || yPos >= _height)
-	{
-		return false;
-	}
-
-	return true;
+	return (xPos >= 0 && xPos < _width) && (yPos >= 0 && yPos < _height);
 }

@@ -3,11 +3,13 @@
 #ifndef ARCCOLOR_H
 #define ARCCOLOR_H
 
+// Stdlib
 #include <stdint.h>
+
 
 class ArcColor
 {
-public:
+public: // Constructor/Destructor(s) //
 
 	ArcColor();
 	ArcColor(const unsigned int color);
@@ -15,14 +17,33 @@ public:
 
 	~ArcColor();
 
-	const int colorFromFloat(const float red, const float green, const float blue);
 
-	static unsigned int getRedComponent(const unsigned int value);
-	static unsigned int getGreenComponent(const unsigned int value);
-	static unsigned int getBlueComponent(const unsigned int value);
+public: // Overload(s) //
+
+	bool operator ==(ArcColor color);
+
+
+public: // Properties //
 
 	void               color(const unsigned int value);
 	const unsigned int color() const;
+
+
+public: // Static Properties //
+
+	static unsigned int getGreenComponent(const unsigned int value);
+
+	static unsigned int getBlueComponent(const unsigned int value);
+
+	static unsigned int getRedComponent(const unsigned int value);
+
+
+private: // Methods //
+
+	const int colorFromFloat(const float red, const float green, const float blue);
+
+
+public: // Static Variables //
 
 	static const unsigned int BLUE    = 0x000000FF;
 	static const unsigned int CYAN    = 0x0000FFFF;
@@ -35,7 +56,7 @@ public:
 	static const unsigned int NOCOLOR = 0xFF000000;
 
 
-private:
+private: // Variables //
 
 	unsigned int _color;
 };

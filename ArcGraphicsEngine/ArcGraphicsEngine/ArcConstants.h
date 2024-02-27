@@ -1,18 +1,18 @@
 #pragma once
 
+#ifndef ARCCONSTANTS_H
+#define ARCCONSTANTS_H
+
+// Windows
 #include <windows.h>
+
+// Stdlib
 #include <string>
+
 
 // Windows Window
 const LPCWSTR WINDOW_CLASS = L"ArcEngineClass";
 const LPCWSTR WINDOW_TITLE = L"ArcEngine";
-
-const bool PARSE_COMMAND_LINE = true;
-
-
-
-const int INITIAL_WIDTH = 1920;
-const int INITIAL_HEIGHT = 1080;
 
 // PNM File
 const std::string PNM_HEADER        = "P6";
@@ -42,3 +42,6 @@ const std::string RD_CMD_OPACITY         = "Opacity";
 //const std::string RD_CMD_
 //const std::string RD_CMD_
 //const std::string RD_CMD_
+
+
+#endif // !ARCCONSTANTS_H

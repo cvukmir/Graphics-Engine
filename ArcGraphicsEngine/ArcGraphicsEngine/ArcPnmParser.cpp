@@ -8,6 +8,9 @@
 
 #include <Windows.h>
 
+
+// Constructor/Destructor(s) //
+
 ArcPnmParser::ArcPnmParser()
 {
 }
@@ -15,6 +18,9 @@ ArcPnmParser::ArcPnmParser()
 ArcPnmParser::~ArcPnmParser()
 {
 }
+
+
+// Static Methods //
 
 bool ArcPnmParser::readPnmAndDraw(std::string fileName)
 {

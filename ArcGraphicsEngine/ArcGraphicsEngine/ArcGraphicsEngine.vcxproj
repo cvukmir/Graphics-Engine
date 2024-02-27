@@ -141,7 +141,7 @@
     <ClInclude Include="Arc2DLine.h" />
     <ClInclude Include="Arc2DPoint.h" />
     <ClInclude Include="ArcColor.h" />
-    <ClInclude Include="ArcRdCommand.h" />
+    <ClInclude Include="ArcRdCommand.hpp" />
     <ClInclude Include="ArcConstants.h" />
     <ClInclude Include="ArcEnums.h" />
     <ClInclude Include="ArcPnmParser.h" />
@@ -150,6 +150,10 @@
     <ClInclude Include="ArcWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Circles.rd" />
+    <None Include="CVPersonal.rd" />
+    <None Include="FloodFill.rd" />
+    <None Include="Lines.rd" />
     <None Include="s01.rd" />
     <None Include="s02.rd" />
     <None Include="s03.rd" />

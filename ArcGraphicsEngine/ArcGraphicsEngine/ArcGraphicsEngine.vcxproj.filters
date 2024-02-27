@@ -65,7 +65,7 @@
     <ClInclude Include="ArcEnums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ArcRdCommand.h">
+    <ClInclude Include="ArcRdCommand.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -92,6 +92,18 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="s08.rd">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="CVPersonal.rd">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Lines.rd">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Circles.rd">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="FloodFill.rd">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

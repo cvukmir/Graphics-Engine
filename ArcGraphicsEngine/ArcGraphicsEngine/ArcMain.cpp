@@ -1,12 +1,9 @@
-// Windows Header Files
+// Windows
 #include <windows.h>
 #include <SDKDDKVer.h> // Including SDKDDKVer.h defines the highest available Windows platform.
 #include <comdef.h>
 
-#include "ArcConstants.h"
-#include "ArcColor.h"
-#include "Arc2DLine.h"
-#include "Arc2DPoint.h"
+// ArcMain
 #include "ArcWindow.h"
 #include "ArcPnmParser.h"
 #include "ArcEnums.h"
@@ -19,8 +16,8 @@ HINSTANCE  hInst;       // Current instance
 BITMAPINFO BITMAP_INFO; // Bitmap
 HWND       WINDOW;      // Window
 
-ArcWindow* ArcWindow::_pInstancePtr = nullptr;
-ArcWindow* ARC_WINDOW = nullptr;
+ArcWindow* ArcWindow::_pInstancePtr = nullptr; // Initialize the singularity.
+ArcWindow* ARC_WINDOW               = nullptr; // One and only global instance of the window.
 
 
 // Forward declarations of functions included in this code module:
@@ -28,8 +25,6 @@ ATOM             MyRegisterClass(HINSTANCE hInstance);
 BOOL             InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void             CreateBitmap();
-
-
 
 // hInstance     - Instance of application.
 // hPrevInstance - Not used, for 16-bit windows.
@@ -39,19 +34,20 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 
+	// Ensure there is a command line argument given.
 	if (lpCmdLine[0] == NULL)
 	{
-		return 0;
+		return -1;
 	}
 
-	std::string fileName = std::string(_bstr_t(lpCmdLine));
+	// Open the .rd file.
 	ArcRdParser renderer;
-
-	if (!renderer.openFile(fileName))
+	if (!renderer.openAndReadFile(std::string(_bstr_t(lpCmdLine))))
 	{
-		return 0;
+		return -1;
 	}
 
+	// Initialize the window based on the header of the .rd file.
 	ARC_WINDOW = ArcWindow::window();
 
 	ARC_WINDOW->windowWidth(renderer.width());
@@ -60,7 +56,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	ARC_WINDOW->initializeMemory();
 
 	renderer.executeCommands(ARC_WINDOW);
-
+	
+	// Check if displaying to screen or a pnm file.
 	if (renderer.displayType() == ArcRdDisplayType::Pnm)
 	{
 		return ArcPnmParser::writeToPnmFile(renderer.displayName() + ".pnm");
@@ -72,7 +69,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	// Perform application initialization:
 	if (!InitInstance(hInstance, nCmdShow))
 	{
-		return FALSE;
+		return -1;
 	}
 
 //	RECT rect;
@@ -81,6 +78,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 //	ARC_WINDOW->windowWidth( rect.right  - rect.left);
 //	ARC_WINDOW->windowHeight(rect.bottom - rect.top);
 
+	// Create a bitmap to map memory to the screen window.
 	CreateBitmap();
 
 	HDC hdc = GetDC(WINDOW);
@@ -89,12 +87,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	MSG msg;
 	while (ARC_WINDOW->isRunning())
 	{
+		// Execute each message.
 		while (PeekMessage(&msg, WINDOW, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 
+		// Display the frame to the screen.
 		StretchDIBits(
 			hdc,
 			0,

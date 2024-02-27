@@ -7,9 +7,12 @@
 
 class ArcPnmParser
 {
-public:
+public: // Constructor/Destructor(s) //
 	ArcPnmParser();
 	~ArcPnmParser();
+
+
+public: // Static Methods //
 
 	static bool readPnmAndDraw(const std::string fileName);
 

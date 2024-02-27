@@ -1,14 +1,4 @@
-
-#include <string>
-
-#include "ArcWindow.h"
-#include "ArcRdParser.h"
-#include "ArcConstants.h"
-#include "ArcEnums.h"
-#include "ArcRdCommand.h"
-#include "Arc2DPoint.h"
-#include "Arc2DLine.h"
-
+// Stdlib
 #include <string>
 #include <fstream>
 #include <ios>
@@ -16,7 +6,20 @@
 #include <vector>
 #include <queue>
 
+// Windows
 #include <Windows.h>
+
+// ArcMain
+#include "ArcWindow.h"
+#include "ArcRdParser.h"
+#include "ArcConstants.h"
+#include "ArcEnums.h"
+#include "ArcRdCommand.hpp"
+#include "Arc2DPoint.h"
+#include "Arc2DLine.h"
+
+
+// Public Constructor/Destructor(s) //
 
 ArcRdParser::ArcRdParser()
 	: _displayType(ArcRdDisplayType::Invalid)
@@ -34,12 +37,17 @@ ArcRdParser::~ArcRdParser()
 	}
 }
 
+
+// Public Properties //
+
 const ArcRdDisplayMode ArcRdParser::displayMode() const { return _displayMode; }
 const std::string      ArcRdParser::displayName() const { return _displayName; }
 const ArcRdDisplayType ArcRdParser::displayType() const { return _displayType; }
 const int              ArcRdParser::width()       const { return _width;       }
 const int              ArcRdParser::height()      const { return _height;      }
 
+
+// Public Methods //
 
 const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 {
@@ -51,7 +59,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 			case ArcRdCommandType::FrameBegin:
 				pWindow->frameNumber(std::stoi(command.argumentList().at(0)));
 				break;
-			case ArcRdCommandType::FrameEnd: break;
+			case ArcRdCommandType::FrameEnd:break;
 			case ArcRdCommandType::WorldBegin: break;
 			case ArcRdCommandType::WorldEnd: break;
 			case ArcRdCommandType::ObjectBegin: break;
@@ -137,113 +145,14 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 	return true;
 }
 
-bool ArcRdParser::readFile()
+bool ArcRdParser::openAndReadFile(const std::string fileName)
 {
-	std::string              buffer;
-	std::string              headerLine;
-	std::istringstream       tokenizer;
-	std::vector<std::string> tokens;
-	std::string              commandName;
-	int tokenNum = 0;
-	std::string hold;
-	bool hasHeader = false;
-
-	// Read header
-	while (!_stream.eof() && !hasHeader)
-	{
-		std::getline(_stream, headerLine);
-		if (headerLine.starts_with(RD_CMD_DISPLAY))
-		{
-			for (size_t i = RD_CMD_DISPLAY.length(); i < headerLine.length(); ++i)
-			{
-				char c = headerLine[i];
-				if (c == '\"')
-				{
-					++i;
-					for (;i < headerLine.length() && headerLine[i] != '\"'; ++i)
-					{
-						hold += headerLine[i];
-					}
-
-					switch (tokenNum)
-					{
-						case 0:
-							_displayName = hold;
-							break;
-						case 1:
-							_displayType = displayTypeFromString(hold);
-							break;
-						case 2:
-							_displayMode = displayModeFromString(hold);
-							hasHeader = true;
-							break;
-					}
-
-					++tokenNum;
-					hold.clear();
-				}
-			}
-		}
-	}
-
-	if (_displayName.empty() || _displayType == ArcRdDisplayType::Invalid || _displayMode == ArcRdDisplayMode::Invalid)
+	if (!fileName.ends_with(".rd"))
 	{
 		return false;
 	}
 
-	// Read body
-	while (!_stream.eof())
-	{
-		std::getline(_stream, headerLine);
-		if (isalnum(headerLine[0]))
-		{
-			tokenizer = std::istringstream(headerLine);
-
-			tokenizer >> buffer;
-			commandName = buffer;
-
-			while (tokenizer >> buffer)
-			{
-				tokens.push_back(buffer);
-			}
-
-			_commandQueue.push(ArcRdCommand(commandTypeFromString(commandName), tokens));
-		}
-	}
-
-	if (_commandQueue.front().commandType() == ArcRdCommandType::Format)
-	{
-		if (_commandQueue.front().argumentList().size() != 2)
-		{
-			return false;
-		}
-
-		_width  = std::stoi(_commandQueue.front().argumentList().at(0));
-		_height = std::stoi(_commandQueue.front().argumentList().at(1));
-
-		_commandQueue.pop();
-	}
-
-	closeFile();
-
-	return true;
-}
-
-const bool ArcRdParser::isFileOpen() const
-{
-	return _stream.is_open();
-}
-
-bool ArcRdParser::openFile(const std::string fileName)
-{
-	if (_fileName.ends_with(".rd"))
-	{
-		return false;
-	}
-
-	_fileName = fileName;
-
-	_stream.open(_fileName);
+	_stream.open(fileName);
 
 	if (!isFileOpen() || !readFile())
 	{
@@ -253,11 +162,13 @@ bool ArcRdParser::openFile(const std::string fileName)
 	return true;
 }
 
+
+// Private Methods //
+
 void ArcRdParser::closeFile()
 {
 	_stream.close();
 }
-
 
 const ArcRdCommandType ArcRdParser::commandTypeFromString(std::string value)
 {
@@ -329,6 +240,15 @@ const ArcRdCommandType ArcRdParser::commandTypeFromString(std::string value)
 	else                                 { return ArcRdCommandType::Invalid;         }
 }
 
+const ArcRdDisplayMode ArcRdParser::displayModeFromString(std::string value)
+{
+	if (value == "rgbsingle") { return ArcRdDisplayMode::RGBSingle; }
+	else if (value == "rgbobject") { return ArcRdDisplayMode::RGBObject; }
+	else if (value == "rgbdouble") { return ArcRdDisplayMode::RGBDouble; }
+	else if (value == "rgb") { return ArcRdDisplayMode::RGB; }
+	else { return ArcRdDisplayMode::Invalid; }
+}
+
 const ArcRdDisplayType ArcRdParser::displayTypeFromString(std::string value)
 {
 	if      (value == "PNM")    { return ArcRdDisplayType::Pnm;     }
@@ -336,11 +256,111 @@ const ArcRdDisplayType ArcRdParser::displayTypeFromString(std::string value)
 	else                        { return ArcRdDisplayType::Invalid; }
 }
 
-const ArcRdDisplayMode ArcRdParser::displayModeFromString(std::string value)
+const bool ArcRdParser::isFileOpen() const
 {
-	if      (value == "rgbsingle") { return ArcRdDisplayMode::RGBSingle; }
-	else if (value == "rgbobject") { return ArcRdDisplayMode::RGBObject; }
-	else if (value == "rgbdouble") { return ArcRdDisplayMode::RGBDouble; }
-	else if (value == "rgb")       { return ArcRdDisplayMode::RGB;       }
-	else                           { return ArcRdDisplayMode::Invalid;   }
+	return _stream.is_open();
+}
+
+bool ArcRdParser::readFile()
+{
+	int                      argumentNumber = 0;
+	std::string              buffer;
+	std::string              commandName;
+	ArcRdCommandType         commandType;
+	bool                     hasHeader = false;
+	std::string              headerLine;
+	std::istringstream       tokenizer;
+	std::vector<std::string> tokens;
+
+	// Read the "Display" header of the .rd file.
+	while (!_stream.eof() && !hasHeader)
+	{
+		std::getline(_stream, headerLine);
+		if (headerLine.starts_with(RD_CMD_DISPLAY))
+		{
+			// Loop through the rest of the line and get the three command parameters.
+			for (size_t characterIndex = RD_CMD_DISPLAY.length(); characterIndex < headerLine.length(); ++characterIndex)
+			{
+				char character = headerLine[characterIndex];
+				if (character == '\"')
+				{
+					++characterIndex;
+					for (;characterIndex < headerLine.length() && headerLine[characterIndex] != '\"'; ++characterIndex)
+					{
+						buffer += headerLine[characterIndex];
+					}
+
+					switch (argumentNumber)
+					{
+						case 0: // The display name.
+							_displayName = buffer;
+							break;
+						case 1: // The display type.
+							_displayType = displayTypeFromString(buffer);
+							break;
+						case 2: // The display mode.
+							_displayMode = displayModeFromString(buffer);
+							hasHeader = true;
+							break;
+					}
+
+					++argumentNumber;
+					buffer.clear();
+				}
+			}
+		}
+	}
+
+	// Verify we found all necessary pieces.
+	if (_displayName.empty() || _displayType == ArcRdDisplayType::Invalid || _displayMode == ArcRdDisplayMode::Invalid)
+	{
+		return false;
+	}
+
+	// Read body of the .rd file
+	while (!_stream.eof())
+	{
+		std::getline(_stream, headerLine);
+		if (isalnum(headerLine[0]))
+		{
+			// Non-whitespace/commented line, tokenize and get command.
+			tokenizer = std::istringstream(headerLine);
+
+			tokenizer >> buffer;
+			commandName = buffer;
+
+			while (tokenizer >> buffer)
+			{
+				tokens.push_back(buffer);
+			}
+
+			if ((commandType = commandTypeFromString(commandName)) != ArcRdCommandType::Invalid)
+			{
+				_commandQueue.push(ArcRdCommand(commandType, tokens));
+			}
+			else
+			{
+				// Clearing since we didn't move vector.
+				tokens.clear();
+			}
+		}
+	}
+
+	// Get the width and height for the display (should be the very first command after display).
+	if (_commandQueue.front().commandType() == ArcRdCommandType::Format)
+	{
+		if (_commandQueue.front().argumentList().size() != 2)
+		{
+			return false;
+		}
+
+		_width  = std::stoi(_commandQueue.front().argumentList().at(0));
+		_height = std::stoi(_commandQueue.front().argumentList().at(1));
+
+		_commandQueue.pop();
+	}
+
+	closeFile();
+
+	return true;
 }

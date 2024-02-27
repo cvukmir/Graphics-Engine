@@ -3,40 +3,37 @@
 #ifndef ARCENUMS_H
 #define ARCENUMS_H
 
-
-enum class ArcIOState
-{
-	Read  =  0,
-	Write =  1,
-};
-
+// Which PNM file magic that is being read/wrote.
 enum class ArcPnmType
 {
 	Invalid = -1,
-	P1      =  1,
-	P2      =  2,
-	P3      =  3,
-	P4      =  4,
-	P5      =  5,
-	P6      =  6,
+	P1      =  1, // ASCII  Black and White
+	P2      =  2, // Binary Grayscale
+	P3      =  3, // ASCII  Color
+	P4      =  4, // Binary Black and White
+	P5      =  5, // ASCII  Grayscale
+	P6      =  6, // Binary Color
 };
 
+// The display the rd file is targeting.
 enum class ArcRdDisplayType
 {
 	Invalid = -1,
 	Screen  =  0,
-	Pnm     =  1
+	Pnm     =  1,
 };
 
+// The mode the rd file is targeting.
 enum class ArcRdDisplayMode
 {
 	Invalid   = -1,
-	RGBSingle =  0,
-	RGBObject =  1,
-	RGBDouble =  2,
-	RGB       =  3
+	RGBSingle =  0, // Screen
+	RGBObject =  1, // Screen
+	RGBDouble =  2, // Screen
+	RGB       =  3, // PNM
 };
 
+//
 enum class ArcRdCommandType
 {
 	Invalid = -1,

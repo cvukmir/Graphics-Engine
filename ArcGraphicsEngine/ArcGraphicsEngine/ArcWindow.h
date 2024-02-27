@@ -10,82 +10,100 @@
 
 class ArcWindow
 {
-private: // Singleton
+private: // Singleton Constructor //
 
 	ArcWindow();
 
 
-public:
+public: // Destructor //
 
 	~ArcWindow();
 
 
-public: // Static methods
+public: // Static Methods (Singleton) //
 
+	// Creates the one and only instance of this object.
 	static ArcWindow* window();
 
 
-public: // Properties
+public: // Properties //
 
-	void          memory(UINT32* value);
-	const UINT32* memory() const;
+	void           currentColor(const ArcColor value); // Sets the current drawing color.
+	const ArcColor currentColor() const;               // Gets the current drawing color.
 
-	void      windowHeight(const int value);
-	const int windowHeight() const;
+	void           frameNumber(const int value);       // Sets the current frame number.
+	const int      frameNumber() const;                // Gets the current frame number.
 
-	void      windowWidth(const int value);
-	const int windowWidth() const;
+	void           isRunning(const bool value);        // Sets whether the display window is running.
+	const bool     isRunning() const;                  // Gets whether the display window is running.
 
-	void       isRunning(const bool value);
-	const bool isRunning() const;
+	const UINT32*  memory() const;                     // The current memory color map.
 
-	void      frameNumber(const int value);
-	const int frameNumber() const;
+	void           windowHeight(const int value);      // Sets the height of the display window.
+	const int      windowHeight() const;               // Gets the height of the display window.
 
-	void           currentColor(const ArcColor value);
-	const ArcColor currentColor() const;
+	void           windowWidth(const int value);       // Sets the width of the display window.
+	const int      windowWidth() const;                // Gets the width of the display window.
 
-public: // Methods
+
+public: // Methods //
 
 	// Delete copy constructor
-	ArcWindow(const ArcWindow& obj) = delete;
+	ArcWindow(const ArcWindow& value) = delete;
 
-	void initializeMemory();
-
-	void fillBackground(const ArcColor color);
-	void drawPoint(const Arc2DPoint point);
-	void drawLine(const Arc2DPoint startPoint, const Arc2DPoint endPoint);
+	// Draws a circle at the given start point with the given radius using the currently set color.
 	void drawCircle(const Arc2DPoint startPoint, int radius);
+
+	// Draws the given line with the currently set color.
+	void drawLine(const Arc2DPoint startPoint, const Arc2DPoint endPoint);
+
+	// Draws the given point with the currently set color.
+	void drawPoint(const Arc2DPoint point);
+
+	// Fills the area at the given start point with the currently set color.
 	void fill(const Arc2DPoint startPoint);
 
-private: // Methods
+	// Fills the background with the given color.
+	void fillBackground(const ArcColor color);
 
+	// Initialize the memory of the display to the width/height with a default color.
+	void initializeMemory();
+
+
+private: // Methods //
+
+	// Gets the color at the given position.
 	ArcColor colorAt(const int xPos, const int yPos);
 
-	void fillSpan(const int startX, const int endX, const int y);
-
-	bool findspan(int& startX, int& endX, const int y, ArcColor seedColor);
-
-	void fff4(const int startX, const int endX, const int y, const int offset, ArcColor seedColor);
-
+	// Draws a pixel in memory at the given position using the currently set color.
 	void drawPixel(const int xPos, const int yPos);
 
+	// Recursive call to fill a given area.
+	void fastFloodFill(const int startX, const int endX, const int y, ArcColor seedColor);
+
+	// Fills the given span using the currently set color.
+	void fillSpan(const int startX, const int endX, const int y);
+
+	// Finds the span at the given start point and color to fill.
+	bool findspan(int& startX, int& endX, const int y, ArcColor seedColor);
+
+	// Whether the given position is within the window bounds.
 	bool inWindow(const int xPos, const int yPos);
 
 
-private: // Static variables
+private: // Static Variables //
 
-	static ArcWindow* _pInstancePtr;
+	static ArcWindow* _pInstancePtr; // The only and only instance of this object.
 
 
-private:
+private: // Variables //
 
-	int      _height;
-	UINT32*  _pMemory;
-	int      _width;
-	bool     _isRunning;
-	int      _frameNumber;
-	ArcColor _currentColor;
+	ArcColor _currentColor; // The current drawing color.
+	int      _frameNumber;  // The frame number of this window.
+	int      _height;       // The height of this window.
+	bool     _isRunning;    // Whether this window is currently running.
+	UINT32*  _pMemory;      // The color memory of this window.
+	int      _width;        // The width of this window.
 };
 
 #endif // !ARCWINDOWS_H

@@ -5,21 +5,25 @@
 
 class Arc2DPoint
 {
-public:
+public: // Constructor/Destructor(s) //
+
 	Arc2DPoint();
 	Arc2DPoint(int x, int y);
 
 	~Arc2DPoint();
 
-public:
 
-	void      x(const int value);
-	const int x() const;
+public: // Methods //
 
-	void      y(const int value);
-	const int y() const;
+	void      x(const int value); // Sets the x value of this point.
+	const int x() const;          // Gets the x value of this point.
 
-private:
+	void      y(const int value); // Sets the y value of this point.
+	const int y() const;          // Gets the x value of this point.
+
+
+private: // Variables //
+
 	int _x;
 	int _y;
 
