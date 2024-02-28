@@ -21,12 +21,6 @@
     <ClCompile Include="ArcColor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Arc2DLine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Arc2DPoint.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ArcPnmParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -36,15 +30,15 @@
     <ClCompile Include="ArcRdParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Arc2DPoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Arc2DLine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArcColor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Arc2DLine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Arc2DPoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ArcConstants.h">
@@ -66,6 +60,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ArcRdCommand.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Arc2DPoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Arc2DLine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

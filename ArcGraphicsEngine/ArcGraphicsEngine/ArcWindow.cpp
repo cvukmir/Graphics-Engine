@@ -168,9 +168,15 @@ void ArcWindow::drawPoint(const Arc2DPoint point)
 
 void ArcWindow::fill(const Arc2DPoint startPoint)
 {
-	int            newStartX = startPoint.x();
-	int            newEndX   = newStartX;
 	const ArcColor seedColor = colorAt(startPoint.x(), startPoint.y());
+
+	if (seedColor == _currentColor)
+	{
+		return;
+	}
+
+	int newStartX = startPoint.x();
+	int newEndX   = newStartX;
 
 	// Find the span for this first y position.
 	findspan(newStartX, newEndX, startPoint.y(), seedColor);
