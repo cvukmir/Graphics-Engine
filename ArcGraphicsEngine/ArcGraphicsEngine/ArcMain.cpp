@@ -1,13 +1,17 @@
 // Windows
-#include <windows.h>
-#include <SDKDDKVer.h> // Including SDKDDKVer.h defines the highest available Windows platform.
 #include <comdef.h>
+#include <SDKDDKVer.h> // Including SDKDDKVer.h defines the highest available Windows platform.
+#include <windows.h>
 
-// ArcMain
+// ArcWindow
 #include "ArcWindow.h"
+
+// ArcIO
 #include "ArcPnmParser.h"
-#include "ArcEnums.h"
 #include "ArcRdParser.h"
+
+// ArcFramework
+#include "ArcEnums.h"
 
 #define WIN32_LEAN_AND_MEAN  // Exclude rarely-used stuff from Windows headers
 
@@ -17,7 +21,7 @@ BITMAPINFO BITMAP_INFO; // Bitmap
 HWND       WINDOW;      // Window
 
 ArcWindow* ArcWindow::_pInstancePtr = nullptr; // Initialize the singularity.
-ArcWindow* ARC_WINDOW               = nullptr; // One and only global instance of the window.
+ArcWindow*               ARC_WINDOW = nullptr; // One and only global instance of the window.
 
 
 // Forward declarations of functions included in this code module:
@@ -53,7 +57,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	ARC_WINDOW->windowWidth(renderer.width());
 	ARC_WINDOW->windowHeight(renderer.height());
 
-	ARC_WINDOW->initializeMemory();
+	ARC_WINDOW->initializeNewFrame();
 
 	renderer.executeCommands(ARC_WINDOW);
 	
@@ -72,16 +76,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		return -1;
 	}
 
-//	RECT rect;
-//	GetClientRect(WINDOW, &rect);
-//
-//	ARC_WINDOW->windowWidth( rect.right  - rect.left);
-//	ARC_WINDOW->windowHeight(rect.bottom - rect.top);
-
 	// Create a bitmap to map memory to the screen window.
 	CreateBitmap();
 
 	HDC hdc = GetDC(WINDOW);
+
+	// Display the frame to the screen.
+	RedrawWindow(WINDOW, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 
 	// Main message loop:
 	MSG msg;
@@ -93,23 +94,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-
-		// Display the frame to the screen.
-		StretchDIBits(
-			hdc,
-			0,
-			0,
-			ARC_WINDOW->windowWidth(),
-			ARC_WINDOW->windowHeight(),
-			0,
-			0,
-			ARC_WINDOW->windowWidth(),
-			ARC_WINDOW->windowHeight(),
-			ARC_WINDOW->memory(),
-			&BITMAP_INFO,
-			DIB_RGB_COLORS,
-			SRCCOPY);
 	}
+
+	delete(ARC_WINDOW);
 
 	return 0;
 }
@@ -160,15 +147,38 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	PAINTSTRUCT ps;
+	HDC hdc;
 	switch (message)
 	{
-//		case WM_PAINT:
-//			PAINTSTRUCT ps;
-//			HDC hdc = BeginPaint(hWnd, &ps);
-//			// TODO: Add any drawing code that uses hdc here...
-//			EndPaint(hWnd, &ps);
-//			break;
+		case WM_PAINT:
+			hdc = BeginPaint(hWnd, &ps);
+
+			// Display the frame to the screen.
+			StretchDIBits(
+				GetDC(WINDOW),
+				0,
+				0,
+				ARC_WINDOW->windowWidth(),
+				ARC_WINDOW->windowHeight(),
+				0,
+				0,
+				ARC_WINDOW->windowWidth(),
+				ARC_WINDOW->windowHeight(),
+				ARC_WINDOW->memory(),
+				&BITMAP_INFO,
+				DIB_RGB_COLORS,
+				SRCCOPY);
+
+			EndPaint(hWnd, &ps);
+			break;
 		case WM_KEYDOWN:
+			if (wParam == VK_F2)
+			{
+				ARC_WINDOW->initializeNewFrame();
+				RedrawWindow(hWnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+			}
+			break;
 		case WM_LBUTTONDOWN:
 		case WM_CLOSE:
 		case WM_DESTROY:

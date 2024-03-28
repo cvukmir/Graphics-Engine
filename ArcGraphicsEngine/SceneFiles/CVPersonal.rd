@@ -1,6 +1,6 @@
 # This is a test/example rd file
 
-Display "The Wheel" "PNM" "rgb"
+Display "The Wheel" "Screen" "rgbsingle"
 Format 500 500
 
 # Testing filling and double buffering

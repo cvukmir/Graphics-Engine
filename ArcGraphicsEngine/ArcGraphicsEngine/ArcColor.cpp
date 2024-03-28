@@ -1,4 +1,6 @@
+// ArcFramework
 #include "ArcColor.h"
+#include "ArcTypedefs.h"
 
 
 // Constructor/Destructor(s) //
@@ -8,7 +10,7 @@ ArcColor::ArcColor()
 {
 }
 
-ArcColor::ArcColor(const unsigned int color)
+ArcColor::ArcColor(const uint color)
 	: _color(color)
 {
 }
@@ -33,17 +35,17 @@ bool ArcColor::operator==(ArcColor color)
 
 // Public Properties //
 
-void               ArcColor::color(const unsigned int value) { _color = value; }
-const unsigned int ArcColor::color() const { return _color; }
+void       ArcColor::color(const uint value) { _color = value; }
+const uint ArcColor::color() const           { return _color; }
 
 
 // Static Properties //
 
-unsigned int ArcColor::getBlueComponent(const unsigned int value) { return (value & 0x000000FF); }
+uint ArcColor::getBlueComponent(const uint value)  { return (value & 0x000000FF); }
 
-unsigned int ArcColor::getRedComponent(const unsigned int value)   { return (value & 0x00FF0000) >> 16; }
+uint ArcColor::getRedComponent(const uint value)   { return (value & 0x00FF0000) >> 16; }
 
-unsigned int ArcColor::getGreenComponent(const unsigned int value) { return (value & 0x0000FF00) >> 8; }
+uint ArcColor::getGreenComponent(const uint value) { return (value & 0x0000FF00) >> 8; }
 
 
 // Private Methods //

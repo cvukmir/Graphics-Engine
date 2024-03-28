@@ -24,7 +24,7 @@
     <ProjectGuid>{90945d76-ab5c-4dce-856e-e70d953dda1f}</ProjectGuid>
     <RootNamespace>ArcGraphicsEngine</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>ArcMain</ProjectName>
+    <ProjectName>ArcGraphicsEngine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -106,13 +106,13 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\Chris\source\repos\ArcGraphicsEngine\ArcGeometry\x64\Debug;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Chris\source\repos\ArcGraphicsEngine\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -132,27 +132,49 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Arc2DLine.cpp" />
+    <ClCompile Include="Arc2DLineInt.cpp" />
     <ClCompile Include="Arc2DPoint.cpp" />
+    <ClCompile Include="Arc3DLine.cpp" />
+    <ClCompile Include="Arc3DPoint.cpp" />
+    <ClCompile Include="Arc3DPointH.cpp" />
+    <ClCompile Include="Arc3DPolygon.cpp" />
     <ClCompile Include="ArcColor.cpp" />
+    <ClCompile Include="ArcGeometryForward.h" />
     <ClCompile Include="ArcMain.cpp" />
+    <ClCompile Include="ArcBaseObject.cpp" />
+    <ClCompile Include="ArcTransformMatrixH.cpp" />
     <ClCompile Include="ArcPnmParser.cpp" />
     <ClCompile Include="ArcRdParser.cpp" />
+    <ClCompile Include="ArcVector.cpp" />
     <ClCompile Include="ArcWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Arc2DLine.h" />
-    <ClInclude Include="Arc2DPoint.h" />
-    <ClInclude Include="ArcColor.h" />
-    <ClInclude Include="ArcRdCommand.hpp" />
-    <ClInclude Include="ArcConstants.h" />
-    <ClInclude Include="ArcEnums.h" />
-    <ClInclude Include="ArcPnmParser.h" />
-    <ClInclude Include="ArcRdParser.h" />
-    <ClInclude Include="ArcTypedefs.h" />
-    <ClInclude Include="ArcWindow.h" />
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="..\SceneFiles\s01.rd" />
+    <None Include="..\SceneFiles\s02.rd" />
+    <None Include="..\SceneFiles\s03.rd" />
+    <None Include="..\SceneFiles\s04.rd" />
+    <None Include="..\SceneFiles\s05.rd" />
+    <None Include="..\SceneFiles\s06.rd" />
+    <None Include="..\SceneFiles\s07.rd" />
+    <None Include="..\SceneFiles\s08.rd" />
+    <None Include="..\SceneFiles\s09.rd" />
+    <None Include="..\SceneFiles\s10.rd" />
+    <None Include="..\SceneFiles\s11.rd" />
+    <None Include="..\SceneFiles\s12.rd" />
+    <None Include="..\SceneFiles\s13.rd" />
+    <None Include="..\SceneFiles\s14.rd" />
+    <None Include="..\SceneFiles\s15.rd" />
+    <None Include="..\SceneFiles\s16.rd" />
+    <None Include="..\SceneFiles\s17.rd" />
+    <None Include="..\SceneFiles\s18.rd" />
+    <None Include="..\SceneFiles\s19.rd" />
+    <None Include="..\SceneFiles\s20.rd" />
+    <None Include="..\SceneFiles\s21.rd" />
+    <None Include="..\SceneFiles\s22.rd" />
+    <None Include="..\SceneFiles\s23.rd" />
+    <None Include="..\SceneFiles\s24.rd" />
+    <None Include="..\SceneFiles\s25.rd" />
+    <None Include="..\SceneFiles\s26.rd" />
     <None Include="Circles.rd" />
     <None Include="CVPersonal.rd" />
     <None Include="FloodFill.rd" />
@@ -165,6 +187,30 @@
     <None Include="s06.rd" />
     <None Include="s07.rd" />
     <None Include="s08.rd" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Notes.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Arc2DLine.h" />
+    <ClInclude Include="Arc2DPoint.h" />
+    <ClInclude Include="Arc3DLine.h" />
+    <ClInclude Include="Arc3DPoint.h" />
+    <ClInclude Include="Arc3DPointH.h" />
+    <ClInclude Include="Arc3DPolygon.h" />
+    <ClInclude Include="ArcBaseObject.h" />
+    <ClInclude Include="ArcColor.h" />
+    <ClInclude Include="ArcConstants.h" />
+    <ClInclude Include="ArcEnums.h" />
+    <ClInclude Include="ArcMatrix4x4.hpp" />
+    <ClInclude Include="ArcRdObject.hpp" />
+    <ClInclude Include="ArcTransformMatrixH.h" />
+    <ClInclude Include="ArcPnmParser.h" />
+    <ClInclude Include="ArcRdCommand.hpp" />
+    <ClInclude Include="ArcRdParser.h" />
+    <ClInclude Include="ArcTypedefs.h" />
+    <ClInclude Include="ArcVector.h" />
+    <ClInclude Include="ArcWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

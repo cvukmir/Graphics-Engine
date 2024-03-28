@@ -9,8 +9,9 @@
 #include <ios>
 #include <queue>
 
-// ArcMain
+// ArcIO
 #include "ArcRdCommand.hpp"
+#include "ArcRdObject.hpp"
 
 
 class ArcRdParser
@@ -55,6 +56,8 @@ private: // Methods //
 	// Gets the display mode enum from the given string.
 	const ArcRdDisplayMode displayModeFromString(std::string value);
 
+	const uint getVertexTypes(std::string& value);
+
 	// Checks whether the current .rd file is open.
 	const bool isFileOpen() const;
 
@@ -66,6 +69,7 @@ private: // Methods //
 private: // Variables //
 
 	std::queue<ArcRdCommand> _commandQueue; // The queue of commands read from the .rd file.
+	std::vector<ArcRdObject*> _objectList;
 	ArcRdDisplayMode         _displayMode;  // The display mode.
 	std::string              _displayName;  // The display name.
 	ArcRdDisplayType         _displayType;  // The display type.

@@ -6,13 +6,15 @@
 // Stdlib
 #include <stdint.h>
 
+// ArcFramework
+#include "ArcTypedefs.h"
 
 class ArcColor
 {
 public: // Constructor/Destructor(s) //
 
 	ArcColor();
-	ArcColor(const unsigned int color);
+	ArcColor(const uint color);
 	ArcColor(const float red, const float green, const float blue);
 
 	~ArcColor();
@@ -25,17 +27,17 @@ public: // Overload(s) //
 
 public: // Properties //
 
-	void               color(const unsigned int value);
-	const unsigned int color() const;
+	void       color(const uint value);
+	const uint color() const;
 
 
 public: // Static Properties //
 
-	static unsigned int getGreenComponent(const unsigned int value);
+	static uint getBlueComponent(const uint value);
 
-	static unsigned int getBlueComponent(const unsigned int value);
+	static uint getGreenComponent(const uint value);
 
-	static unsigned int getRedComponent(const unsigned int value);
+	static uint getRedComponent(const uint value);
 
 
 private: // Methods //
@@ -45,20 +47,20 @@ private: // Methods //
 
 public: // Static Variables //
 
-	static const unsigned int BLUE    = 0x000000FF;
-	static const unsigned int CYAN    = 0x0000FFFF;
-	static const unsigned int GREEN   = 0x0000FF00;
-	static const unsigned int MAGENTA = 0x00FF00FF;
-	static const unsigned int BLACK   = 0x00000000;
-	static const unsigned int RED     = 0x00FF0000;
-	static const unsigned int WHITE   = 0x00FFFFFF;
-	static const unsigned int YELLOW  = 0x00FFFF00;
-	static const unsigned int NOCOLOR = 0xFF000000;
+	static const uint BLUE    = 0x000000FF;
+	static const uint CYAN    = 0x0000FFFF;
+	static const uint GREEN   = 0x0000FF00;
+	static const uint MAGENTA = 0x00FF00FF;
+	static const uint BLACK   = 0x00000000;
+	static const uint RED     = 0x00FF0000;
+	static const uint WHITE   = 0x00FFFFFF;
+	static const uint YELLOW  = 0x00FFFF00;
+	static const uint NOCOLOR = 0xFF000000;
 
 
 private: // Variables //
 
-	unsigned int _color;
+	uint _color;
 };
 
 #endif // !ARCCOLOR_H

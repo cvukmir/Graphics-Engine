@@ -106,3 +106,14 @@ enum class ArcRdCommandType
 };
 
 #endif // !ARCENUMS_H
+
+enum class VertexTypes
+{
+	Position  = 0b00000001,
+	Direction = 0b00000010,
+	Normal    = 0b00000100,
+	Color     = 0b00001000,
+	Weight    = 0b00010000,
+	Texture   = 0b00100000,
+	Opacity   = 0b01000000,
+};

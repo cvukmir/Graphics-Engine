@@ -3,6 +3,8 @@
 #ifndef ARC2DLINE_H
 #define ARC2DLINE_H
 
+#include "Arc2DPoint.h"
+
 class Arc2DLine
 {
 public: // Constructor/Destructor(s) //
@@ -14,8 +16,8 @@ public: // Constructor/Destructor(s) //
 
 private: // Variables //
 
-	int _x;
-	int _y;
+	Arc2DPoint _endPoint;
+	Arc2DPoint _startPoint;
 };
 
 #endif // !ARC2DLINE_H

@@ -1,110 +1,298 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
+    <Filter Include="ArcWorld">
+      <UniqueIdentifier>{7ed52e74-bdd1-42e2-9821-d785d67fc5c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ArcWorld\Resource Files">
+      <UniqueIdentifier>{a355264b-662c-4e02-8409-cbffd3435533}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ArcWorld\Source Files">
+      <UniqueIdentifier>{c229ee1c-71c1-4402-a8e7-50c6853d88f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ArcWorld\Header Files">
+      <UniqueIdentifier>{f11a61a1-510b-480e-9158-1e42413cca75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ArcMain">
+      <UniqueIdentifier>{64c0927a-286e-4854-ac66-48f6851e5113}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ArcMain\Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="ArcMain\Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
+    <Filter Include="ArcMain\Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="ArcIO">
+      <UniqueIdentifier>{5b31d749-aa44-4acf-9977-58c3c6a3a1ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ArcIO\Header Files">
+      <UniqueIdentifier>{719f05b8-374b-4172-9f79-a664878b4361}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ArcIO\Resource Files">
+      <UniqueIdentifier>{e4a4c9be-5be5-4331-a265-85db41e90e96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ArcIO\Source Files">
+      <UniqueIdentifier>{1108bdec-6cf3-4561-ad5c-30c74b9f8832}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ArcGeometry">
+      <UniqueIdentifier>{61eb1aaa-ec7b-4a1c-89c9-fad246e87780}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ArcGeometry\Source Files">
+      <UniqueIdentifier>{cc1ddcda-2984-4831-86f1-22c29fceb9d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ArcGeometry\Resource Files">
+      <UniqueIdentifier>{86fce777-1259-49f2-8edf-9d9af1aa0b7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ArcGeometry\Header Files">
+      <UniqueIdentifier>{7eb615ed-b92a-4172-8df7-19cf909316f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ArcFramework">
+      <UniqueIdentifier>{40967fb3-38e1-4f25-81dd-dbe551104438}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ArcFramework\Header Files">
+      <UniqueIdentifier>{4b921fa2-2755-41c1-91f0-2b4d9ed744ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ArcFramework\Resource Files">
+      <UniqueIdentifier>{a2ebcbfe-bf1f-4b11-abdd-e51a53341318}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ArcFramework\Source Files">
+      <UniqueIdentifier>{42b24ef6-f24c-45de-b8d5-03383c0c1e81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{2ac0d625-3890-472c-8a7b-007727d6a3d6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ArcMain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArcColor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArcPnmParser.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>ArcMain\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ArcWindow.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>ArcWorld\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArcPnmParser.cpp">
+      <Filter>ArcIO\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ArcRdParser.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>ArcIO\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Arc2DLineInt.cpp">
+      <Filter>ArcGeometry\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Arc2DPoint.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>ArcGeometry\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Arc2DLine.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="ArcColor.cpp">
+      <Filter>ArcFramework\Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ArcColor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArcConstants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArcPnmParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArcWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArcTypedefs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArcRdParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArcEnums.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArcRdCommand.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Arc2DPoint.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Arc2DLine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="Arc3DLine.cpp">
+      <Filter>ArcGeometry\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Arc3DPoint.cpp">
+      <Filter>ArcGeometry\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Arc3DPolygon.cpp">
+      <Filter>ArcGeometry\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArcBaseObject.cpp">
+      <Filter>ArcGeometry\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArcVector.cpp">
+      <Filter>ArcGeometry\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Arc3DPointH.cpp">
+      <Filter>ArcGeometry\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArcTransformMatrixH.cpp">
+      <Filter>ArcGeometry\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArcGeometryForward.h">
+      <Filter>ArcGeometry\Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="s01.rd">
-      <Filter>Resource Files</Filter>
+      <Filter>ArcMain\Resource Files</Filter>
     </None>
     <None Include="s02.rd">
-      <Filter>Resource Files</Filter>
+      <Filter>ArcMain\Resource Files</Filter>
     </None>
     <None Include="s03.rd">
-      <Filter>Resource Files</Filter>
+      <Filter>ArcMain\Resource Files</Filter>
     </None>
     <None Include="s04.rd">
-      <Filter>Resource Files</Filter>
+      <Filter>ArcMain\Resource Files</Filter>
     </None>
     <None Include="s05.rd">
-      <Filter>Resource Files</Filter>
+      <Filter>ArcMain\Resource Files</Filter>
     </None>
     <None Include="s06.rd">
-      <Filter>Resource Files</Filter>
+      <Filter>ArcMain\Resource Files</Filter>
     </None>
     <None Include="s07.rd">
-      <Filter>Resource Files</Filter>
+      <Filter>ArcMain\Resource Files</Filter>
     </None>
     <None Include="s08.rd">
-      <Filter>Resource Files</Filter>
+      <Filter>ArcMain\Resource Files</Filter>
     </None>
     <None Include="CVPersonal.rd">
-      <Filter>Resource Files</Filter>
+      <Filter>ArcMain\Resource Files</Filter>
     </None>
     <None Include="Lines.rd">
-      <Filter>Resource Files</Filter>
+      <Filter>ArcMain\Resource Files</Filter>
     </None>
     <None Include="Circles.rd">
-      <Filter>Resource Files</Filter>
+      <Filter>ArcMain\Resource Files</Filter>
     </None>
     <None Include="FloodFill.rd">
-      <Filter>Resource Files</Filter>
+      <Filter>ArcMain\Resource Files</Filter>
     </None>
+    <None Include="..\SceneFiles\s01.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s02.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s03.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s04.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s05.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s06.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s07.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s08.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s09.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s10.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s11.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s12.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s13.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s14.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s15.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s16.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s17.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s18.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s19.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s20.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s21.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s22.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s23.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s24.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s25.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s26.rd">
+      <Filter>Tests</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Notes.txt">
+      <Filter>ArcMain\Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ArcWindow.h">
+      <Filter>ArcWorld\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcPnmParser.h">
+      <Filter>ArcIO\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcRdCommand.hpp">
+      <Filter>ArcIO\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcRdParser.h">
+      <Filter>ArcIO\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Arc2DLine.h">
+      <Filter>ArcGeometry\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Arc2DPoint.h">
+      <Filter>ArcGeometry\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcColor.h">
+      <Filter>ArcFramework\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcConstants.h">
+      <Filter>ArcFramework\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcEnums.h">
+      <Filter>ArcFramework\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcTypedefs.h">
+      <Filter>ArcFramework\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcBaseObject.h">
+      <Filter>ArcGeometry\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Arc3DPolygon.h">
+      <Filter>ArcGeometry\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Arc3DLine.h">
+      <Filter>ArcGeometry\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Arc3DPoint.h">
+      <Filter>ArcGeometry\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcVector.h">
+      <Filter>ArcGeometry\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Arc3DPointH.h">
+      <Filter>ArcGeometry\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcTransformMatrixH.h">
+      <Filter>ArcGeometry\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcMatrix4x4.hpp">
+      <Filter>ArcGeometry\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcRdObject.hpp">
+      <Filter>ArcIO\Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

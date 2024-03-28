@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 
-// ArcMain
+// ArcFramework
 #include "ArcConstants.h"
 #include "ArcEnums.h"
 
@@ -16,23 +16,32 @@ struct ArcRdCommand
 {
 public: // Constructor(s) //
 
-	ArcRdCommand(ArcRdCommandType type, std::vector<std::string>& list)
+	ArcRdCommand(const ArcRdCommandType type)
 	{
 		_commandType  = type;
-		_argumentList = std::move(list);
+	}
+
+	ArcRdCommand(const ArcRdCommandType type, std::vector<std::string>& list)
+	{
+		_commandType = type;
+		argumentList = list;
 	}
 
 
 public: // Properties //
 
-	const ArcRdCommandType          commandType() const { return _commandType;  } // Gets the command type
-	const std::vector<std::string> argumentList() const { return _argumentList; } // Gets the argument list.
+	const ArcRdCommandType commandType() const { return _commandType;  } // Gets the command type
+
+
+public: // Variables //
+
+	std::vector<std::string> argumentList; // The arguments for the command.
+
 
 
 private: // Variables //
 
-	ArcRdCommandType         _commandType;  // The command type.
-	std::vector<std::string> _argumentList; // The arguments for the command.
+	ArcRdCommandType _commandType;  // The command type.
 };
 
 #endif // !ARCRDCOMMAND_H

@@ -1,0 +1,11 @@
+Add the following to the top of .h files for compiling with DLLs:
+
+	#if COMPILING_DLL
+	#define DLLEXPORT __declspec(dllexport)
+	#else
+	#define DLLEXPORT __declspec(dllimport)
+	#endif
+
+Add the following to the Linker->Preprocessor->Preprocessor Definitions:
+
+	COMPILING_DLL=1;

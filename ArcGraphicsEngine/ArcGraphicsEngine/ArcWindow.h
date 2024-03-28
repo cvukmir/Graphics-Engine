@@ -3,10 +3,18 @@
 #ifndef ARCWINDOWS_H
 #define ARCWINDOWS_H
 
+// Windows
 #include <Windows.h>
 
+
 #include "Arc2DPoint.h"
+#include "Arc3DPoint.h"
+#include "Arc3DPointH.h"
+#include "ArcVector.h"
 #include "ArcColor.h"
+#include "ArcTypedefs.h"
+#include "ArcTransformMatrixH.h"
+#include "Arc3DLine.h"
 
 class ArcWindow
 {
@@ -28,22 +36,43 @@ public: // Static Methods (Singleton) //
 
 public: // Properties //
 
-	void           currentColor(const ArcColor value); // Sets the current drawing color.
-	const ArcColor currentColor() const;               // Gets the current drawing color.
+	void              cameraAt(const Arc3DPoint& value);
+	const Arc3DPoint& cameraAt() const;
 
-	void           frameNumber(const int value);       // Sets the current frame number.
-	const int      frameNumber() const;                // Gets the current frame number.
+	void              cameraEyePoint(const Arc3DPoint& value);
+	const Arc3DPoint& cameraEyePoint() const;
 
-	void           isRunning(const bool value);        // Sets whether the display window is running.
-	const bool     isRunning() const;                  // Gets whether the display window is running.
+	void         cameraFov(const double value);
+	const double cameraFov() const;
 
-	const UINT32*  memory() const;                     // The current memory color map.
+	void              cameraUpVector(const ArcVector& value);
+	const ArcVector&  cameraUpVector() const;
 
-	void           windowHeight(const int value);      // Sets the height of the display window.
-	const int      windowHeight() const;               // Gets the height of the display window.
+	void          clippingFar(const double value);
+	const double  clippingFar() const;
 
-	void           windowWidth(const int value);       // Sets the width of the display window.
-	const int      windowWidth() const;                // Gets the width of the display window.
+	void          clippingNear(const double value);
+	const double  clippingNear() const;
+
+	void           currentColor(const ArcColor value);                       // Sets the current drawing color.
+	const ArcColor currentColor() const;                                     // Gets the current drawing color.
+
+	void           frameNumber(const int value);                             // Sets the current frame number.
+	const int      frameNumber() const;                                      // Gets the current frame number.
+
+	ArcFrameList::const_iterator    frameBegin() const;                                      // Gets the first frame of the frame list.
+	ArcFrameList::const_iterator    frameEnd()  const;                                       // Gets the last  frame of the frame last.
+
+	void           isRunning(const bool value);                              // Sets whether the display window is running.
+	const bool     isRunning() const;                                        // Gets whether the display window is running.
+
+	const UINT32*  memory() const;                                           // The current memory color map.
+
+	void           windowHeight(const int value);                            // Sets the height of the display window.
+	const int      windowHeight() const;                                     // Gets the height of the display window.
+
+	void           windowWidth(const int value);                             // Sets the width of the display window.
+	const int      windowWidth() const;                                      // Gets the width of the display window.
 
 
 public: // Methods //
@@ -52,22 +81,61 @@ public: // Methods //
 	ArcWindow(const ArcWindow& value) = delete;
 
 	// Draws a circle at the given start point with the given radius using the currently set color.
-	void drawCircle(const Arc2DPoint startPoint, int radius);
+	void draw2DCircle(const Arc2DPoint& startPoint, const int radius);
+
+	void draw3DCircle();
+
+	/* Run a cone through the pipeline.The cone should have a circular base of a given radius on the xy plane.The cone should have a given height in the positive z direction. */
+	void drawCone();
+
+	/* Run the faces of the cube (+/- 1 in x, y, and z) through the transformation pipeline. */
+	void drawCube();
+
+	/* Run a circular cylinder through the pipeline.The ends should be circles of a given radius parallel to the xy plane.The circles are centered at(0, 0, zmin) and (0, 0, zmax) where zmin and zmax are the z coordinates of the ends of the cylinder.Thus the cylinder extends from - radius to radius in x and y and from zmin to zmax in z. */
+	void drawCylinder();
+
+	/* Run a circular disc through the pipeline.The disk should have a given radius.The disk is parallel to the xy plane and centered about the z axis.A height parameters gives the position of the disk along the z axis. */
+	void drawDisk();
 
 	// Draws the given line with the currently set color.
-	void drawLine(const Arc2DPoint startPoint, const Arc2DPoint endPoint);
+	void draw2DLine(const Arc2DPoint& startPoint, const Arc2DPoint& endPoint);
+
+	void draw3DLine(const Arc3DLine& line);
 
 	// Draws the given point with the currently set color.
-	void drawPoint(const Arc2DPoint point);
+	void draw2DPoint(const Arc2DPoint& point);
+
+	void draw3DPoint(const Arc3DPoint& point);
+
+	/* Run a sphere(or some representation of a sphere) through the pipeline.The sphere should be centered at the origin and have a radius given by a parameter. */
+	void drawSphere();
 
 	// Fills the area at the given start point with the currently set color.
-	void fill(const Arc2DPoint startPoint);
+	void fill(const Arc2DPoint& startPoint);
 
 	// Fills the background with the given color.
-	void fillBackground(const ArcColor color);
+	void fillBackground(const ArcColor& color);
 
 	// Initialize the memory of the display to the width/height with a default color.
-	void initializeMemory();
+	void initializeNewFrame();
+
+	// Pops a transformation off the transformation stack (does not return value).
+	void popTransformation();
+
+	// Pushes a transformation onto the transformation stack.
+	void pushTransformation();
+
+	void translateTransformation(const double t1, const double t2, const double t3);
+
+	void scaleTransformation(const double s1, const double s2, const double s3);
+
+	void rotateTransformationXY(const double theta);
+
+	void rotateTransformationYZ(const double theta);
+
+	void rotateTransformationZX(const double theta);
+
+
 
 
 private: // Methods //
@@ -88,7 +156,11 @@ private: // Methods //
 	bool findspan(int& startX, int& endX, const int y, ArcColor seedColor);
 
 	// Whether the given position is within the window bounds.
-	bool inWindow(const int xPos, const int yPos);
+	bool inWindow(const int xPos, const int yPos) const;
+
+	void linePipeline(const Arc3DPointH& point, const bool isDrawing);
+
+	void pointPipeline(const Arc3DPointH& point);
 
 
 private: // Static Variables //
@@ -98,12 +170,22 @@ private: // Static Variables //
 
 private: // Variables //
 
-	ArcColor _currentColor; // The current drawing color.
-	int      _frameNumber;  // The frame number of this window.
-	int      _height;       // The height of this window.
-	bool     _isRunning;    // Whether this window is currently running.
-	UINT32*  _pMemory;      // The color memory of this window.
-	int      _width;        // The width of this window.
+	Arc3DPoint             _cameraAtPoint;       // The position of where the camera is looking at.
+	Arc3DPoint             _cameraEyePoint;      // The position of the camera.
+	double                 _cameraFov;           // The FOV of the camera (in degrees).
+	ArcVector              _cameraUpVector;      // The "up" vector of the camera.
+	double                 _clippingFar;         // The far clipping value.
+	double                 _clippingNear;        // The near clipping value.
+	ArcColor               _currentColor;        // The current drawing color.
+	ArcFrameList           _frameList;           // Contains all the frames to display to the window.
+	int                    _frameNumber;         // The frame number of this window.
+	int                    _height;              // The height of this window.
+	bool                   _isRunning;           // Whether this window is currently running.
+	ArcTransformMatrixH*   _pCurrentTransform;   // The current transformation matrix.
+	UINT32*                _pMemory;             // The current frame being changed.
+	Arc3DPoint             _prevClipPoint;       // Previously moved to point for drawing lines.
+	ArcTransformationStack _transformationStack; // The stack of transformations to perform on objects.
+	int                    _width;               // The width of this window.
 };
 
 #endif // !ARCWINDOWS_H
