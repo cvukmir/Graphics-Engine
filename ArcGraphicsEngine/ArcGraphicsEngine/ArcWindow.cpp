@@ -97,7 +97,7 @@ const int      ArcWindow::windowWidth() const                { return _width;  }
 
 // Public Methods //
 
-void ArcWindow::draw2DCircle(const Arc2DPoint& startPoint, const int radius)
+void ArcWindow::draw2DCircle(const Arc3DPoint& startPoint, const int radius)
 {
 	const int startPointX = static_cast<int>(startPoint.x());
 	const int startPointY = static_cast<int>(startPoint.y());
@@ -130,54 +130,154 @@ void ArcWindow::draw2DCircle(const Arc2DPoint& startPoint, const int radius)
 	}
 }
 
-void ArcWindow::draw3DCircle()
+void ArcWindow::draw3DCircle(double radius, double zMin, double zMax, double theta, int planeEnum)
 {
-	// TODO: This
-	//P = (x = r, y = 0, z = 0, 1, move)
-	//	Line_pipeline(p, move)
-	//	For(I = 1; I < NSTEPS; ++i)
-	//	Theta = (i / nsteps) * 2pi
-	//	X = rcos(theta)
-	//	Y = rsin(theta)
-	//	Z = 0
-	//	W = 1
-	//	Line_pipeline(x, y, z, 1, draw)
+	const double NSTEPS = theta;
 
+	switch (planeEnum)
+	{
+	case (0): // XY Plane
+		linePipeline(Arc3DPoint(radius, 0.0, 0.0), false);
+		break;
+	case (1): // YZ Plane
+		linePipeline(Arc3DPoint(0.0, radius, 0.0), false);
+		break;
+	case (2): // ZX Plane
+		linePipeline(Arc3DPoint(radius, 0.0, 0.0), false);
+		break;
+	default:
+		return;
+	}
 
-	const double radius = 100;
-	const int    NSTEPS = 50;
-
-	//	Line_pipeline(p, move)
 	for (double i = 1; i < NSTEPS; ++i)
 	{
-		double theta = (i / NSTEPS) * (2 * std::numbers::pi);
-		int x = radius * cos(theta);
-		int y = radius * sin(theta);
-		int z = 0;
-		int w = 1;
-		// Line_pipeline(x, y, z, 1, draw)
+		double theta2 = (i / NSTEPS) * (2 * std::numbers::pi);
+		double x = radius * cos(theta2);
+		double y = radius * sin(theta2);
+
+		switch (planeEnum)
+		{
+		case (0): // XY Plane
+			linePipeline(Arc3DPoint(x, y, 0.0), true);
+			break;
+		case (1): // YZ Plane
+			linePipeline(Arc3DPoint(0.0, x, y), true);
+			break;
+		case (2): // ZX Plane
+			linePipeline(Arc3DPoint(x, 0.0, y), true);
+			break;
+		default:
+			return;
+		}
 	}
 }
 
-void ArcWindow::drawCone()
+void ArcWindow::drawCone(double height, double radius, double theta)
 {
 	// TODO: This
 	//Cone (height, radius, thetamax)
 	//Starts at origin.
 	//	Same as cylinder but drawing points are at x = 0, y = 0, height
 	//	Keep them as rectangles and not triangles.Will affect lighting later on.
+	
+	
+	double theta2Rad = theta * std::numbers::pi / 180;
+	double NSTEPS = 20;
 
+	linePipeline(Arc3DPoint(radius, 0, 0), false);
+
+	Arc3DPoint currDrawPoint;
+	Arc3DPoint prevDrawPoint = Arc3DPoint(radius, 0, 0);
+
+	// TODO Remove <= to <. Why is that broken?
+	for (double i = 1; i <= NSTEPS; ++i)
+	{
+		double theta2 = (i / NSTEPS) * (2 * std::numbers::pi);
+
+		if (theta2 > theta2Rad)
+		{
+			return;
+		}
+
+		double x = radius * cos(theta2);
+		double y = radius * sin(theta2);
+
+		currDrawPoint = Arc3DPoint(x, y, 0);
+		linePipeline(currDrawPoint, true);
+		linePipeline(Arc3DPoint(0, 0, height), true);
+		linePipeline(prevDrawPoint, true);
+		linePipeline(currDrawPoint, false);
+
+		prevDrawPoint = currDrawPoint;
+	}
 }
 
 void ArcWindow::drawCube()
 {
 	// TODO: This
 	// Cube: Call line_pipeline a bunch of times. Trace faces counter clockwise as seen from outside.
+
+	// Close Face
+	linePipeline(Arc3DPoint(-1, -1,  1), false); // Bottom left point
+	linePipeline(Arc3DPoint( 1, -1,  1), true);  // Bottom right point
+	linePipeline(Arc3DPoint( 1,  1,  1), true);  // Top right point
+	linePipeline(Arc3DPoint(-1,  1,  1), true);  // Top left point
+//	linePipeline(Arc3DPoint(-1, -1,  1), true);  // Bottom left point
+
+	// Right Face
+	linePipeline(Arc3DPoint( 1, -1,  1), false); // Bottom left point
+	linePipeline(Arc3DPoint( 1, -1, -1), true);  // Bottom right point
+	linePipeline(Arc3DPoint( 1,  1, -1), true);  // ...
+	linePipeline(Arc3DPoint( 1,  1,  1), true);
+//	linePipeline(Arc3DPoint( 1, -1,  1), true);
+
+	// Far Face
+	linePipeline(Arc3DPoint( 1, -1, -1), false);
+	linePipeline(Arc3DPoint(-1, -1, -1), true);
+	linePipeline(Arc3DPoint(-1,  1, -1), true);
+	linePipeline(Arc3DPoint( 1,  1, -1), true);
+//	linePipeline(Arc3DPoint( 1, -1, -1), true);
+
+	// Left Face
+	linePipeline(Arc3DPoint(-1, -1, -1), false);
+	linePipeline(Arc3DPoint(-1, -1,  1), true);
+	linePipeline(Arc3DPoint(-1,  1,  1), true);
+	linePipeline(Arc3DPoint(-1,  1, -1), true);
+//	linePipeline(Arc3DPoint(-1, -1, -1), true);
 }
 
-void ArcWindow::drawCylinder()
+void ArcWindow::drawCylinder(double radius, double zmin, double zmax, double theta)
 {
-	// TODO: This
+	double theta2Rad = theta * std::numbers::pi / 180;
+	double NSTEPS = 20;
+
+	linePipeline(Arc3DPoint(radius, 0, zmin), false);
+
+	Arc3DPoint currDrawPoint;
+	Arc3DPoint prevDrawPoint = Arc3DPoint(radius, 0, zmin);
+
+	// TODO Remove <= to <. Why is that broken?
+	for (double i = 1; i <= NSTEPS; ++i)
+	{
+		double theta2 = (i / NSTEPS) * (2 * std::numbers::pi);
+
+		if (theta2 > theta2Rad)
+		{
+			return;
+		}
+
+		double x = radius * cos(theta2);
+		double y = radius * sin(theta2);
+
+		currDrawPoint = Arc3DPoint(x, y, zmin);
+		linePipeline(currDrawPoint, true);
+		linePipeline(Arc3DPoint(x, y, zmax), true);
+		linePipeline(Arc3DPoint(prevDrawPoint.x(), prevDrawPoint.y(), zmax), true);
+		linePipeline(prevDrawPoint, true);
+		linePipeline(currDrawPoint, false);
+
+		prevDrawPoint = currDrawPoint;
+	}
 }
 
 void ArcWindow::drawDisk()
@@ -273,16 +373,24 @@ void ArcWindow::draw2DPoint(const Arc2DPoint& point)
 
 void ArcWindow::draw3DPoint(const Arc3DPoint& point)
 {
-	pointPipeline(Arc3DPointH(point));
+	pointPipeline(point);
 }
 
-void ArcWindow::drawSphere()
+void ArcWindow::drawSphere(double radius, double zMin, double zMax, double theta)
 {
 	// Centered at origin
 	// Draw a circle in the x,y plane.
 	// Draw a circle in the yz plane.
 	// Draw a circle in the zx plane.
 
+	if (zMin > zMax)
+	{
+		return;
+	}
+
+	draw3DCircle(radius, zMin, zMax, theta, 0);
+	draw3DCircle(radius, zMin, zMax, theta, 1);
+	draw3DCircle(radius, zMin, zMax, theta, 2);
 }
 
 void ArcWindow::fill(const Arc2DPoint& startPoint)
@@ -466,13 +574,13 @@ bool ArcWindow::inWindow(const int xPos, const int yPos) const
 	return (xPos >= 0 && xPos < _width) && (yPos >= 0 && yPos < _height);
 }
 
-void ArcWindow::linePipeline(const Arc3DPointH& point, const bool isDrawing)
+void ArcWindow::linePipeline(const Arc3DPoint& point, const bool isDrawing)
 {
 	Arc3DPointH mutablePoint(point);
 
 	mutablePoint = (*_pCurrentTransform) * mutablePoint;
 
-	mutablePoint = ArcTransformMatrixH::world_to_camera(point, _cameraEyePoint, _cameraAtPoint, _cameraUpVector);
+	mutablePoint = ArcTransformMatrixH::world_to_camera(mutablePoint, _cameraEyePoint, _cameraAtPoint, _cameraUpVector);
 
 	mutablePoint = ArcTransformMatrixH::camera_to_clip(mutablePoint, _cameraFov, _clippingNear, _clippingFar, static_cast<double>(_width) / static_cast<double>(_height));
 
@@ -480,18 +588,15 @@ void ArcWindow::linePipeline(const Arc3DPointH& point, const bool isDrawing)
 
 	if (isDrawing)
 	{
-		Arc3DPointH point1 = ArcTransformMatrixH::clip_to_device(_prevClipPoint,  _width, _height);
+		Arc3DPointH point1 = ArcTransformMatrixH::clip_to_device(_prevClipPoint, _width, _height);
 		Arc3DPointH point2 = ArcTransformMatrixH::clip_to_device(clipCoordinates, _width, _height);
 		draw2DLine(Arc2DPoint(point1.x(), point1.y()), Arc2DPoint(point2.x(), point2.y()));
-		_prevClipPoint = point2.toCartesianPoint();
 	}
-	else
-	{
-		_prevClipPoint = clipCoordinates;
-	}
+
+	_prevClipPoint = clipCoordinates;
 }
 
-void ArcWindow::pointPipeline(const Arc3DPointH& point)
+void ArcWindow::pointPipeline(const Arc3DPoint& point)
 {
 	Arc3DPointH mutablePoint;
 

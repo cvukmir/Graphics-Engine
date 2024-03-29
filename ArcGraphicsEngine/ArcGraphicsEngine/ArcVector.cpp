@@ -111,9 +111,9 @@ void ArcVector::operator*(const ArcVector& point)
 
 ArcVector ArcVector::crossProduct(const ArcVector& point)
 {
-	return ArcVector((this->_y * point._z) - (this->_z * point._y),  // x
-		             (this->_x * point._z) - (this->_z * point._x),  // y
-		             (this->_x * point._y) - (this->_y * point._x)); // z
+	return ArcVector(  (this->_y * point._z) - (this->_z * point._y),  // x
+		             -((this->_x * point._z) - (this->_z * point._x)), // y
+		               (this->_x * point._y) - (this->_y * point._x)); // z
 }
 
 double ArcVector::dot(const ArcVector& point)

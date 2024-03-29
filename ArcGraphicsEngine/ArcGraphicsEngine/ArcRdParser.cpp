@@ -93,7 +93,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 					// Not failing if was not in a frame block before, this can be just an extraneous tag.
 					// TODO: Log it.
 
-					pWindow->initializeNewFrame();
+					//pWindow->initializeNewFrame();
 
 					isInFrameBlock = false;
 
@@ -411,7 +411,13 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 					
 					break;
 				case ArcRdCommandType::Circle:
-					pWindow->draw3DCircle();
+					if (argumentSize == 4U)
+					{
+						pWindow->draw2DCircle(Arc3DPoint(std::stod(argumentList[0]),  // X
+							                             std::stod(argumentList[1]),  // Y
+							                             std::stod(argumentList[2])), // Z
+							                             std::stod(argumentList[3])); // Radius
+					}
 					break;
 				case ArcRdCommandType::Fill:
 					if (isInWorldBlock && argumentSize == 2U)
@@ -420,14 +426,25 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 					}
 					break;
 				case ArcRdCommandType::Cone:
-					pWindow->drawCone();
+					if (argumentSize == 3U)
+					{
+						pWindow->drawCone(std::stod(argumentList[0]),  // Height
+							              std::stod(argumentList[1]),  // Radius
+							              std::stod(argumentList[2])); // Theta
+					}
 					break;
 				case ArcRdCommandType::Cube:
 					pWindow->drawCube();
 					break;
 				case ArcRdCommandType::Curve: break;
 				case ArcRdCommandType::Cylinder:
-					pWindow->drawCylinder();
+					if (argumentSize == 4U)
+					{
+						pWindow->drawCylinder(std::stod(argumentList[0]),  // Radius
+							                  std::stod(argumentList[1]),  // ZMin
+							                  std::stod(argumentList[2]),  // ZMax
+							                  std::stod(argumentList[3])); // Theta
+					}
 					break;
 				case ArcRdCommandType::Disk:
 					pWindow->drawDisk();
@@ -436,10 +453,22 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 				case ArcRdCommandType::Paraboloid: break;
 				case ArcRdCommandType::Patch: break;
 				case ArcRdCommandType::PolySet:
-					
 					break;
 				case ArcRdCommandType::Sphere:
-					pWindow->drawSphere();
+					if (argumentSize == 4U)
+					{
+						if (isInObjectBlock)
+						{
+							_objectList.back()->commandQueue.push(ArcRdCommand(command, argumentList));
+						}
+						else if (isInWorldBlock)
+						{
+							pWindow->drawSphere(std::stod(argumentList[0]),  // Radius
+								                std::stod(argumentList[1]),  // Zmin
+								                std::stod(argumentList[2]),  // Zmax
+								                std::stod(argumentList[3])); // Theta
+						}
+					}
 					break;
 				case ArcRdCommandType::SqSphere: break;
 				case ArcRdCommandType::SqTorus: break;

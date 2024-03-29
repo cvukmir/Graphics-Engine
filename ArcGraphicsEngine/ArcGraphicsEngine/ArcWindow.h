@@ -81,18 +81,18 @@ public: // Methods //
 	ArcWindow(const ArcWindow& value) = delete;
 
 	// Draws a circle at the given start point with the given radius using the currently set color.
-	void draw2DCircle(const Arc2DPoint& startPoint, const int radius);
+	void draw2DCircle(const Arc3DPoint& startPoint, const int radius);
 
-	void draw3DCircle();
+	void draw3DCircle(double radius, double zMin, double zMax, double theta, int planeEnum = 0);
 
 	/* Run a cone through the pipeline.The cone should have a circular base of a given radius on the xy plane.The cone should have a given height in the positive z direction. */
-	void drawCone();
+	void drawCone(double height, double radius, double theta);
 
 	/* Run the faces of the cube (+/- 1 in x, y, and z) through the transformation pipeline. */
 	void drawCube();
 
 	/* Run a circular cylinder through the pipeline.The ends should be circles of a given radius parallel to the xy plane.The circles are centered at(0, 0, zmin) and (0, 0, zmax) where zmin and zmax are the z coordinates of the ends of the cylinder.Thus the cylinder extends from - radius to radius in x and y and from zmin to zmax in z. */
-	void drawCylinder();
+	void drawCylinder(double radius, double zmin, double zmax, double theta);
 
 	/* Run a circular disc through the pipeline.The disk should have a given radius.The disk is parallel to the xy plane and centered about the z axis.A height parameters gives the position of the disk along the z axis. */
 	void drawDisk();
@@ -108,7 +108,7 @@ public: // Methods //
 	void draw3DPoint(const Arc3DPoint& point);
 
 	/* Run a sphere(or some representation of a sphere) through the pipeline.The sphere should be centered at the origin and have a radius given by a parameter. */
-	void drawSphere();
+	void drawSphere(double radius, double zMin, double zMax, double theta);
 
 	// Fills the area at the given start point with the currently set color.
 	void fill(const Arc2DPoint& startPoint);
@@ -158,9 +158,9 @@ private: // Methods //
 	// Whether the given position is within the window bounds.
 	bool inWindow(const int xPos, const int yPos) const;
 
-	void linePipeline(const Arc3DPointH& point, const bool isDrawing);
+	void linePipeline(const Arc3DPoint& point, const bool isDrawing);
 
-	void pointPipeline(const Arc3DPointH& point);
+	void pointPipeline(const Arc3DPoint& point);
 
 
 private: // Static Variables //
