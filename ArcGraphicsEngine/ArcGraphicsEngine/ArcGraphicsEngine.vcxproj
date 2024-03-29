@@ -149,6 +149,11 @@
     <ClCompile Include="ArcWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\SceneFiles\Circles.rd" />
+    <None Include="..\SceneFiles\CVPersonal.rd" />
+    <None Include="..\SceneFiles\CVPersonal2.rd" />
+    <None Include="..\SceneFiles\FloodFill.rd" />
+    <None Include="..\SceneFiles\Lines.rd" />
     <None Include="..\SceneFiles\s01.rd" />
     <None Include="..\SceneFiles\s02.rd" />
     <None Include="..\SceneFiles\s03.rd" />
@@ -189,6 +194,7 @@
     <None Include="s08.rd" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="..\SceneFiles\Notes.txt" />
     <Text Include="Notes.txt" />
   </ItemGroup>
   <ItemGroup>

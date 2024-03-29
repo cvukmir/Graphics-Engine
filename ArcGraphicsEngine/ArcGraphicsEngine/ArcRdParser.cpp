@@ -4,7 +4,7 @@
 #include <ios>
 #include <sstream>
 #include <vector>
-#include <queue>
+#include <deque>
 
 // Windows
 #include <Windows.h>
@@ -60,6 +60,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 	bool isInWorldBlock  = false;
 	bool isInFrameBlock  = false;
 	bool isInObjectBlock = false;
+	int  objectBlockNest = 0;
 
 	while (!_commandQueue.empty())
 	{
@@ -125,26 +126,84 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 						// No parameters.
 						_objectList.push_back(new ArcRdObject(argumentList[0]));
 					}
-					else if (argumentSize == 2U)
+					else if (argumentSize >= 2U)
 					{
 						// Has Parameters.
-						_objectList.push_back(new ArcRdObject(argumentList[0], std::stoi(argumentList[1])));
+						std::string objectName = argumentList[0];
+						argumentList.erase(argumentList.begin());
+						_objectList.push_back(new ArcRdObject(objectName, argumentList));
 					}
 					else
 					{
-						// Erroring here because this can have bad ramifications if the arguments are wrong.
-						return false;
+						break;
 					}
 
+					++objectBlockNest;
 					isInObjectBlock = true;
 
 					break;
 				case ArcRdCommandType::ObjectEnd:
 					// Not failing if was not in an object block before, this can be just an extraneous tag.
 					// TODO: Log it.
-					isInObjectBlock = false;
+					if (objectBlockNest > 0)
+					{
+						--objectBlockNest;
+					}
+					
+					if (objectBlockNest == 0)
+					{
+						isInObjectBlock = false;
+					}
 					break;
-				case ArcRdCommandType::ObjectInstance: break;
+				case ArcRdCommandType::ObjectInstance:
+					if (argumentSize > 0U)
+					{
+						std::string objectName = argumentList[0];
+						ArcRdObject* pObject = nullptr;
+
+						for (std::vector<ArcRdObject*>::iterator it = _objectList.begin(); it != _objectList.end(); ++it)
+						{
+							if ((*it)->objectName == objectName)
+							{
+								pObject = (*it);
+							}
+						}
+
+						if (!pObject || pObject->parameters.size() != argumentSize - 1U)
+						{
+							break;
+						}
+						std::deque<ArcRdCommand>::iterator it = pObject->commandQueue.begin();
+						int offset = 1;
+
+						for (std::deque<ArcRdCommand>::iterator it = pObject->commandQueue.begin(); it != pObject->commandQueue.end(); ++it)
+						{
+							if (argumentSize > 1U)
+							{
+								for (std::vector<std::string>::iterator it2 = (*it).argumentList.begin(); it2 != (*it).argumentList.end(); ++it2)
+								{
+									size_t pos = std::string::npos;
+									if ((*it2).starts_with('$'))
+									{
+										std::string substr = (*it2).erase(0);
+										int index = std::stoi(substr);
+
+										// Indices start with '$1'
+										if (index < argumentSize)
+										{
+											(*it2) = argumentList[index];
+											break;
+										}
+									}
+								}
+							}
+
+							_commandQueue.insert(_commandQueue.begin() + offset, *it);
+							++offset;
+						}
+					}
+					
+					break;
 
 				////////////////////////
 				// Drawing Attributes //
@@ -162,9 +221,17 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 				case ArcRdCommandType::Color:
 					if (argumentSize == 3U)
 					{
-						pWindow->currentColor(ArcColor(std::stof(argumentList[0]),   // Red
-							                           std::stof(argumentList[1]),   // Blue
-							                           std::stof(argumentList[2]))); // Green
+						if (isInObjectBlock)
+						{
+							_objectList.back()->commandQueue.push_back(ArcRdCommand(command, argumentList));
+							break;
+						}
+						else if (isInWorldBlock)
+						{
+							pWindow->currentColor(ArcColor(std::stof(argumentList[0]),   // Red
+								                           std::stof(argumentList[1]),   // Blue
+								                           std::stof(argumentList[2]))); // Green
+						}
 					}
 					break;
 				case ArcRdCommandType::Opacity: break;
@@ -230,7 +297,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 					{
 						if (isInObjectBlock)
 						{
-							_objectList.back()->commandQueue.push(ArcRdCommand(command, argumentList));
+							_objectList.back()->commandQueue.push_back(ArcRdCommand(command, argumentList));
 						}
 						else if (isInWorldBlock)
 						{
@@ -245,7 +312,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 					{
 						if (isInObjectBlock)
 						{
-							_objectList.back()->commandQueue.push(ArcRdCommand(command, argumentList));
+							_objectList.back()->commandQueue.push_back(ArcRdCommand(command, argumentList));
 						}
 						else if (isInWorldBlock)
 						{
@@ -271,9 +338,11 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 									break;
 								}
 
-								Arc3DPoint newPoint(std::stod(argumentList[++argumentIndex]),
-													std::stod(argumentList[++argumentIndex]),
-													std::stod(argumentList[++argumentIndex]));
+								double x = std::stod(argumentList[++argumentIndex]);
+								double y = std::stod(argumentList[++argumentIndex]);
+								double z = std::stod(argumentList[++argumentIndex]);
+
+								Arc3DPoint newPoint(x, y, z);
 
 								if (flags & static_cast<uint>(VertexTypes::Color))
 								{
@@ -283,9 +352,11 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 										break;
 									}
 
-									pWindow->currentColor(ArcColor(std::stof(argumentList[++argumentIndex]),   // Red
-																   std::stof(argumentList[++argumentIndex]),   // Blue
-																   std::stof(argumentList[++argumentIndex]))); // Green
+									float r = std::stof(argumentList[++argumentIndex]);
+									float g = std::stof(argumentList[++argumentIndex]);
+									float b = std::stof(argumentList[++argumentIndex]);
+
+									pWindow->currentColor(ArcColor(r, g, b));
 								}
 								///////////////////////////
 								// TODO: Rest of the cases.
@@ -304,7 +375,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 					{
 						if (isInObjectBlock)
 						{
-							_objectList.back()->commandQueue.push(ArcRdCommand(command, argumentList));
+							_objectList.back()->commandQueue.push_back(ArcRdCommand(command, argumentList));
 						}
 						else if (isInWorldBlock)
 						{
@@ -322,7 +393,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 					{
 						if (isInObjectBlock)
 						{
-							_objectList.back()->commandQueue.push(ArcRdCommand(command, argumentList));
+							_objectList.back()->commandQueue.push_back(ArcRdCommand(command, argumentList));
 							break;
 						}
 						else if (isInWorldBlock)
@@ -347,10 +418,12 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 										// Not enough arguments to finish.
 										break;
 									}
-									
-									pointVector.push_back(Arc3DPoint(std::stod(argumentList[++argumentIndex]),
-										                             std::stod(argumentList[++argumentIndex]),
-										                             std::stod(argumentList[++argumentIndex])));
+
+									double x = std::stod(argumentList[++argumentIndex]);
+									double y = std::stod(argumentList[++argumentIndex]);
+									double z = std::stod(argumentList[++argumentIndex]);
+
+									pointVector.push_back(Arc3DPoint(x, y, z));
 								}
 
 								if (flags & static_cast<uint>(VertexTypes::Color))
@@ -361,9 +434,11 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 										break;
 									}
 
-									colorVector.push_back(ArcColor(std::stof(argumentList[++argumentIndex]),   // Red
-										                           std::stof(argumentList[++argumentIndex]),   // Blue
-										                           std::stof(argumentList[++argumentIndex]))); // Green
+									float r = std::stof(argumentList[++argumentIndex]);
+									float g = std::stof(argumentList[++argumentIndex]);
+									float b = std::stof(argumentList[++argumentIndex]);
+
+									colorVector.push_back(ArcColor(r, g, b));
 								}
 								///////////////////////////
 								// TODO: Rest of the cases.
@@ -381,12 +456,12 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 
 							for (int i = 0; i < numLines; ++i)
 							{
-								if (++argumentIndex > argumentSize)
+								if (argumentIndex + 1 > argumentSize)
 								{
 									break;
 								}
 
-								while (currentVertex = std::stoi(argumentList[argumentIndex]) != -1)
+								while ((currentVertex = std::stoi(argumentList[++argumentIndex])) != -1)
 								{
 									if (prevVertex == -1)
 									{
@@ -402,6 +477,11 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 
 										pWindow->draw3DLine(Arc3DLine(pointVector[prevVertex], pointVector[currentVertex]));
 									}
+
+									if (argumentIndex + 1 > argumentSize)
+									{
+										break;
+									}
 								}
 							}
 
@@ -413,10 +493,17 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 				case ArcRdCommandType::Circle:
 					if (argumentSize == 4U)
 					{
-						pWindow->draw2DCircle(Arc3DPoint(std::stod(argumentList[0]),  // X
-							                             std::stod(argumentList[1]),  // Y
-							                             std::stod(argumentList[2])), // Z
-							                             std::stod(argumentList[3])); // Radius
+						if (isInObjectBlock)
+						{
+							_objectList.back()->commandQueue.push_back(ArcRdCommand(command, argumentList));
+						}
+						else if (isInWorldBlock)
+						{
+							pWindow->draw2DCircle(Arc3DPoint(std::stod(argumentList[0]),  // X
+								                             std::stod(argumentList[1]),  // Y
+								                             std::stod(argumentList[2])), // Z
+								                             std::stoi(argumentList[3])); // Radius
+						}
 					}
 					break;
 				case ArcRdCommandType::Fill:
@@ -428,38 +515,175 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 				case ArcRdCommandType::Cone:
 					if (argumentSize == 3U)
 					{
-						pWindow->drawCone(std::stod(argumentList[0]),  // Height
-							              std::stod(argumentList[1]),  // Radius
-							              std::stod(argumentList[2])); // Theta
+						if (isInObjectBlock)
+						{
+							_objectList.back()->commandQueue.push_back(ArcRdCommand(command, argumentList));
+						}
+						else if (isInWorldBlock)
+						{
+							pWindow->drawCone(std::stod(argumentList[0]),  // Height
+								              std::stod(argumentList[1]),  // Radius
+								              std::stod(argumentList[2])); // Theta
+						}
 					}
 					break;
 				case ArcRdCommandType::Cube:
-					pWindow->drawCube();
+					if (isInObjectBlock)
+					{
+						_objectList.back()->commandQueue.push_back(ArcRdCommand(command));
+					}
+					else if (isInWorldBlock)
+					{
+						pWindow->drawCube();
+					}
 					break;
 				case ArcRdCommandType::Curve: break;
 				case ArcRdCommandType::Cylinder:
 					if (argumentSize == 4U)
 					{
-						pWindow->drawCylinder(std::stod(argumentList[0]),  // Radius
-							                  std::stod(argumentList[1]),  // ZMin
-							                  std::stod(argumentList[2]),  // ZMax
-							                  std::stod(argumentList[3])); // Theta
+						if (isInObjectBlock)
+						{
+							_objectList.back()->commandQueue.push_back(ArcRdCommand(command, argumentList));
+						}
+						else if (isInWorldBlock)
+						{
+							pWindow->drawCylinder(std::stod(argumentList[0]),  // Radius
+								                  std::stod(argumentList[1]),  // ZMin
+								                  std::stod(argumentList[2]),  // ZMax
+								                  std::stod(argumentList[3])); // Theta
+						}
 					}
 					break;
 				case ArcRdCommandType::Disk:
-					pWindow->drawDisk();
+					if (argumentSize == 3U)
+					{
+						if (isInObjectBlock)
+						{
+							_objectList.back()->commandQueue.push_back(ArcRdCommand(command, argumentList));
+						}
+						else if (isInWorldBlock)
+						{
+							pWindow->drawDisk(std::stod(argumentList[0]),  // Height
+								              std::stod(argumentList[1]),  // Radius
+								              std::stod(argumentList[2])); // Theta
+						}
+					}
 					break;
 				case ArcRdCommandType::Hyperboloid: break;
 				case ArcRdCommandType::Paraboloid: break;
 				case ArcRdCommandType::Patch: break;
 				case ArcRdCommandType::PolySet:
+					if (argumentSize > 3U)
+					{
+						if (isInObjectBlock)
+						{
+							_objectList.back()->commandQueue.push_back(ArcRdCommand(command, argumentList));
+							break;
+						}
+						else if (isInWorldBlock)
+						{
+							const ArcColor& currentColor = pWindow->currentColor();
+
+							uint argumentIndex = 0;
+
+							const uint flags     = getVertexTypes(argumentList[  argumentIndex]);
+							const int  numPoints =      std::stoi(argumentList[++argumentIndex]);
+							const int  numFaces  =      std::stoi(argumentList[++argumentIndex]);
+
+							std::vector<Arc3DPoint> pointVector;
+							std::vector<ArcColor>   colorVector;
+
+							for (int i = 0; i < numPoints; ++i)
+							{
+								if (flags & static_cast<uint>(VertexTypes::Position))
+								{
+									if (argumentIndex + 6U >= argumentSize)
+									{
+										// Not enough arguments to finish.
+										break;
+									}
+
+									double x = std::stod(argumentList[++argumentIndex]);
+									double y = std::stod(argumentList[++argumentIndex]);
+									double z = std::stod(argumentList[++argumentIndex]);
+									
+									pointVector.push_back(Arc3DPoint(x, y, z));
+								}
+
+								if (flags & static_cast<uint>(VertexTypes::Color))
+								{
+									if (argumentIndex + 3U >= argumentSize)
+									{
+										// Not enough arguments to finish.
+										break;
+									}
+
+									float r = std::stof(argumentList[++argumentIndex]);
+									float g = std::stof(argumentList[++argumentIndex]);
+									float b = std::stof(argumentList[++argumentIndex]);
+
+									colorVector.push_back(ArcColor(r, g, b));
+								}
+								///////////////////////////
+								// TODO: Rest of the cases.
+								///////////////////////////
+							}
+
+							if (pointVector.size() != numPoints || ((flags & static_cast<uint>(VertexTypes::Color) && colorVector.size() != numPoints)))
+							{
+								// We didn't find the correct number of points specified for this object.
+								break;
+							}
+
+							int prevVertex = -1;
+							int currentVertex = -1;
+
+							std::vector<int> pointIndexList;
+
+							for (int i = 0; i < numFaces; ++i)
+							{
+								if (argumentIndex + 1 > argumentSize)
+								{
+									break;
+								}
+
+								while ((currentVertex = std::stoi(argumentList[++argumentIndex])) != -1)
+								{
+									if (prevVertex == -1)
+									{
+										prevVertex = currentVertex;
+									}
+
+									if (currentVertex != prevVertex)
+									{
+										if (flags & static_cast<uint>(VertexTypes::Color))
+										{
+											pWindow->currentColor(colorVector[i]);
+										}
+
+										pWindow->draw3DLine(Arc3DLine(pointVector[prevVertex], pointVector[currentVertex]));
+									}
+
+									if (argumentIndex + 1 > argumentSize)
+									{
+										break;
+									}
+								}
+								prevVertex = -1;
+								currentVertex = -1;
+							}
+
+							// Reset the window color back to the orignal current color.
+							pWindow->currentColor(currentColor);
+						}
+					}
 					break;
 				case ArcRdCommandType::Sphere:
 					if (argumentSize == 4U)
 					{
 						if (isInObjectBlock)
 						{
-							_objectList.back()->commandQueue.push(ArcRdCommand(command, argumentList));
+							_objectList.back()->commandQueue.push_back(ArcRdCommand(command, argumentList));
 						}
 						else if (isInWorldBlock)
 						{
@@ -483,15 +707,37 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 				case ArcRdCommandType::Rotate:
 					if (argumentSize == 2U)
 					{
-						switch (argumentList[0][0])
+						switch (argumentList[0][1])
 						{
-							case ('X'):
-								pWindow->rotateTransformationYZ(std::stod(argumentList[1]));
+							case ('X'): // "\"X\""
+								if (isInObjectBlock)
+								{
+									_objectList.back()->commandQueue.push_back(ArcRdCommand(command, argumentList));
+								}
+								else if (isInWorldBlock)
+								{
+									pWindow->rotateTransformationYZ(std::stod(argumentList[1]));
+								}
 								break;
-							case ('Y'):
-								pWindow->rotateTransformationZX(std::stod(argumentList[1]));
+							case ('Y'): // "\"Y\""
+								if (isInObjectBlock)
+								{
+									_objectList.back()->commandQueue.push_back(ArcRdCommand(command, argumentList));
+								}
+								else if (isInWorldBlock)
+								{
+									pWindow->rotateTransformationZX(std::stod(argumentList[1]));
+								}
 								break;
-							case ('Z'):pWindow->rotateTransformationXY(std::stod(argumentList[1]));
+							case ('Z'): // "\"Z\""
+								if (isInObjectBlock)
+								{
+									_objectList.back()->commandQueue.push_back(ArcRdCommand(command, argumentList));
+								}
+								else if (isInWorldBlock)
+								{
+									pWindow->rotateTransformationXY(std::stod(argumentList[1]));
+								}
 								break;
 							default:
 								break;
@@ -501,20 +747,48 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 				case ArcRdCommandType::Scale:
 					if (argumentSize == 3U)
 					{
-						pWindow->scaleTransformation(std::stod(argumentList[0]), std::stod(argumentList[1]), std::stod(argumentList[2]));
+						if (isInObjectBlock)
+						{
+							_objectList.back()->commandQueue.push_back(ArcRdCommand(command, argumentList));
+						}
+						else if (isInWorldBlock)
+						{
+							pWindow->scaleTransformation(std::stod(argumentList[0]), std::stod(argumentList[1]), std::stod(argumentList[2]));
+						}
 					}
 					break;
 				case ArcRdCommandType::Translate:
 					if (argumentSize == 3U)
 					{
-						pWindow->translateTransformation(std::stod(argumentList[0]), std::stod(argumentList[1]), std::stod(argumentList[2]));
+						if (isInObjectBlock)
+						{
+							_objectList.back()->commandQueue.push_back(ArcRdCommand(command, argumentList));
+						}
+						else if (isInWorldBlock)
+						{
+							pWindow->translateTransformation(std::stod(argumentList[0]), std::stod(argumentList[1]), std::stod(argumentList[2]));
+						}
 					}
 					break;
 				case ArcRdCommandType::XformPush:
-					pWindow->pushTransformation();
+					if (isInObjectBlock)
+					{
+						_objectList.back()->commandQueue.push_back(ArcRdCommand(command));
+					}
+					else if (isInWorldBlock)
+					{
+						pWindow->pushTransformation();
+					}
 					break;
 				case ArcRdCommandType::XformPop:
-					pWindow->popTransformation();
+					if (isInObjectBlock)
+					{
+						_objectList.back()->commandQueue.push_back(ArcRdCommand(command));
+					}
+					else if (isInWorldBlock)
+					{
+						pWindow->popTransformation();
+					}
 					break;
 
 				//////////////
@@ -560,7 +834,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 			// TODO: Error logging here...
 			return false;
 		}
-		_commandQueue.pop();
+		_commandQueue.pop_front();
 	}
 
 	return true;
@@ -853,8 +1127,9 @@ bool ArcRdParser::readFile()
 		// Check if the first string is a command or part of the previous commands arguments.
 		if ((commandType = commandTypeFromString(buffer)) != ArcRdCommandType::Invalid)
 		{
-			_commandQueue.push(ArcRdCommand(commandType));
+			_commandQueue.push_back(ArcRdCommand(commandType));
 		}
+
 
 		if (_commandQueue.empty())
 		{
@@ -865,6 +1140,12 @@ bool ArcRdParser::readFile()
 		// Add arguments to the previously added command.
 		ArcRdCommand& command = _commandQueue.back();
 
+		if (commandType == ArcRdCommandType::Invalid)
+		{
+			// Add buffer argument to the previous commmand list.
+			command.argumentList.push_back(buffer);
+		}
+
 		while (!foundComment && tokenizer >> buffer)
 		{
 			if ((index = buffer.find_first_of('#')) != std::string::npos)
@@ -872,7 +1153,7 @@ bool ArcRdParser::readFile()
 				if (index == 0)
 				{
 					// First character is a '#'
-					continue;
+					break;
 				}
 
 				// Everything after this character is a comment.

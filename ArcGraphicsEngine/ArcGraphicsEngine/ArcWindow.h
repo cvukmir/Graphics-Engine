@@ -95,7 +95,7 @@ public: // Methods //
 	void drawCylinder(double radius, double zmin, double zmax, double theta);
 
 	/* Run a circular disc through the pipeline.The disk should have a given radius.The disk is parallel to the xy plane and centered about the z axis.A height parameters gives the position of the disk along the z axis. */
-	void drawDisk();
+	void drawDisk(double height, double radius, double thetaMax);
 
 	// Draws the given line with the currently set color.
 	void draw2DLine(const Arc2DPoint& startPoint, const Arc2DPoint& endPoint);

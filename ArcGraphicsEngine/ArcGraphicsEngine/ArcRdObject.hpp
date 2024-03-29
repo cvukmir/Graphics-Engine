@@ -1,7 +1,7 @@
 #include "ArcRdCommand.hpp"
 #include "ArcTypedefs.h"
 
-#include <queue>
+#include <deque>
 #include <string>
 
 
@@ -9,10 +9,10 @@ struct ArcRdObject
 {
 public: // Constructor(s) //
 
-	ArcRdObject(const std::string& name, const uint count = 0U)
+	ArcRdObject(const std::string& name, std::vector<std::string> params = std::vector<std::string>())
 	{
 		objectName = name;
-		parameters = count;
+		parameters = std::move(params);
 	}
 
 
@@ -20,7 +20,7 @@ public: // Constructor(s) //
 
 public: // Variables
 
-	std::queue<ArcRdCommand> commandQueue; // The queue of commands read from the .rd file.
-	std::string objectName;
-	uint parameters;
+	std::deque<ArcRdCommand> commandQueue; // The queue of commands read from the .rd file.
+	std::string              objectName;
+	std::vector<std::string> parameters;
 };

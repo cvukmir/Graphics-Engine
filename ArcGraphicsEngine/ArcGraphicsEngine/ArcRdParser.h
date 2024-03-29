@@ -68,7 +68,7 @@ private: // Methods //
 
 private: // Variables //
 
-	std::queue<ArcRdCommand> _commandQueue; // The queue of commands read from the .rd file.
+	std::deque<ArcRdCommand> _commandQueue; // The queue of commands read from the .rd file.
 	std::vector<ArcRdObject*> _objectList;
 	ArcRdDisplayMode         _displayMode;  // The display mode.
 	std::string              _displayName;  // The display name.

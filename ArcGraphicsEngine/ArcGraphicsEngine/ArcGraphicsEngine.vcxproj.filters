@@ -230,10 +230,28 @@
     <None Include="..\SceneFiles\s26.rd">
       <Filter>Tests</Filter>
     </None>
+    <None Include="..\SceneFiles\CVPersonal2.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\CVPersonal.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\Circles.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\FloodFill.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\Lines.rd">
+      <Filter>Tests</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Notes.txt">
       <Filter>ArcMain\Resource Files</Filter>
+    </Text>
+    <Text Include="..\SceneFiles\Notes.txt">
+      <Filter>Tests</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>

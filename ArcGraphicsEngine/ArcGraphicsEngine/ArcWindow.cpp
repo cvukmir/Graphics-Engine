@@ -174,12 +174,10 @@ void ArcWindow::draw3DCircle(double radius, double zMin, double zMax, double the
 
 void ArcWindow::drawCone(double height, double radius, double theta)
 {
-	// TODO: This
 	//Cone (height, radius, thetamax)
 	//Starts at origin.
 	//	Same as cylinder but drawing points are at x = 0, y = 0, height
 	//	Keep them as rectangles and not triangles.Will affect lighting later on.
-	
 	
 	double theta2Rad = theta * std::numbers::pi / 180;
 	double NSTEPS = 20;
@@ -214,9 +212,6 @@ void ArcWindow::drawCone(double height, double radius, double theta)
 
 void ArcWindow::drawCube()
 {
-	// TODO: This
-	// Cube: Call line_pipeline a bunch of times. Trace faces counter clockwise as seen from outside.
-
 	// Close Face
 	linePipeline(Arc3DPoint(-1, -1,  1), false); // Bottom left point
 	linePipeline(Arc3DPoint( 1, -1,  1), true);  // Bottom right point
@@ -280,10 +275,13 @@ void ArcWindow::drawCylinder(double radius, double zmin, double zmax, double the
 	}
 }
 
-void ArcWindow::drawDisk()
+void ArcWindow::drawDisk(double height, double radius, double thetaMax)
 {
 	// TODO: This
 	// Disk (height, radius, thetamax)
+
+	draw3DCircle(radius, 0, 0, thetaMax, 0);
+	draw3DCircle(radius, 0, 0, thetaMax, 0);
 }
 
 void ArcWindow::draw2DLine(const Arc2DPoint& startPoint, const Arc2DPoint& endPoint)
@@ -608,10 +606,9 @@ void ArcWindow::pointPipeline(const Arc3DPoint& point)
 
 	Arc3DPoint clipCoordinates = mutablePoint.toCartesianPoint();
 
-	// TODO: Z coordinate coming from camera_to_clip is not correct.
 	if (!((clipCoordinates.x() >= 0.0 && clipCoordinates.x() <= 1.0) &&
-		  (clipCoordinates.y() >= 0.0 && clipCoordinates.y() <= 1.0)))// && 
-//		  (clipCoordinates.z() >= 0.0 && clipCoordinates.z() <= 1.0)))
+		  (clipCoordinates.y() >= 0.0 && clipCoordinates.y() <= 1.0) && 
+		  (clipCoordinates.z() >= 0.0 && clipCoordinates.z() <= 1.0)))
 	{
 		// Not in clipping plane, will not be shown.
 		return;
