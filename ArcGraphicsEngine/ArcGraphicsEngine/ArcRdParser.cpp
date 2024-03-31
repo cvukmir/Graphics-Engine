@@ -84,6 +84,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 
 					if (argumentSize == 1U)
 					{
+						pWindow->initializeNewFrame();
 						pWindow->frameNumber(std::stoi(argumentList[0]));
 
 						isInFrameBlock = true;
@@ -94,8 +95,6 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 					// Not failing if was not in a frame block before, this can be just an extraneous tag.
 					// TODO: Log it.
 
-					//pWindow->initializeNewFrame();
-
 					isInFrameBlock = false;
 
 					break;
@@ -104,6 +103,14 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 					{
 						return false; 
 					}
+
+					if (!isInFrameBlock)
+					{
+						isInFrameBlock = true;
+						pWindow->initializeNewFrame();
+					}
+
+					pWindow->clearTransformationMaxtrix();
 
 					isInWorldBlock = true;
 
@@ -212,7 +219,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 				case ArcRdCommandType::Background:
 					if (argumentSize == 3U)
 					{
-						pWindow->fillBackground(ArcColor(std::stof(argumentList[0]),   // Red
+						pWindow->backgroundColor(ArcColor(std::stof(argumentList[0]),   // Red
 							                             std::stof(argumentList[1]),   // Blue
 							                             std::stof(argumentList[2]))); // Green
 					}
@@ -637,6 +644,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 
 							int prevVertex = -1;
 							int currentVertex = -1;
+							int firstVertex = -1;
 
 							std::vector<int> pointIndexList;
 
@@ -649,12 +657,12 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 
 								while ((currentVertex = std::stoi(argumentList[++argumentIndex])) != -1)
 								{
-									if (prevVertex == -1)
+									if (firstVertex == -1)
 									{
-										prevVertex = currentVertex;
+										firstVertex = currentVertex;
 									}
 
-									if (currentVertex != prevVertex)
+									if (prevVertex != -1)
 									{
 										if (flags & static_cast<uint>(VertexTypes::Color))
 										{
@@ -668,9 +676,18 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 									{
 										break;
 									}
+
+									prevVertex = currentVertex;
 								}
+
+								if (firstVertex != -1 && prevVertex != -1)
+								{
+									pWindow->draw3DLine(Arc3DLine(pointVector[prevVertex], pointVector[firstVertex]));
+								}
+
 								prevVertex = -1;
 								currentVertex = -1;
+								firstVertex = -1;
 							}
 
 							// Reset the window color back to the orignal current color.

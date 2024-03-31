@@ -96,7 +96,7 @@ Arc3DPointH ArcTransformMatrixH::world_to_camera(const Arc3DPointH& point, const
 	////////////////   ///////////////
 
 	// Step 1 -> Get vector from eye to look point
-	ArcVector A(at, eye);
+	ArcVector A(eye, at);
 
 	// Step 2 -> Normalize to scale of 1
 	A.normalize();

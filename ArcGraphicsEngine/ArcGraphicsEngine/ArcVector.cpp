@@ -18,9 +18,9 @@ ArcVector::ArcVector(double x, double y, double z)
 }
 
 ArcVector::ArcVector(const Arc3DPoint& startPoint, const Arc3DPoint& endPoint)
-	: _x(startPoint.x() - endPoint.x())
-	, _y(startPoint.y() - endPoint.y())
-	, _z(startPoint.z() - endPoint.z())
+	: _x(endPoint.x() - startPoint.x())
+	, _y(endPoint.y() - startPoint.y())
+	, _z(endPoint.z() - startPoint.z())
 {
 }
 

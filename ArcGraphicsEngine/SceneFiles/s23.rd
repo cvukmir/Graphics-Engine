@@ -1,4 +1,5 @@
 Display "Sphere Test" "Screen" "rgbdouble"
+Format 1000 640
 
 Background 0.5 0.5 0.5
 

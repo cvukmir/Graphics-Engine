@@ -57,7 +57,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	ARC_WINDOW->windowWidth(renderer.width());
 	ARC_WINDOW->windowHeight(renderer.height());
 
-	ARC_WINDOW->initializeNewFrame();
+	//ARC_WINDOW->initializeNewFrame();
 
 	renderer.executeCommands(ARC_WINDOW);
 	
@@ -154,28 +154,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_PAINT:
 			hdc = BeginPaint(hWnd, &ps);
 
-			// Display the frame to the screen.
-			StretchDIBits(
-				GetDC(WINDOW),
-				0,
-				0,
-				ARC_WINDOW->windowWidth(),
-				ARC_WINDOW->windowHeight(),
-				0,
-				0,
-				ARC_WINDOW->windowWidth(),
-				ARC_WINDOW->windowHeight(),
-				ARC_WINDOW->memory(),
-				&BITMAP_INFO,
-				DIB_RGB_COLORS,
-				SRCCOPY);
+			for (ArcFrameList::const_iterator it = ARC_WINDOW->frameBegin(); it != ARC_WINDOW->frameEnd(); ++it)
+			{
+				// Display the frame to the screen.
+				StretchDIBits(
+					GetDC(WINDOW),
+					0,
+					0,
+					ARC_WINDOW->windowWidth(),
+					ARC_WINDOW->windowHeight(),
+					0,
+					0,
+					ARC_WINDOW->windowWidth(),
+					ARC_WINDOW->windowHeight(),
+					(*it),
+					&BITMAP_INFO,
+					DIB_RGB_COLORS,
+					SRCCOPY);
+			}
 
 			EndPaint(hWnd, &ps);
 			break;
 		case WM_KEYDOWN:
 			if (wParam == VK_F2)
 			{
-				ARC_WINDOW->initializeNewFrame();
 				RedrawWindow(hWnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 			}
 			break;

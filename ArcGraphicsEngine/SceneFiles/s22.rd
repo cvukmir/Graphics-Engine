@@ -1,4 +1,5 @@
 Display "Cylinder Test" "Screen" "rgbdouble"
+Format 640 640
 
 Background 0.5 0.5 0.5
 

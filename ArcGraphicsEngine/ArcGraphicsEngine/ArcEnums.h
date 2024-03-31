@@ -117,3 +117,10 @@ enum class VertexTypes
 	Texture   = 0b00100000,
 	Opacity   = 0b01000000,
 };
+
+enum class PlaneTypes
+{
+	XY = 0,
+	YZ = 1,
+	ZX = 2,
+};

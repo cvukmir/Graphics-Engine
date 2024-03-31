@@ -2,12 +2,14 @@
 
 #include "ArcWindow.h"
 #include "ArcColor.h"
+#include "ArcEnums.h"
 
 
 // Private Constructor //
 
 ArcWindow::ArcWindow()
-	: _cameraAtPoint    (0, 0, -1)
+	: _backgroundColor  (ArcColor::BLACK)
+	, _cameraAtPoint    (0, 0, -1)
 	, _cameraEyePoint   (0, 0, 0)
 	, _cameraFov        (90.0)
 	, _cameraUpVector   (0, 1, 0)
@@ -15,11 +17,11 @@ ArcWindow::ArcWindow()
 	, _clippingNear     (1.0)
 	, _currentColor     (ArcColor::WHITE)
 	, _frameNumber      (0)
-	, _height           (256)
+	, _height           (640)
 	, _isRunning        (true)
 	, _pCurrentTransform(new ArcTransformMatrixH(ArcMatrix4x4::IDENTITY_MATRIX))
 	, _pMemory          (nullptr)
-	, _width            (256)
+	, _width            (480)
 {
 }
 
@@ -56,46 +58,53 @@ ArcWindow* ArcWindow::window()
 
 // Public Properties //
 
-void              ArcWindow::cameraAt(const Arc3DPoint& value) { _cameraAtPoint = value; }
-const Arc3DPoint& ArcWindow::cameraAt() const                  { return _cameraAtPoint;  }
+void                         ArcWindow::backgroundColor(const ArcColor& color)  { _backgroundColor = color; }
 
-void              ArcWindow::cameraEyePoint(const Arc3DPoint& value) { _cameraEyePoint = value; }
-const Arc3DPoint& ArcWindow::cameraEyePoint() const                  { return _cameraEyePoint;  }
+void                         ArcWindow::cameraAt(const Arc3DPoint& value)       { _cameraAtPoint = value; }
+const Arc3DPoint&            ArcWindow::cameraAt() const                        { return _cameraAtPoint;  }
 
-void         ArcWindow::cameraFov(const double value) { _cameraFov = value; }
-const double ArcWindow::cameraFov() const             { return _cameraFov;  }
+void                         ArcWindow::cameraEyePoint(const Arc3DPoint& value) { _cameraEyePoint = value; }
+const Arc3DPoint&            ArcWindow::cameraEyePoint() const                  { return _cameraEyePoint;  }
 
-void              ArcWindow::cameraUpVector(const ArcVector& value) { _cameraUpVector = value; }
-const ArcVector&  ArcWindow::cameraUpVector() const                 { return _cameraUpVector;  }
+void                         ArcWindow::cameraFov(const double value)           { _cameraFov = value; }
+const double                 ArcWindow::cameraFov() const                       { return _cameraFov;  }
 
-void          ArcWindow::clippingFar(const double value) { _clippingFar = value; }
-const double  ArcWindow::clippingFar() const             { return _clippingFar;  }
+void                         ArcWindow::cameraUpVector(const ArcVector& value)  { _cameraUpVector = value; }
+const ArcVector&             ArcWindow::cameraUpVector() const                  { return _cameraUpVector;  }
 
-void          ArcWindow::clippingNear(const double value) { _clippingNear = value; }
-const double  ArcWindow::clippingNear() const             { return _clippingNear; }
+void                         ArcWindow::clippingFar(const double value)         { _clippingFar = value; }
+const double                 ArcWindow::clippingFar() const                     { return _clippingFar;  }
 
-void           ArcWindow::currentColor(const ArcColor value) { _currentColor = value; }
-const ArcColor ArcWindow::currentColor() const               { return _currentColor;  }
+void                         ArcWindow::clippingNear(const double value)        { _clippingNear = value; }
+const double                 ArcWindow::clippingNear() const                    { return _clippingNear;  }
 
-void           ArcWindow::frameNumber(const int value)       { _frameNumber = value; }
-const int      ArcWindow::frameNumber() const                { return _frameNumber;  }
+void                         ArcWindow::currentColor(const ArcColor value)      { _currentColor = value; }
+const ArcColor               ArcWindow::currentColor() const                    { return _currentColor;  }
 
-ArcFrameList::const_iterator ArcWindow::frameBegin() const         { return _frameList.begin(); }
-ArcFrameList::const_iterator ArcWindow::frameEnd()   const         { return _frameList.end();   }
+void                         ArcWindow::frameNumber(const int value)            { _frameNumber = value; }
+const int                    ArcWindow::frameNumber() const                     { return _frameNumber;  }
 
-void           ArcWindow::isRunning(const bool value)        { _isRunning = value; }
-const bool     ArcWindow::isRunning() const                  { return _isRunning;  }
+ArcFrameList::const_iterator ArcWindow::frameBegin() const                      { return _frameList.begin(); }
+ArcFrameList::const_iterator ArcWindow::frameEnd()   const                      { return _frameList.end();   }
 
-const UINT32*  ArcWindow::memory() const                     { return _pMemory; }
+void                         ArcWindow::isRunning(const bool value)             { _isRunning = value; }
+const bool                   ArcWindow::isRunning() const                       { return _isRunning;  }
 
-void           ArcWindow::windowHeight(const int value)      { _height = value; }
-const int      ArcWindow::windowHeight() const               { return _height;  }
+const UINT32*                ArcWindow::memory() const                          { return _pMemory; }
 
-void           ArcWindow::windowWidth(const int value)       { _width = value; }
-const int      ArcWindow::windowWidth() const                { return _width;  }
+const int                    ArcWindow::windowHeight() const                    { return _height;  }
+void                         ArcWindow::windowHeight(const int value)           { _height = value; }
+
+void                         ArcWindow::windowWidth(const int value)            { _width = value; }
+const int                    ArcWindow::windowWidth() const                     { return _width;  }
 
 
 // Public Methods //
+
+void ArcWindow::clearTransformationMaxtrix()
+{
+	(*_pCurrentTransform) = ArcMatrix4x4::IDENTITY_MATRIX;
+}
 
 void ArcWindow::draw2DCircle(const Arc3DPoint& startPoint, const int radius)
 {
@@ -130,23 +139,23 @@ void ArcWindow::draw2DCircle(const Arc3DPoint& startPoint, const int radius)
 	}
 }
 
-void ArcWindow::draw3DCircle(double radius, double zMin, double zMax, double theta, int planeEnum)
+void ArcWindow::draw3DCircle(const double radius, const double zMin, const double zMax, const double degrees, const PlaneTypes plane)
 {
-	const double NSTEPS = theta;
+	const double NSTEPS = degrees;
 
-	switch (planeEnum)
+	switch (plane)
 	{
-	case (0): // XY Plane
-		linePipeline(Arc3DPoint(radius, 0.0, 0.0), false);
-		break;
-	case (1): // YZ Plane
-		linePipeline(Arc3DPoint(0.0, radius, 0.0), false);
-		break;
-	case (2): // ZX Plane
-		linePipeline(Arc3DPoint(radius, 0.0, 0.0), false);
-		break;
-	default:
-		return;
+		case (PlaneTypes::XY): // XY Plane
+			linePipeline(Arc3DPoint(radius, 0.0, 0.0), false);
+			break;
+		case (PlaneTypes::YZ): // YZ Plane
+			linePipeline(Arc3DPoint(0.0, radius, 0.0), false);
+			break;
+		case (PlaneTypes::ZX): // ZX Plane
+			linePipeline(Arc3DPoint(radius, 0.0, 0.0), false);
+			break;
+		default:
+			return;
 	}
 
 	for (double i = 1; i < NSTEPS; ++i)
@@ -155,15 +164,15 @@ void ArcWindow::draw3DCircle(double radius, double zMin, double zMax, double the
 		double x = radius * cos(theta2);
 		double y = radius * sin(theta2);
 
-		switch (planeEnum)
+		switch (plane)
 		{
-		case (0): // XY Plane
+		case (PlaneTypes::XY): // XY Plane
 			linePipeline(Arc3DPoint(x, y, 0.0), true);
 			break;
-		case (1): // YZ Plane
+		case (PlaneTypes::YZ): // YZ Plane
 			linePipeline(Arc3DPoint(0.0, x, y), true);
 			break;
-		case (2): // ZX Plane
+		case (PlaneTypes::ZX): // ZX Plane
 			linePipeline(Arc3DPoint(x, 0.0, y), true);
 			break;
 		default:
@@ -172,14 +181,14 @@ void ArcWindow::draw3DCircle(double radius, double zMin, double zMax, double the
 	}
 }
 
-void ArcWindow::drawCone(double height, double radius, double theta)
+void ArcWindow::drawCone(const double height, const double radius, const double degrees)
 {
 	//Cone (height, radius, thetamax)
 	//Starts at origin.
 	//	Same as cylinder but drawing points are at x = 0, y = 0, height
 	//	Keep them as rectangles and not triangles.Will affect lighting later on.
 	
-	double theta2Rad = theta * std::numbers::pi / 180;
+	double theta2Rad = degrees * std::numbers::pi / 180;
 	double NSTEPS = 20;
 
 	linePipeline(Arc3DPoint(radius, 0, 0), false);
@@ -241,9 +250,9 @@ void ArcWindow::drawCube()
 //	linePipeline(Arc3DPoint(-1, -1, -1), true);
 }
 
-void ArcWindow::drawCylinder(double radius, double zmin, double zmax, double theta)
+void ArcWindow::drawCylinder(const double radius, const double zmin, const double zmax, const double degrees)
 {
-	double theta2Rad = theta * std::numbers::pi / 180;
+	double theta2Rad = degrees * std::numbers::pi / 180;
 	double NSTEPS = 20;
 
 	linePipeline(Arc3DPoint(radius, 0, zmin), false);
@@ -275,13 +284,26 @@ void ArcWindow::drawCylinder(double radius, double zmin, double zmax, double the
 	}
 }
 
-void ArcWindow::drawDisk(double height, double radius, double thetaMax)
+void ArcWindow::drawDisk(const double height, const double radius, const double thetaMax)
 {
-	// TODO: This
-	// Disk (height, radius, thetamax)
+	const double theta2Rad = thetaMax * std::numbers::pi / 180;
+	const double NSTEPS = 360;
 
-	draw3DCircle(radius, 0, 0, thetaMax, 0);
-	draw3DCircle(radius, 0, 0, thetaMax, 0);
+	linePipeline(Arc3DPoint(radius, 0.0, height), false);
+	for (double i = 1; i < NSTEPS; ++i)
+	{
+		double theta2 = (i / NSTEPS) * (2 * std::numbers::pi);
+
+		if (theta2 > theta2Rad)
+		{
+			return;
+		}
+
+		double x = radius * cos(theta2);
+		double y = radius * sin(theta2);
+
+		linePipeline(Arc3DPoint(x, y, height), true);
+	}
 }
 
 void ArcWindow::draw2DLine(const Arc2DPoint& startPoint, const Arc2DPoint& endPoint)
@@ -374,21 +396,16 @@ void ArcWindow::draw3DPoint(const Arc3DPoint& point)
 	pointPipeline(point);
 }
 
-void ArcWindow::drawSphere(double radius, double zMin, double zMax, double theta)
+void ArcWindow::drawSphere(const double radius, const double zMin, const double zMax, const double degrees)
 {
-	// Centered at origin
-	// Draw a circle in the x,y plane.
-	// Draw a circle in the yz plane.
-	// Draw a circle in the zx plane.
-
 	if (zMin > zMax)
 	{
 		return;
 	}
 
-	draw3DCircle(radius, zMin, zMax, theta, 0);
-	draw3DCircle(radius, zMin, zMax, theta, 1);
-	draw3DCircle(radius, zMin, zMax, theta, 2);
+	draw3DCircle(radius, zMin, zMax, degrees, PlaneTypes::XY);
+	draw3DCircle(radius, zMin, zMax, degrees, PlaneTypes::YZ);
+	draw3DCircle(radius, zMin, zMax, degrees, PlaneTypes::ZX);
 }
 
 void ArcWindow::fill(const Arc2DPoint& startPoint)
@@ -429,7 +446,7 @@ void ArcWindow::initializeNewFrame()
 	_pMemory = new UINT32[_width * _height];
 	_frameList.push_back(_pMemory);
 
-	fillBackground(ArcColor::BLACK);
+	fillBackground(_backgroundColor);
 }
 
 void ArcWindow::popTransformation()
@@ -461,19 +478,19 @@ void ArcWindow::scaleTransformation(const double s1, const double s2, const doub
 	_pCurrentTransform->scale(s1, s2, s3);
 }
 
-void ArcWindow::rotateTransformationXY(const double theta)
+void ArcWindow::rotateTransformationXY(const double degrees)
 {
-	_pCurrentTransform->rotate_xy(theta);
+	_pCurrentTransform->rotate_xy(degrees);
 }
 
-void ArcWindow::rotateTransformationYZ(const double theta)
+void ArcWindow::rotateTransformationYZ(const double degrees)
 {
-	_pCurrentTransform->rotate_yz(theta);
+	_pCurrentTransform->rotate_yz(degrees);
 }
 
-void ArcWindow::rotateTransformationZX(const double theta)
+void ArcWindow::rotateTransformationZX(const double degrees)
 {
-	_pCurrentTransform->rotate_zx(theta);
+	_pCurrentTransform->rotate_zx(degrees);
 }
 
 
@@ -596,11 +613,11 @@ void ArcWindow::linePipeline(const Arc3DPoint& point, const bool isDrawing)
 
 void ArcWindow::pointPipeline(const Arc3DPoint& point)
 {
-	Arc3DPointH mutablePoint;
+	Arc3DPointH mutablePoint = point;
 
 	mutablePoint = (*_pCurrentTransform) * mutablePoint;
 
-	mutablePoint = ArcTransformMatrixH::world_to_camera(point, _cameraEyePoint, _cameraAtPoint, _cameraUpVector);
+	mutablePoint = ArcTransformMatrixH::world_to_camera(mutablePoint, _cameraEyePoint, _cameraAtPoint, _cameraUpVector);
 
 	mutablePoint = ArcTransformMatrixH::camera_to_clip(mutablePoint, _cameraFov, _clippingNear, _clippingFar, static_cast<double>(_width) / static_cast<double>(_height));
 
