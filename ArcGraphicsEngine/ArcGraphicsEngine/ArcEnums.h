@@ -105,8 +105,6 @@ enum class ArcRdCommandType
 	MapBorder,
 };
 
-#endif // !ARCENUMS_H
-
 enum class VertexTypes
 {
 	Position  = 0b00000001,
@@ -118,9 +116,11 @@ enum class VertexTypes
 	Opacity   = 0b01000000,
 };
 
-enum class PlaneTypes
+enum class PlaneType
 {
 	XY = 0,
 	YZ = 1,
 	ZX = 2,
 };
+
+#endif // !ARCENUMS_H

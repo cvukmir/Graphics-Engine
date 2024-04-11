@@ -6,6 +6,10 @@ Add the following to the top of .h files for compiling with DLLs:
 	#define DLLEXPORT __declspec(dllimport)
 	#endif
 
-Add the following to the Linker->Preprocessor->Preprocessor Definitions:
+Ad the following to each class/method that is within the DLL library
+
+	Example: class DLLEXPORT TestClass
+
+Add the following to the C/C++->Preprocessor->Preprocessor Definitions:
 
 	COMPILING_DLL=1;

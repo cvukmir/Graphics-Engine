@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef ARCMATRIX4X4_H
-#define ARCMATRIX4X4_H
+#ifndef ARCMATRIX4X4_HPP
+#define ARCMATRIX4X4_HPP
 
 #include "Arc3DPointH.h"
 
@@ -128,4 +128,4 @@ private: // Methods //
 	}
 };
 
-#endif // !ARCMATRIX4X4_H
+#endif // !ARCMATRIX4X4_HPP

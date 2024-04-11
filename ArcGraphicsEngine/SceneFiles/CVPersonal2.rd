@@ -1,5 +1,4 @@
 Display "Axis System" "Screen" "rgbsingle"
-Format 500 500
 
 # Testing filling and double buffering
 

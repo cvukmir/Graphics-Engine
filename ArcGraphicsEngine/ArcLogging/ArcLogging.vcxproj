@@ -19,12 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
+    <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{90945d76-ab5c-4dce-856e-e70d953dda1f}</ProjectGuid>
-    <RootNamespace>ArcGraphicsEngine</RootNamespace>
+    <ProjectGuid>{cbc4993c-b139-43ed-815c-c811810ec37d}</ProjectGuid>
+    <RootNamespace>ArcLogging</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>ArcGraphicsEngine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -41,7 +40,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -75,11 +74,11 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -89,11 +88,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -103,16 +102,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;COMPILING_DLL=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\Chris\source\repos\ArcGraphicsEngine\ArcLogging;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Chris\source\repos\ArcGraphicsEngine\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ArcLogging.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -121,102 +117,22 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Arc2DLineInt.cpp" />
-    <ClCompile Include="Arc2DPoint.cpp" />
-    <ClCompile Include="Arc3DLine.cpp" />
-    <ClCompile Include="Arc3DPoint.cpp" />
-    <ClCompile Include="Arc3DPointH.cpp" />
-    <ClCompile Include="Arc3DPolygon.cpp" />
-    <ClCompile Include="ArcColor.cpp" />
-    <ClCompile Include="ArcGeometryForward.h" />
-    <ClCompile Include="ArcMain.cpp" />
-    <ClCompile Include="ArcBaseObject.cpp" />
-    <ClCompile Include="ArcTransformMatrixH.cpp" />
-    <ClCompile Include="ArcPnmParser.cpp" />
-    <ClCompile Include="ArcRdParser.cpp" />
-    <ClCompile Include="ArcVector.cpp" />
-    <ClCompile Include="ArcWindow.cpp" />
+    <ClInclude Include="ArcLogger.h" />
+    <ClInclude Include="ArcLoggingMacros.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\SceneFiles\Circles.rd" />
-    <None Include="..\SceneFiles\CVPersonal.rd" />
-    <None Include="..\SceneFiles\CVPersonal2.rd" />
-    <None Include="..\SceneFiles\CVPersonal3.rd" />
-    <None Include="..\SceneFiles\FloodFill.rd" />
-    <None Include="..\SceneFiles\Lines.rd" />
-    <None Include="..\SceneFiles\s01.rd" />
-    <None Include="..\SceneFiles\s02.rd" />
-    <None Include="..\SceneFiles\s03.rd" />
-    <None Include="..\SceneFiles\s04.rd" />
-    <None Include="..\SceneFiles\s05.rd" />
-    <None Include="..\SceneFiles\s06.rd" />
-    <None Include="..\SceneFiles\s07.rd" />
-    <None Include="..\SceneFiles\s08.rd" />
-    <None Include="..\SceneFiles\s09.rd" />
-    <None Include="..\SceneFiles\s10.rd" />
-    <None Include="..\SceneFiles\s11.rd" />
-    <None Include="..\SceneFiles\s12.rd" />
-    <None Include="..\SceneFiles\s13.rd" />
-    <None Include="..\SceneFiles\s14.rd" />
-    <None Include="..\SceneFiles\s15.rd" />
-    <None Include="..\SceneFiles\s16.rd" />
-    <None Include="..\SceneFiles\s17.rd" />
-    <None Include="..\SceneFiles\s18.rd" />
-    <None Include="..\SceneFiles\s19.rd" />
-    <None Include="..\SceneFiles\s20.rd" />
-    <None Include="..\SceneFiles\s21.rd" />
-    <None Include="..\SceneFiles\s22.rd" />
-    <None Include="..\SceneFiles\s23.rd" />
-    <None Include="..\SceneFiles\s24.rd" />
-    <None Include="..\SceneFiles\s25.rd" />
-    <None Include="..\SceneFiles\s26.rd" />
-    <None Include="..\SceneFiles\s27.rd" />
-    <None Include="..\SceneFiles\s28.rd" />
-    <None Include="..\SceneFiles\s29.rd" />
-    <None Include="..\SceneFiles\s30.rd" />
-    <None Include="..\SceneFiles\s31.rd" />
-    <None Include="..\SceneFiles\s32.rd" />
-    <None Include="..\SceneFiles\s33.rd" />
-    <None Include="..\SceneFiles\s34.rd" />
-    <None Include="..\SceneFiles\s35.rd" />
-    <None Include="..\SceneFiles\s36.rd" />
-    <None Include="..\SceneFiles\s37.rd" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\SceneFiles\Notes.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Arc2DLine.h" />
-    <ClInclude Include="Arc2DPoint.h" />
-    <ClInclude Include="Arc3DLine.h" />
-    <ClInclude Include="Arc3DPoint.h" />
-    <ClInclude Include="Arc3DPointH.h" />
-    <ClInclude Include="Arc3DPolygon.h" />
-    <ClInclude Include="ArcBaseObject.h" />
-    <ClInclude Include="ArcBoundaryCodes.hpp" />
-    <ClInclude Include="ArcColor.h" />
-    <ClInclude Include="ArcConstants.h" />
-    <ClInclude Include="ArcEnums.h" />
-    <ClInclude Include="ArcMatrix4x4.hpp" />
-    <ClInclude Include="ArcRdObject.hpp" />
-    <ClInclude Include="ArcTransformMatrixH.h" />
-    <ClInclude Include="ArcPnmParser.h" />
-    <ClInclude Include="ArcRdCommand.hpp" />
-    <ClInclude Include="ArcRdParser.h" />
-    <ClInclude Include="ArcTypedefs.h" />
-    <ClInclude Include="ArcVector.h" />
-    <ClInclude Include="ArcWindow.h" />
+    <ClCompile Include="ArcLogger.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

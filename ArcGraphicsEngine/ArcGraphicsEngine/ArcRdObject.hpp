@@ -1,3 +1,8 @@
+#pragma once
+
+#ifndef ARCRDOBJECT_HPP
+#define ARCRDOBJECT_HPP
+
 #include "ArcRdCommand.hpp"
 #include "ArcTypedefs.h"
 
@@ -24,3 +29,5 @@ public: // Variables
 	std::string              objectName;
 	std::vector<std::string> parameters;
 };
+
+#endif // !ARCRDOBJECT_HPP

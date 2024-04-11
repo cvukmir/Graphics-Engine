@@ -116,42 +116,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="s01.rd">
-      <Filter>ArcMain\Resource Files</Filter>
-    </None>
-    <None Include="s02.rd">
-      <Filter>ArcMain\Resource Files</Filter>
-    </None>
-    <None Include="s03.rd">
-      <Filter>ArcMain\Resource Files</Filter>
-    </None>
-    <None Include="s04.rd">
-      <Filter>ArcMain\Resource Files</Filter>
-    </None>
-    <None Include="s05.rd">
-      <Filter>ArcMain\Resource Files</Filter>
-    </None>
-    <None Include="s06.rd">
-      <Filter>ArcMain\Resource Files</Filter>
-    </None>
-    <None Include="s07.rd">
-      <Filter>ArcMain\Resource Files</Filter>
-    </None>
-    <None Include="s08.rd">
-      <Filter>ArcMain\Resource Files</Filter>
-    </None>
-    <None Include="CVPersonal.rd">
-      <Filter>ArcMain\Resource Files</Filter>
-    </None>
-    <None Include="Lines.rd">
-      <Filter>ArcMain\Resource Files</Filter>
-    </None>
-    <None Include="Circles.rd">
-      <Filter>ArcMain\Resource Files</Filter>
-    </None>
-    <None Include="FloodFill.rd">
-      <Filter>ArcMain\Resource Files</Filter>
-    </None>
     <None Include="..\SceneFiles\s01.rd">
       <Filter>Tests</Filter>
     </None>
@@ -245,14 +209,42 @@
     <None Include="..\SceneFiles\Lines.rd">
       <Filter>Tests</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Notes.txt">
-      <Filter>ArcMain\Resource Files</Filter>
-    </Text>
-    <Text Include="..\SceneFiles\Notes.txt">
+    <None Include="..\SceneFiles\s27.rd">
       <Filter>Tests</Filter>
-    </Text>
+    </None>
+    <None Include="..\SceneFiles\s28.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s29.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s30.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s31.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s32.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s33.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s34.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s35.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s36.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s37.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\CVPersonal3.rd">
+      <Filter>Tests</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArcWindow.h">
@@ -312,5 +304,13 @@
     <ClInclude Include="ArcRdObject.hpp">
       <Filter>ArcIO\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ArcBoundaryCodes.hpp">
+      <Filter>ArcWorld\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\SceneFiles\Notes.txt">
+      <Filter>ArcMain\Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

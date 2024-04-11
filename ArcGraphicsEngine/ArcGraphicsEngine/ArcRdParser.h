@@ -12,6 +12,7 @@
 // ArcIO
 #include "ArcRdCommand.hpp"
 #include "ArcRdObject.hpp"
+#include "ArcEnums.h"
 
 
 class ArcRdParser

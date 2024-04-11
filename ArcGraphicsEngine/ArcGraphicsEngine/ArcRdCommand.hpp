@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef ARCRDCOMMAND_H
-#define ARCRDCOMMAND_H
+#ifndef ARCRDCOMMAND_HPP
+#define ARCRDCOMMAND_HPP
 
 // Stdlib
 #include <vector>
@@ -44,4 +44,4 @@ private: // Variables //
 	ArcRdCommandType _commandType;  // The command type.
 };
 
-#endif // !ARCRDCOMMAND_H
+#endif // !ARCRDCOMMAND_HPP

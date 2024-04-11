@@ -16,6 +16,8 @@
 #include "ArcTransformMatrixH.h"
 #include "Arc3DLine.h"
 
+#include "ArcEnums.h"
+
 class ArcWindow
 {
 private: // Singleton Constructor //
@@ -36,45 +38,45 @@ public: // Static Methods (Singleton) //
 
 public: // Properties //
 
-	void                         backgroundColor(const ArcColor& color);
+	void                         backgroundColor(const ArcColor& color);  // Sets the default background color for new frames.
 
-	void                         cameraAt(const Arc3DPoint& value);
-	const Arc3DPoint&            cameraAt() const;
+	void                         cameraAt(const Arc3DPoint& value);       // Sets the camera look point.
+	const Arc3DPoint&            cameraAt() const;                        // Gets the camera look point.
 
-	void                         cameraEyePoint(const Arc3DPoint& value);
-	const Arc3DPoint&            cameraEyePoint() const;
+	void                         cameraEyePoint(const Arc3DPoint& value); // Sets the camera position.
+	const Arc3DPoint&            cameraEyePoint() const;                  // Gets the camera position.
 
-	void                         cameraFov(const double value);
-	const double                 cameraFov() const;
+	void                         cameraFov(const double value);           // Sets the camera FOV (degrees).
+	const double                 cameraFov() const;                       // Gets the camera FOV (degrees).
 
-	void                         cameraUpVector(const ArcVector& value);
-	const ArcVector&             cameraUpVector() const;
+	void                         cameraUpVector(const ArcVector& value);  // Sets the camera up vector.
+	const ArcVector&             cameraUpVector() const;                  // Gets the camera up vector.
 
-	void                         clippingFar(const double value);
-	const double                 clippingFar() const;
+	void                         clippingFar(const double value);         // Sets the far clipping plane distance.
+	const double                 clippingFar() const;                     // Gets the far clipping plane distance.
 
-	void                         clippingNear(const double value);
-	const double                 clippingNear() const;
+	void                         clippingNear(const double value);        // Sets the near clipping plane distance.
+	const double                 clippingNear() const;                    // Gets the near clipping plane distance.
 
-	void                         currentColor(const ArcColor value);                       // Sets the current drawing color.
-	const ArcColor               currentColor() const;                                     // Gets the current drawing color.
+	void                         currentColor(const ArcColor value);      // Sets the current drawing color.
+	const ArcColor               currentColor() const;                    // Gets the current drawing color.
 
-	void                         frameNumber(const int value);                             // Sets the current frame number.
-	const int                    frameNumber() const;                                      // Gets the current frame number.
+	void                         frameNumber(const int value);            // Sets the current frame number.
+	const int                    frameNumber() const;                     // Gets the current frame number.
 
-	ArcFrameList::const_iterator frameBegin() const;                                      // Gets the first frame of the frame list.
-	ArcFrameList::const_iterator frameEnd()  const;                                       // Gets the last  frame of the frame last.
+	ArcFrameList::const_iterator frameBegin() const;                      // Gets the first frame of the frame list.
+	ArcFrameList::const_iterator frameEnd()  const;                       // Gets the last  frame of the frame last.
 
-	void                         isRunning(const bool value);                              // Sets whether the display window is running.
-	const bool                   isRunning() const;                                        // Gets whether the display window is running.
+	void                         isRunning(const bool value);             // Sets whether the display window is running.
+	const bool                   isRunning() const;                       // Gets whether the display window is running.
 
-	const UINT32*                memory() const;                                           // The current memory color map.
+	const UINT32*                memory() const;                          // Gets the current memory color map.
 
-	void                         windowHeight(const int value);                            // Sets the height of the display window.
-	const int                    windowHeight() const;                                     // Gets the height of the display window.
+	void                         windowHeight(const int value);           // Sets the height of the display window.
+	const int                    windowHeight() const;                    // Gets the height of the display window.
 
-	void                         windowWidth(const int value);                             // Sets the width of the display window.
-	const int                    windowWidth() const;                                      // Gets the width of the display window.
+	void                         windowWidth(const int value);            // Sets the width of the display window.
+	const int                    windowWidth() const;                     // Gets the width of the display window.
 
 
 public: // Methods //
@@ -88,8 +90,23 @@ public: // Methods //
 	/* Draws a circle at the given start point with the given radius using the currently set color. */
 	void draw2DCircle(const Arc3DPoint& startPoint, const int radius);
 
-	// Draws a 3D circle on the given plane with the given radius.
-	void draw3DCircle(const double radius, const double zMin, const double zMax, const double degrees, const PlaneTypes plane = PlaneTypes::XY);
+	/* Draws the given line with the currently set color (Bresenham's Line Drawing Algorithm). */
+	void draw2DLine(const Arc2DPoint& startPoint, const Arc2DPoint& endPoint);
+
+	/* Draws the given point with the currently set color. */
+	void draw2DPoint(const Arc2DPoint& point);
+
+	/* Draws a 3D circle on the given plane with the given radius. */
+	void draw3DCircle(const double radius, const double zMin, const double zMax, const double degrees, PlaneType plane);
+
+	/* Draws the given 3D line onto the screen. */
+	void draw3DLine(const Arc3DLine& line);
+
+	/* Draws the given line between the two points (Sutherland–Hodgman Clipping Algorithm). */
+	void draw3DLine(const Arc3DPointH& startPoint, const Arc3DPointH& endPoint);
+
+	/* Draws the given 3D point onto the screen. */
+	void draw3DPoint(const Arc3DPoint& point);
 
 	/* Run a cone through the pipeline.The cone should have a circular base of a given radius on the xy plane.The cone should have a given height in the positive z direction. */
 	void drawCone(const double height, const double radius, const double degrees);
@@ -103,20 +120,11 @@ public: // Methods //
 	/* Run a circular disc through the pipeline.The disk should have a given radius.The disk is parallel to the xy plane and centered about the z axis.A height parameters gives the position of the disk along the z axis. */
 	void drawDisk(const double height, const double radius, const double thetaMax);
 
-	/* Draws the given line with the currently set color. */
-	void draw2DLine(const Arc2DPoint& startPoint, const Arc2DPoint& endPoint);
-
-	/* Draws the given 3D line onto the screen. */
-	void draw3DLine(const Arc3DLine& line);
-
-	/* Draws the given point with the currently set color. */
-	void draw2DPoint(const Arc2DPoint& point);
-
-	/* Draws the given 3D point onto the screen. */
-	void draw3DPoint(const Arc3DPoint& point);
-
 	/* Run a sphere(or some representation of a sphere) through the pipeline.The sphere should be centered at the origin and have a radius given by a parameter. */
 	void drawSphere(double radius, double zMin, double zMax, double degrees);
+
+	/* Draws a sphere using the polygon sphere drawing technique. */
+	void drawSphere2(double radius, double zMin, double zMax, double degrees);
 
 	/* Fills the area at the given start point with the currently set color. */
 	void fill(const Arc2DPoint& startPoint);
@@ -133,12 +141,6 @@ public: // Methods //
 	/* Pushes a transformation onto the transformation stack. */
 	void pushTransformation();
 
-	/* Translates the current transformation matrix by the given values. */
-	void translateTransformation(const double t1, const double t2, const double t3);
-
-	/* Scales the current transformation matrix by the given values. */
-	void scaleTransformation(const double s1, const double s2, const double s3);
-
 	/* Rotates the current transformation matrix by the given rotation in the XY plane. */
 	void rotateTransformationXY(const double degrees);
 
@@ -148,16 +150,34 @@ public: // Methods //
 	/* Rotates the current transformation matrix by the given rotation in the ZY plane. */
 	void rotateTransformationZX(const double degrees);
 
+	/* Scales the current transformation matrix by the given values. */
+	void scaleTransformation(const double s1, const double s2, const double s3);
 
+	/* Translates the current transformation matrix by the given values. */
+	void translateTransformation(const double t1, const double t2, const double t3);
 
 
 private: // Methods //
 
+	/* Computes the point using the Parametric Line Algorithm. */
+	Arc3DPointH computeParametricLine(const Arc3DPointH& point1, const Arc3DPointH& point2, const double alpha);
+
+	/* Computes the point using the Parametric Line Algorithm. */
+	Arc3DPoint computeParametricLine(const Arc3DPoint& point1, const Arc3DPoint& point2, const double alpha);
+
 	/* Gets the color at the given position. */
 	ArcColor colorAt(const int xPos, const int yPos);
 
+	void cyberPunk(double radius);
+
+	/* Draws a point using the Digital Differential Analyzer algorithm. */
+	void DDA(const Arc3DPoint& startPoint, const Arc3DPoint& endPoint);
+
 	/* Draws a pixel in memory at the given position using the currently set color. */
-	void drawPixel(const int xPos, const int yPos);
+	void draw2DPixel(const int xPos, const int yPos);
+
+	/* Draws a 3D Pixel in memory at the given position using the currently set color. */
+	void draw3DPixel(const Arc3DPoint& point);
 
 	/* Recursive call to fill a given area. */
 	void fastFloodFill(const int startX, const int endX, const int y, ArcColor seedColor);
@@ -167,6 +187,9 @@ private: // Methods //
 
 	/* Finds the span at the given start point and color to fill. */
 	bool findspan(int& startX, int& endX, const int y, ArcColor seedColor);
+
+	/* Gets the specified bit. */
+	const uint getBit(const uint value, const uint place);
 
 	/* Whether the given position is within the window bounds. */
 	bool inWindow(const int xPos, const int yPos) const;
@@ -198,8 +221,9 @@ private: // Variables //
 	int                    _height;              // The height of this window.
 	bool                   _isRunning;           // Whether this window is currently running.
 	ArcTransformMatrixH*   _pCurrentTransform;   // The current transformation matrix.
+	double*                _pDepthBuffer;        // The current frame being changed.
 	UINT32*                _pMemory;             // The current frame being changed.
-	Arc3DPoint             _prevClipPoint;       // Previously moved to point for drawing lines.
+	Arc3DPointH            _prevClipPoint;       // Previously moved to point for drawing lines.
 	ArcTransformationStack _transformationStack; // The stack of transformations to perform on objects.
 	int                    _width;               // The width of this window.
 };

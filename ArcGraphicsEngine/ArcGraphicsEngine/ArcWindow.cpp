@@ -3,6 +3,7 @@
 #include "ArcWindow.h"
 #include "ArcColor.h"
 #include "ArcEnums.h"
+#include "ArcBoundaryCodes.hpp"
 
 
 // Private Constructor //
@@ -20,6 +21,7 @@ ArcWindow::ArcWindow()
 	, _height           (640)
 	, _isRunning        (true)
 	, _pCurrentTransform(new ArcTransformMatrixH(ArcMatrix4x4::IDENTITY_MATRIX))
+	, _pDepthBuffer     (nullptr)
 	, _pMemory          (nullptr)
 	, _width            (480)
 {
@@ -39,6 +41,11 @@ ArcWindow::~ArcWindow()
 	if (_pCurrentTransform)
 	{
 		delete _pCurrentTransform;
+	}
+
+	if (_pDepthBuffer)
+	{
+		delete(_pDepthBuffer);
 	}
 }
 
@@ -117,14 +124,14 @@ void ArcWindow::draw2DCircle(const Arc3DPoint& startPoint, const int radius)
 
 	while (y >= x)
 	{
-		drawPixel(startPointX + x, startPointY + y);
-		drawPixel(startPointX + y, startPointY + x);
-		drawPixel(startPointX + y, startPointY - x);
-		drawPixel(startPointX - x, startPointY + y);
-		drawPixel(startPointX - x, startPointY - y);
-		drawPixel(startPointX - y, startPointY - x);
-		drawPixel(startPointX - y, startPointY + x);
-		drawPixel(startPointX + x, startPointY - y);
+		draw2DPixel(startPointX + x, startPointY + y);
+		draw2DPixel(startPointX + y, startPointY + x);
+		draw2DPixel(startPointX + y, startPointY - x);
+		draw2DPixel(startPointX - x, startPointY + y);
+		draw2DPixel(startPointX - x, startPointY - y);
+		draw2DPixel(startPointX - y, startPointY - x);
+		draw2DPixel(startPointX - y, startPointY + x);
+		draw2DPixel(startPointX + x, startPointY - y);
 
 		++x;
 		if (p >= 0)
@@ -139,19 +146,19 @@ void ArcWindow::draw2DCircle(const Arc3DPoint& startPoint, const int radius)
 	}
 }
 
-void ArcWindow::draw3DCircle(const double radius, const double zMin, const double zMax, const double degrees, const PlaneTypes plane)
+void ArcWindow::draw3DCircle(const double radius, const double zMin, const double zMax, const double degrees, PlaneType plane)
 {
 	const double NSTEPS = degrees;
 
 	switch (plane)
 	{
-		case (PlaneTypes::XY): // XY Plane
+		case (PlaneType::XY): // XY Plane
 			linePipeline(Arc3DPoint(radius, 0.0, 0.0), false);
 			break;
-		case (PlaneTypes::YZ): // YZ Plane
+		case (PlaneType::YZ): // YZ Plane
 			linePipeline(Arc3DPoint(0.0, radius, 0.0), false);
 			break;
-		case (PlaneTypes::ZX): // ZX Plane
+		case (PlaneType::ZX): // ZX Plane
 			linePipeline(Arc3DPoint(radius, 0.0, 0.0), false);
 			break;
 		default:
@@ -166,17 +173,17 @@ void ArcWindow::draw3DCircle(const double radius, const double zMin, const doubl
 
 		switch (plane)
 		{
-		case (PlaneTypes::XY): // XY Plane
-			linePipeline(Arc3DPoint(x, y, 0.0), true);
-			break;
-		case (PlaneTypes::YZ): // YZ Plane
-			linePipeline(Arc3DPoint(0.0, x, y), true);
-			break;
-		case (PlaneTypes::ZX): // ZX Plane
-			linePipeline(Arc3DPoint(x, 0.0, y), true);
-			break;
-		default:
-			return;
+			case (PlaneType::XY): // XY Plane
+				linePipeline(Arc3DPoint(x, y, 0.0), true);
+				break;
+			case (PlaneType::YZ): // YZ Plane
+				linePipeline(Arc3DPoint(0.0, x, y), true);
+				break;
+			case (PlaneType::ZX): // ZX Plane
+				linePipeline(Arc3DPoint(x, 0.0, y), true);
+				break;
+			default:
+				return;
 		}
 	}
 }
@@ -222,32 +229,32 @@ void ArcWindow::drawCone(const double height, const double radius, const double 
 void ArcWindow::drawCube()
 {
 	// Close Face
-	linePipeline(Arc3DPoint(-1, -1,  1), false); // Bottom left point
-	linePipeline(Arc3DPoint( 1, -1,  1), true);  // Bottom right point
-	linePipeline(Arc3DPoint( 1,  1,  1), true);  // Top right point
-	linePipeline(Arc3DPoint(-1,  1,  1), true);  // Top left point
-//	linePipeline(Arc3DPoint(-1, -1,  1), true);  // Bottom left point
+	linePipeline(Arc3DPoint(-1.0, -1.0,  1.0), false); // Bottom left point
+	linePipeline(Arc3DPoint( 1.0, -1.0,  1.0), true);  // Bottom right point
+	linePipeline(Arc3DPoint( 1.0,  1.0,  1.0), true);  // Top right point
+	linePipeline(Arc3DPoint(-1.0,  1.0,  1.0), true);  // Top left point
+//	linePipeline(Arc3DPoint(-1.0, -1.0,  1.0), true);  // Bottom left point
 
 	// Right Face
-	linePipeline(Arc3DPoint( 1, -1,  1), false); // Bottom left point
-	linePipeline(Arc3DPoint( 1, -1, -1), true);  // Bottom right point
-	linePipeline(Arc3DPoint( 1,  1, -1), true);  // ...
-	linePipeline(Arc3DPoint( 1,  1,  1), true);
-//	linePipeline(Arc3DPoint( 1, -1,  1), true);
+	linePipeline(Arc3DPoint( 1.0, -1.0,  1.0), false); // Bottom left point
+	linePipeline(Arc3DPoint( 1.0, -1.0, -1.0), true);  // Bottom right point
+	linePipeline(Arc3DPoint( 1.0,  1.0, -1.0), true);  // ...
+	linePipeline(Arc3DPoint( 1.0,  1.0,  1.0), true);
+//	linePipeline(Arc3DPoint( 1.0, -1.0,  1.0), true);
 
 	// Far Face
-	linePipeline(Arc3DPoint( 1, -1, -1), false);
-	linePipeline(Arc3DPoint(-1, -1, -1), true);
-	linePipeline(Arc3DPoint(-1,  1, -1), true);
-	linePipeline(Arc3DPoint( 1,  1, -1), true);
-//	linePipeline(Arc3DPoint( 1, -1, -1), true);
+	linePipeline(Arc3DPoint( 1.0, -1.0, -1.0), false);
+	linePipeline(Arc3DPoint(-1.0, -1.0, -1.0), true);
+	linePipeline(Arc3DPoint(-1.0,  1.0, -1.0), true);
+	linePipeline(Arc3DPoint( 1.0,  1.0, -1.0), true);
+//	linePipeline(Arc3DPoint( 1.0, -1.0, -1.0), true);
 
 	// Left Face
-	linePipeline(Arc3DPoint(-1, -1, -1), false);
-	linePipeline(Arc3DPoint(-1, -1,  1), true);
-	linePipeline(Arc3DPoint(-1,  1,  1), true);
-	linePipeline(Arc3DPoint(-1,  1, -1), true);
-//	linePipeline(Arc3DPoint(-1, -1, -1), true);
+	linePipeline(Arc3DPoint(-1.0, -1.0, -1.0), false);
+	linePipeline(Arc3DPoint(-1.0, -1.0,  1.0), true);
+	linePipeline(Arc3DPoint(-1.0,  1.0,  1.0), true);
+	linePipeline(Arc3DPoint(-1.0,  1.0, -1.0), true);
+//	linePipeline(Arc3DPoint(-1.0, -1.0, -1.0), true);
 }
 
 void ArcWindow::drawCylinder(const double radius, const double zmin, const double zmax, const double degrees)
@@ -327,7 +334,7 @@ void ArcWindow::draw2DLine(const Arc2DPoint& startPoint, const Arc2DPoint& endPo
 		// Vertical line that increases in y.
 		for (int y = startPointY; y <= endPointY; ++y)
 		{
-			drawPixel(startPointX, y);
+			draw2DPixel(startPointX, y);
 		}
 	}
 	else if (deltaX == 0 && deltaY < 0)
@@ -335,7 +342,7 @@ void ArcWindow::draw2DLine(const Arc2DPoint& startPoint, const Arc2DPoint& endPo
 		// Vertical line that decreases in y.
 		for (int y = startPointY; y >= endPointY; --y)
 		{
-			drawPixel(startPointX, y);
+			draw2DPixel(startPointX, y);
 		}
 	}
 	else if (abs(deltaY) <= abs(deltaX))
@@ -346,7 +353,7 @@ void ArcWindow::draw2DLine(const Arc2DPoint& startPoint, const Arc2DPoint& endPo
 		for (; x <= endX; ++x)
 		{
 			int xOffset = deltaX > 0 ? 0 : 2 * (x - startPointX);
-			drawPixel(x - xOffset, y);
+			draw2DPixel(x - xOffset, y);
 			if (p > 0)
 			{
 				deltaY > 0 ? ++y : --y;
@@ -366,7 +373,7 @@ void ArcWindow::draw2DLine(const Arc2DPoint& startPoint, const Arc2DPoint& endPo
 		for (; y <= endY; ++y)
 		{
 			int yOffset = deltaY > 0 ? 0 : 2 * (y - startPointY);
-			drawPixel(x, y - yOffset);
+			draw2DPixel(x, y - yOffset);
 			if (p > 0)
 			{
 				deltaX > 0 ? ++x : --x;
@@ -386,9 +393,70 @@ void ArcWindow::draw3DLine(const Arc3DLine& line)
 	linePipeline(line.endPoint(),    true);
 }
 
+void ArcWindow::draw3DLine(const Arc3DPointH& startPoint, const Arc3DPointH& endPoint)
+{
+	const ArcBoundaryCodes BC0 = ArcBoundaryCodes(startPoint);
+	const ArcBoundaryCodes BC1 = ArcBoundaryCodes(endPoint);
+
+	if (BC0.kode & BC1.kode)
+	{
+		return; // Trivial reject
+	}
+
+	const uint kode = BC0.kode | BC1.kode;
+
+	if (kode == 0U)
+	{
+		// Normalize and draw line from H0 to H1
+		DDA(ArcTransformMatrixH::clip_to_device(startPoint, _width, _height).toCartesianPoint(),
+			ArcTransformMatrixH::clip_to_device(endPoint,   _width, _height).toCartesianPoint());
+		return;
+	}
+
+	uint   mask   = 1U;
+	double alpha  = 0.0;
+	double alpha0 = 0.0;
+	double alpha1 = 1.0;
+	for (uint i = 0; i < 6; ++i, mask <<= 1U)
+	{
+		if (getBit(kode, i) == 0)
+		{
+			continue; // No intersection
+		}
+
+		alpha = BC0.values[i] / (BC0.values[i] - BC1.values[i]);
+		if (BC0.kode & mask)
+		{
+			// Outside to inside
+			alpha0 = max(alpha0, alpha);
+		}
+		else
+		{
+			// Inside to outside
+			alpha1 = max(alpha1, alpha);
+		}
+
+		// If alpha is ever < 0 or > 1, there is an error. (Shouldn’t need to check if the algorithm is correct).
+		if (alpha1 < alpha0)
+		{
+			break; // No line left.
+		}
+	}
+
+	Arc3DPointH pointH0 = computeParametricLine(startPoint, endPoint, alpha0);
+	Arc3DPointH pointH1 = computeParametricLine(startPoint, endPoint, alpha1);
+
+	// Convert to device coordinates
+	pointH0 = ArcTransformMatrixH::clip_to_device(pointH0, _width, _height);
+	pointH1 = ArcTransformMatrixH::clip_to_device(pointH1, _width, _height);
+
+	// Normalize and draw line from H0 to H1
+	DDA(pointH0.toCartesianPoint(), pointH1.toCartesianPoint());
+}
+
 void ArcWindow::draw2DPoint(const Arc2DPoint& point)
 {
-	drawPixel(point.x(), point.y());
+	draw2DPixel(point.x(), point.y());
 }
 
 void ArcWindow::draw3DPoint(const Arc3DPoint& point)
@@ -403,9 +471,40 @@ void ArcWindow::drawSphere(const double radius, const double zMin, const double 
 		return;
 	}
 
-	draw3DCircle(radius, zMin, zMax, degrees, PlaneTypes::XY);
-	draw3DCircle(radius, zMin, zMax, degrees, PlaneTypes::YZ);
-	draw3DCircle(radius, zMin, zMax, degrees, PlaneTypes::ZX);
+	draw3DCircle(radius, zMin, zMax, degrees, PlaneType::XY);
+	draw3DCircle(radius, zMin, zMax, degrees, PlaneType::YZ);
+	draw3DCircle(radius, zMin, zMax, degrees, PlaneType::ZX);
+}
+
+void ArcWindow::drawSphere2(double radius, double zMin, double zMax, double degrees)
+{
+	const uint NSTEPS_LONG = 20U; // Should be multiple of 4 (4 quadrents).
+	const uint NSTEPS_LAT  = 10U; // Should be multiple of 2 (2 halves).
+
+	for (uint i = 0U; i < NSTEPS_LONG; ++i)
+	{
+		// Looping over XZ plane.
+		const double phi1 = (static_cast<double>(i)     / static_cast<double>(NSTEPS_LONG)) * (2.0 * std::numbers::pi);
+		const double phi2 = (static_cast<double>(i + 1) / static_cast<double>(NSTEPS_LONG)) * (2.0 * std::numbers::pi);
+
+		for (uint j = 0U; j < NSTEPS_LAT; ++j)
+		{
+			// Looping over XY plane.
+			const double theta1 = (static_cast<double>(j)     / static_cast<double>(NSTEPS_LAT)) * (2.0 * std::numbers::pi);
+			const double theta2 = (static_cast<double>(j + 1) / static_cast<double>(NSTEPS_LAT)) * (2.0 * std::numbers::pi);
+
+			const Arc3DPoint point1(radius * cos(phi1) * cos(theta1), radius * cos(phi1) * sin(theta1), radius * sin(phi1));
+			const Arc3DPoint point2(radius * cos(phi1) * cos(theta2), radius * cos(phi1) * sin(theta2), radius * sin(phi1));
+			const Arc3DPoint point3(radius * cos(phi2) * cos(theta2), radius * cos(phi2) * sin(theta2), radius * sin(phi2));
+			const Arc3DPoint point4(radius * cos(phi2) * cos(theta1), radius * cos(phi2) * sin(theta1), radius * sin(phi2));
+
+			linePipeline(point1, false);
+			linePipeline(point2, true);
+			linePipeline(point3, true);
+			linePipeline(point4, true);
+			linePipeline(point1, true);
+		}
+	}
 }
 
 void ArcWindow::fill(const Arc2DPoint& startPoint)
@@ -443,7 +542,20 @@ void ArcWindow::fillBackground(const ArcColor& color)
 
 void ArcWindow::initializeNewFrame()
 {
-	_pMemory = new UINT32[_width * _height];
+	uint size = _width * _height;
+
+	if (!_pDepthBuffer)
+	{
+		_pDepthBuffer = new double[size];
+	}
+
+	double* iter = _pDepthBuffer;
+	for (uint i = 0; i < size; ++i, ++iter)
+	{
+		*iter = 1.0;
+	}
+
+	_pMemory = new UINT32[size];
 	_frameList.push_back(_pMemory);
 
 	fillBackground(_backgroundColor);
@@ -498,12 +610,70 @@ void ArcWindow::rotateTransformationZX(const double degrees)
 
 // Private Methods //
 
+Arc3DPointH ArcWindow::computeParametricLine(const Arc3DPointH& point1, const Arc3DPointH& point2, const double alpha)
+{
+	return Arc3DPointH(point1.x() + (alpha * (point2.x() - point1.x())),
+		               point1.y() + (alpha * (point2.y() - point1.y())),
+		               point1.z() + (alpha * (point2.z() - point1.z())),
+		               point1.w() + (alpha * (point2.w() - point1.w())));
+}
+
+Arc3DPoint ArcWindow::computeParametricLine(const Arc3DPoint& point1, const Arc3DPoint& point2, const double alpha)
+{
+	return Arc3DPoint(point1.x() + (alpha * (point2.x() - point1.x())),
+		              point1.y() + (alpha * (point2.y() - point1.y())),
+		              point1.z() + (alpha * (point2.z() - point1.z())));
+}
+
 ArcColor ArcWindow::colorAt(const int xPos, const int yPos)
 {
 	return ArcColor(*(_pMemory + (_width * yPos) + xPos));
 }
 
-void ArcWindow::drawPixel(const int xPos, const int yPos)
+void ArcWindow::cyberPunk(double radius)
+{
+	const uint NSTEPS_LONG = 20U; // Should be multiple of 4 (4 quadrents).
+	const uint NSTEPS_LAT = 10U; // Should be multiple of 2 (2 halves).
+
+	for (uint i = 0U; i < NSTEPS_LONG; ++i)
+	{
+		// Looping over XZ plane.
+		const double phi1 = (static_cast<double>(i) / static_cast<double>(NSTEPS_LONG)) * (2.0 * std::numbers::pi);
+		const double phi2 = (static_cast<double>(i + 1) / static_cast<double>(NSTEPS_LONG)) * (2.0 * std::numbers::pi);
+
+		for (uint j = 0U; j < NSTEPS_LAT; ++j)
+		{
+			// Looping over XY plane.
+			const double theta1 = (static_cast<double>(j)     / static_cast<double>(NSTEPS_LAT)) * (2.0 * std::numbers::pi);
+			const double theta2 = (static_cast<double>(j + 1) / static_cast<double>(NSTEPS_LAT)) * (2.0 * std::numbers::pi);
+
+			const Arc3DPoint point1(radius * cos(phi1) * cos(theta1), radius * cos(phi1) * sin(theta1), radius * sin(phi1));
+			const Arc3DPoint point2(radius * cos(phi1) * cos(theta1), radius * cos(phi2) * sin(theta2), radius * sin(phi1));
+			const Arc3DPoint point3(radius * cos(phi2) * cos(theta2), radius * cos(phi2) * sin(theta2), radius * sin(phi1));
+			const Arc3DPoint point4(radius * cos(phi2) * cos(theta2), radius * cos(phi1) * sin(theta1), radius * sin(phi1));
+
+			linePipeline(point1, false);
+			linePipeline(point2, true);
+			linePipeline(point3, true);
+			linePipeline(point4, true);
+			linePipeline(point1, true);
+		}
+	}
+}
+
+void ArcWindow::DDA(const Arc3DPoint& startPoint, const Arc3DPoint& endPoint)
+{
+	int dx = int(endPoint.x()) - int(startPoint.x()); // Or just floor
+	int dy = int(endPoint.y()) - int(startPoint.y());
+	const int NSTEPS = max(abs(dx), abs(dy));
+	for (int i = 0; i < NSTEPS; ++i)
+	{
+		double alpha = i / double(NSTEPS);
+		draw3DPixel(computeParametricLine(startPoint, endPoint, alpha));
+	}
+}
+
+void ArcWindow::draw2DPixel(const int xPos, const int yPos)
 {
 	if (!inWindow(xPos, yPos))
 	{
@@ -511,6 +681,25 @@ void ArcWindow::drawPixel(const int xPos, const int yPos)
 	}
 
 	*(_pMemory + (_width * yPos) + xPos) = _currentColor.color();
+}
+
+void ArcWindow::draw3DPixel(const Arc3DPoint& point)
+{
+	if (!inWindow(point.x(), point.y()))
+	{
+		return;
+	}
+
+	const uint offset = (_width * int(point.y())) + int(point.x());
+	double* depthPosition = _pDepthBuffer + offset;
+	
+	if (*depthPosition < point.z() || point.z() < 0.0)
+	{
+		return;
+	}
+	
+	*depthPosition       = point.z();
+	*(_pMemory + offset) = _currentColor.color();
 }
 
 void ArcWindow::fastFloodFill(const int startX, const int endX, const int y, const ArcColor seedColor)
@@ -549,7 +738,7 @@ void ArcWindow::fillSpan(const int startX, const int endX, const int y)
 {
 	for (int i = startX; i < endX; ++i)
 	{
-		drawPixel(i, y);
+		draw2DPixel(i, y);
 	}
 }
 
@@ -584,6 +773,11 @@ bool ArcWindow::findspan(int& startX, int& endX, const int y, const ArcColor see
 	return true;
 }
 
+const uint ArcWindow::getBit(const uint value, const uint place)
+{
+	return ((value >> place) & 0x00000001);;
+}
+
 bool ArcWindow::inWindow(const int xPos, const int yPos) const
 {
 	return (xPos >= 0 && xPos < _width) && (yPos >= 0 && yPos < _height);
@@ -599,16 +793,17 @@ void ArcWindow::linePipeline(const Arc3DPoint& point, const bool isDrawing)
 
 	mutablePoint = ArcTransformMatrixH::camera_to_clip(mutablePoint, _cameraFov, _clippingNear, _clippingFar, static_cast<double>(_width) / static_cast<double>(_height));
 
-	Arc3DPoint clipCoordinates = mutablePoint.toCartesianPoint();
+	//Arc3DPoint clipCoordinates = mutablePoint.toCartesianPoint();
 
 	if (isDrawing)
 	{
-		Arc3DPointH point1 = ArcTransformMatrixH::clip_to_device(_prevClipPoint, _width, _height);
-		Arc3DPointH point2 = ArcTransformMatrixH::clip_to_device(clipCoordinates, _width, _height);
-		draw2DLine(Arc2DPoint(point1.x(), point1.y()), Arc2DPoint(point2.x(), point2.y()));
+		//Arc3DPointH point1 = ArcTransformMatrixH::clip_to_device(_prevClipPoint, _width, _height);
+		//Arc3DPointH point2 = ArcTransformMatrixH::clip_to_device(clipCoordinates, _width, _height);
+		//draw2DLine(Arc2DPoint(point1.x(), point1.y()), Arc2DPoint(point2.x(), point2.y()));
+		draw3DLine(_prevClipPoint, mutablePoint);
 	}
 
-	_prevClipPoint = clipCoordinates;
+	_prevClipPoint = mutablePoint;
 }
 
 void ArcWindow::pointPipeline(const Arc3DPoint& point)
@@ -632,5 +827,6 @@ void ArcWindow::pointPipeline(const Arc3DPoint& point)
 	}
 
 	mutablePoint = ArcTransformMatrixH::clip_to_device(clipCoordinates, _width, _height);
-	drawPixel(mutablePoint.x(), mutablePoint.y());
+	//draw2DPixel(mutablePoint.x(), mutablePoint.y());
+	draw3DPixel(mutablePoint.toCartesianPoint());
 }

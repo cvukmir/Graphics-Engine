@@ -25,8 +25,8 @@
 ArcRdParser::ArcRdParser()
 	: _displayType(ArcRdDisplayType::Invalid)
 	, _displayMode(ArcRdDisplayMode::Invalid)
-	, _height     (512)
-	, _width      (512)
+	, _height     (480)
+	, _width      (640)
 {
 }
 
@@ -337,7 +337,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 
 							Arc3DPoint newPoint;
 
-							while (argumentIndex < argumentSize)
+							while (argumentIndex < argumentSize - 1U)
 							{
 								if (argumentIndex + 3U >= argumentSize)
 								{
@@ -407,7 +407,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 						{
 							const ArcColor& currentColor = pWindow->currentColor();
 
-							uint argumentIndex = 0;
+							uint argumentIndex = 0U;
 
 							const uint flags     = getVertexTypes(argumentList[  argumentIndex]);
 							const int  numPoints =      std::stoi(argumentList[++argumentIndex]);
@@ -650,7 +650,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 
 							for (int i = 0; i < numFaces; ++i)
 							{
-								if (argumentIndex + 1 > argumentSize)
+								if (argumentIndex + 1U > argumentSize)
 								{
 									break;
 								}
@@ -704,10 +704,10 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 						}
 						else if (isInWorldBlock)
 						{
-							pWindow->drawSphere(std::stod(argumentList[0]),  // Radius
-								                std::stod(argumentList[1]),  // Zmin
-								                std::stod(argumentList[2]),  // Zmax
-								                std::stod(argumentList[3])); // Theta
+							pWindow->drawSphere2(std::stod(argumentList[0]),  // Radius
+								                 std::stod(argumentList[1]),  // Zmin
+								                 std::stod(argumentList[2]),  // Zmax
+								                 std::stod(argumentList[3])); // Theta
 						}
 					}
 					break;
@@ -964,33 +964,34 @@ const uint ArcRdParser::getVertexTypes(std::string& value)
 {
 	int flags = 0;
 
-	for (int i = 0; i < value.size(); ++i)
+	const uint count = value.size();
+	for (uint i = 0; i < count; ++i)
 	{
 		switch (value[i])
 		{
-		case ('P'):
-			flags |= static_cast<uint>(VertexTypes::Position);
-			break;
-		case ('D'):
-			flags |= static_cast<uint>(VertexTypes::Direction);
-			break;
-		case ('N'):
-			flags |= static_cast<uint>(VertexTypes::Normal);
-			break;
-		case ('C'):
-			flags |= static_cast<uint>(VertexTypes::Color);
-			break;
-		case ('W'):
-			flags |= static_cast<uint>(VertexTypes::Weight);
-			break;
-		case ('T'):
-			flags |= static_cast<uint>(VertexTypes::Texture);
-			break;
-		case ('O'):
-			flags |= static_cast<uint>(VertexTypes::Opacity);
-			break;
-		default:
-			break;
+			case ('P'):
+				flags |= static_cast<uint>(VertexTypes::Position);
+				break;
+			case ('D'):
+				flags |= static_cast<uint>(VertexTypes::Direction);
+				break;
+			case ('N'):
+				flags |= static_cast<uint>(VertexTypes::Normal);
+				break;
+			case ('C'):
+				flags |= static_cast<uint>(VertexTypes::Color);
+				break;
+			case ('W'):
+				flags |= static_cast<uint>(VertexTypes::Weight);
+				break;
+			case ('T'):
+				flags |= static_cast<uint>(VertexTypes::Texture);
+				break;
+			case ('O'):
+				flags |= static_cast<uint>(VertexTypes::Opacity);
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -1016,7 +1017,6 @@ bool ArcRdParser::readFile()
 	std::string              commandName;
 	ArcRdCommandType         commandType;
 	bool                     hasHeader = false;
-	bool                     hasFormat = false;
 	std::string              line;
 	std::istringstream       tokenizer;
 	std::vector<std::string> tokens;
@@ -1066,52 +1066,6 @@ bool ArcRdParser::readFile()
 		return false;
 	}
 
-	// Read the "Format" command for the width and height for the display (should be the very first command after display).
-	while (!_stream.eof() && !hasFormat)
-	{
-		std::getline(_stream, line);
-		if (line.starts_with(RD_CMD_FORMAT))
-		{
-			tokenizer = std::istringstream(line);
-			tokenizer >> buffer; // Command
-			try
-			{
-				if (tokenizer >> buffer)
-				{
-					// Width
-					_width = std::stoi(buffer);
-				}
-				else
-				{
-					return false;
-				}
-
-				if (tokenizer >> buffer)
-				{
-					// Height
-					_height = std::stoi(buffer);
-				}
-				else
-				{
-					return false;
-				}
-
-				hasFormat = true;
-			}
-			catch (std::invalid_argument)
-			{
-				// Invalid argument conversion.
-				return false;
-			}
-		}
-	}
-
-	// Verify we found all necessary format pieces.
-	if (!hasFormat)
-	{
-		return false;
-	}
-
 	size_t index = std::string::npos;
 	bool foundComment = false;
 
@@ -1142,9 +1096,44 @@ bool ArcRdParser::readFile()
 		}
 
 		// Check if the first string is a command or part of the previous commands arguments.
-		if ((commandType = commandTypeFromString(buffer)) != ArcRdCommandType::Invalid)
+		commandType = commandTypeFromString(buffer);
+		if (commandType != ArcRdCommandType::Invalid)
 		{
-			_commandQueue.push_back(ArcRdCommand(commandType));
+			if (commandType == ArcRdCommandType::Format)
+			{
+				// The format command is the only thing needed for initialization of a frame, process it before exiting.
+				try
+				{
+					if (tokenizer >> buffer)
+					{
+						// Width
+						_width = std::stoi(buffer);
+					}
+					else
+					{
+						return false;
+					}
+
+					if (tokenizer >> buffer)
+					{
+						// Height
+						_height = std::stoi(buffer);
+					}
+					else
+					{
+						return false;
+					}
+				}
+				catch (std::invalid_argument)
+				{
+					// Invalid argument conversion.
+					return false;
+				}
+			}
+			else
+			{
+				_commandQueue.push_back(ArcRdCommand(commandType));
+			}
 		}
 
 
