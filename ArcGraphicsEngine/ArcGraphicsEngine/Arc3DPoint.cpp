@@ -1,20 +1,22 @@
 #include "Arc3DPoint.h"
 
 #include "Arc3DPointH.h"
+#include "ArcBaseAttributes.h"
 
 
 // Constructor/Destructor(s) //
 
 Arc3DPoint::Arc3DPoint()
-	: _x(0.0)
+	: ArcBaseAttributes()
+	, _x(0.0)
 	, _y(0.0)
 	, _z(0.0)
 {
-
 }
 
 Arc3DPoint::Arc3DPoint(double x, double y, double z)
-	: _x(x)
+	: ArcBaseAttributes()
+	, _x(x)
 	, _y(y)
 	, _z(z)
 {
@@ -96,6 +98,14 @@ void Arc3DPoint::operator*(const double scalar)
 }
 
 
+// Public Methods - Static //
+
+Arc3DPoint Arc3DPoint::interpolateTo(const Arc3DPoint& startPoint, const Arc3DPoint& endPoint, const double alpha)
+{
+	return Arc3DPoint(startPoint.x() + (alpha * (endPoint.x() - startPoint.x())),
+		              startPoint.y() + (alpha * (endPoint.y() - startPoint.y())),
+		              startPoint.z() + (alpha * (endPoint.z() - startPoint.z())));
+}
 
 
 // Public Methods - Override //
@@ -105,4 +115,11 @@ void Arc3DPoint::scale(const double scalar)
 	_x *= scalar;
 	_y *= scalar;
 	_z *= scalar;
+}
+
+void Arc3DPoint::selfInterpolateTo(const Arc3DPoint& point, const double alpha)
+{
+	_x = _x + (alpha * (point.x() - _x));
+	_y = _y + (alpha * (point.y() - _y));
+	_z = _z + (alpha * (point.z() - _z));
 }

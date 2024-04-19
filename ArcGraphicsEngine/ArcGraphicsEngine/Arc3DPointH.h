@@ -58,6 +58,11 @@ public: // Methods - Overload //
 	void operator*(const double scalar);
 
 
+public: // Methods - Static //
+
+	static Arc3DPointH interpolateTo(const Arc3DPointH& startPoint, const Arc3DPointH& endPoint, const double alpha);
+
+
 public: // Methods //
 
 	/* Multiplies each coordinate by the scalar value. */
@@ -65,6 +70,8 @@ public: // Methods //
 
 	/* Returns this object scaled to a cartesian point. */
 	Arc3DPoint toCartesianPoint() const;
+
+	void selfInterpolateTo(const Arc3DPointH& point, const double alpha);
 
 
 private: // Variables //

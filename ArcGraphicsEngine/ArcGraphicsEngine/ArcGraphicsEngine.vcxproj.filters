@@ -114,6 +114,9 @@
     <ClCompile Include="ArcGeometryForward.h">
       <Filter>ArcGeometry\Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="ArcBaseAttributes.cpp">
+      <Filter>ArcFramework\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\SceneFiles\s01.rd">
@@ -306,6 +309,9 @@
     </ClInclude>
     <ClInclude Include="ArcBoundaryCodes.hpp">
       <Filter>ArcWorld\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcBaseAttributes.h">
+      <Filter>ArcFramework\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

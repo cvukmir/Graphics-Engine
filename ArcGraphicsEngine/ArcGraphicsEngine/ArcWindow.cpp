@@ -433,7 +433,7 @@ void ArcWindow::draw3DLine(const Arc3DPointH& startPoint, const Arc3DPointH& end
 		else
 		{
 			// Inside to outside
-			alpha1 = max(alpha1, alpha);
+			alpha1 = min(alpha1, alpha);
 		}
 
 		// If alpha is ever < 0 or > 1, there is an error. (Shouldn’t need to check if the algorithm is correct).
@@ -443,8 +443,8 @@ void ArcWindow::draw3DLine(const Arc3DPointH& startPoint, const Arc3DPointH& end
 		}
 	}
 
-	Arc3DPointH pointH0 = computeParametricLine(startPoint, endPoint, alpha0);
-	Arc3DPointH pointH1 = computeParametricLine(startPoint, endPoint, alpha1);
+	Arc3DPointH pointH0 = Arc3DPointH::interpolateTo(startPoint, endPoint, alpha0);
+	Arc3DPointH pointH1 = Arc3DPointH::interpolateTo(startPoint, endPoint, alpha1);
 
 	// Convert to device coordinates
 	pointH0 = ArcTransformMatrixH::clip_to_device(pointH0, _width, _height);
@@ -481,17 +481,17 @@ void ArcWindow::drawSphere2(double radius, double zMin, double zMax, double degr
 	const uint NSTEPS_LONG = 20U; // Should be multiple of 4 (4 quadrents).
 	const uint NSTEPS_LAT  = 10U; // Should be multiple of 2 (2 halves).
 
-	for (uint i = 0U; i < NSTEPS_LONG; ++i)
+	for (uint i = 0U; i < NSTEPS_LAT; ++i)
 	{
 		// Looping over XZ plane.
-		const double phi1 = (static_cast<double>(i)     / static_cast<double>(NSTEPS_LONG)) * (2.0 * std::numbers::pi);
-		const double phi2 = (static_cast<double>(i + 1) / static_cast<double>(NSTEPS_LONG)) * (2.0 * std::numbers::pi);
+		const double phi1 = ((static_cast<double>(i)     / static_cast<double>(NSTEPS_LAT)) * std::numbers::pi) - (std::numbers::pi / 2.0);
+		const double phi2 = ((static_cast<double>(i + 1) / static_cast<double>(NSTEPS_LAT)) * std::numbers::pi) - (std::numbers::pi / 2.0);
 
-		for (uint j = 0U; j < NSTEPS_LAT; ++j)
+		for (uint j = 0U; j < NSTEPS_LONG; ++j)
 		{
 			// Looping over XY plane.
-			const double theta1 = (static_cast<double>(j)     / static_cast<double>(NSTEPS_LAT)) * (2.0 * std::numbers::pi);
-			const double theta2 = (static_cast<double>(j + 1) / static_cast<double>(NSTEPS_LAT)) * (2.0 * std::numbers::pi);
+			const double theta1 = (static_cast<double>(j)     / static_cast<double>(NSTEPS_LONG)) * (2.0 * std::numbers::pi);
+			const double theta2 = (static_cast<double>(j + 1) / static_cast<double>(NSTEPS_LONG)) * (2.0 * std::numbers::pi);
 
 			const Arc3DPoint point1(radius * cos(phi1) * cos(theta1), radius * cos(phi1) * sin(theta1), radius * sin(phi1));
 			const Arc3DPoint point2(radius * cos(phi1) * cos(theta2), radius * cos(phi1) * sin(theta2), radius * sin(phi1));
@@ -610,21 +610,6 @@ void ArcWindow::rotateTransformationZX(const double degrees)
 
 // Private Methods //
 
-Arc3DPointH ArcWindow::computeParametricLine(const Arc3DPointH& point1, const Arc3DPointH& point2, const double alpha)
-{
-	return Arc3DPointH(point1.x() + (alpha * (point2.x() - point1.x())),
-		               point1.y() + (alpha * (point2.y() - point1.y())),
-		               point1.z() + (alpha * (point2.z() - point1.z())),
-		               point1.w() + (alpha * (point2.w() - point1.w())));
-}
-
-Arc3DPoint ArcWindow::computeParametricLine(const Arc3DPoint& point1, const Arc3DPoint& point2, const double alpha)
-{
-	return Arc3DPoint(point1.x() + (alpha * (point2.x() - point1.x())),
-		              point1.y() + (alpha * (point2.y() - point1.y())),
-		              point1.z() + (alpha * (point2.z() - point1.z())));
-}
-
 ArcColor ArcWindow::colorAt(const int xPos, const int yPos)
 {
 	return ArcColor(*(_pMemory + (_width * yPos) + xPos));
@@ -632,13 +617,15 @@ ArcColor ArcWindow::colorAt(const int xPos, const int yPos)
 
 void ArcWindow::cyberPunk(double radius)
 {
+	// THIS IS A JOKE/BROKEN METHOD //
+	// DO NOT USE!! //
 	const uint NSTEPS_LONG = 20U; // Should be multiple of 4 (4 quadrents).
-	const uint NSTEPS_LAT = 10U; // Should be multiple of 2 (2 halves).
+	const uint NSTEPS_LAT = 10U;  // Should be multiple of 2 (2 halves).
 
 	for (uint i = 0U; i < NSTEPS_LONG; ++i)
 	{
 		// Looping over XZ plane.
-		const double phi1 = (static_cast<double>(i) / static_cast<double>(NSTEPS_LONG)) * (2.0 * std::numbers::pi);
+		const double phi1 = (static_cast<double>(i)     / static_cast<double>(NSTEPS_LONG)) * (2.0 * std::numbers::pi);
 		const double phi2 = (static_cast<double>(i + 1) / static_cast<double>(NSTEPS_LONG)) * (2.0 * std::numbers::pi);
 
 		for (uint j = 0U; j < NSTEPS_LAT; ++j)
@@ -666,10 +653,10 @@ void ArcWindow::DDA(const Arc3DPoint& startPoint, const Arc3DPoint& endPoint)
 	int dx = int(endPoint.x()) - int(startPoint.x()); // Or just floor
 	int dy = int(endPoint.y()) - int(startPoint.y());
 	const int NSTEPS = max(abs(dx), abs(dy));
-	for (int i = 0; i < NSTEPS; ++i)
+	for (int i = 0; i <= NSTEPS; ++i)
 	{
 		double alpha = i / double(NSTEPS);
-		draw3DPixel(computeParametricLine(startPoint, endPoint, alpha));
+		draw3DPixel(Arc3DPoint::interpolateTo(startPoint, endPoint, alpha));
 	}
 }
 

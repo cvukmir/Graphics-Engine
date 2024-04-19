@@ -159,12 +159,6 @@ public: // Methods //
 
 private: // Methods //
 
-	/* Computes the point using the Parametric Line Algorithm. */
-	Arc3DPointH computeParametricLine(const Arc3DPointH& point1, const Arc3DPointH& point2, const double alpha);
-
-	/* Computes the point using the Parametric Line Algorithm. */
-	Arc3DPoint computeParametricLine(const Arc3DPoint& point1, const Arc3DPoint& point2, const double alpha);
-
 	/* Gets the color at the given position. */
 	ArcColor colorAt(const int xPos, const int yPos);
 

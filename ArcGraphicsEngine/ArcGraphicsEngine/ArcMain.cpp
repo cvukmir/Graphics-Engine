@@ -12,8 +12,8 @@
 
 #include <iostream>
 
-#include <ArcLogger.h>
-#include <ArcLoggingMacros.h>
+//#include <ArcLogger.h>
+//#include <ArcLoggingMacros.h>
 
 // ArcFramework
 #include "ArcEnums.h"
@@ -27,7 +27,7 @@ HWND       WINDOW;      // Window
 
 ArcWindow* ArcWindow::_pInstancePtr = nullptr; // Initialize the singularity.
 ArcWindow*               ARC_WINDOW = nullptr; // One and only global instance of the window.
-ArcLogger*               ARC_LOGGER = nullptr; // One and only global instance of the logger.
+//ArcLogger*               ARC_LOGGER = nullptr; // One and only global instance of the logger.
 
 
 // Forward declarations of functions included in this code module:
@@ -44,25 +44,25 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 
-	ARC_LOGGER = ArcLogger::logger();
-	ARC_LOG("Program Starting...");
+	//ARC_LOGGER = ArcLogger::logger();
+	//ARC_LOG("Program Starting...");
 
 	// Ensure there is a command line argument given.
 	if (lpCmdLine[0] == NULL)
 	{
-		ARC_LOG("No file name was passed through the command line arguments.\n");
+		//ARC_LOG("No file name was passed through the command line arguments.\n");
 		return -1;
 	}
 
 	std::string fileName = std::string(_bstr_t(lpCmdLine));
-	ARC_LOG("Reading file " + fileName + ".\n");
+	//ARC_LOG("Reading file " + fileName + ".\n");
 
 
 	// Open the .rd file.
 	ArcRdParser renderer;
 	if (!renderer.openAndReadFile(fileName))
 	{
-		ARC_LOG("Error reading " + fileName + ".\n");
+		//ARC_LOG("Error reading " + fileName + ".\n");
 		return -1;
 	}
 
@@ -110,7 +110,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	}
 
 	delete(ARC_WINDOW);
-	delete(ARC_LOGGER);
+	//delete(ARC_LOGGER);
 
 	return 0;
 }

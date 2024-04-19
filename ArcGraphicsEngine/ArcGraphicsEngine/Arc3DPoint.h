@@ -3,8 +3,10 @@
 #ifndef ARC3DPOINT_H
 #define ARC3DPOINT_H
 
+#include "ArcBaseAttributes.h"
 
-class Arc3DPoint
+
+class Arc3DPoint : public ArcBaseAttributes
 {
 public: // Constructor/Destructor(s) //
 
@@ -53,17 +55,24 @@ public: // Methods - Overload //
 	void operator*(const double scalar);
 
 
+public: // Methods - Static //
+
+	static Arc3DPoint interpolateTo(const Arc3DPoint& startPoint, const Arc3DPoint& endPoint, const double alpha);
+
+
 public: // Methods - Override //
 
 	/* Multiplies each coordinate by the scalar value. */
 	virtual void scale(const double scalar);
 
+	void selfInterpolateTo(const Arc3DPoint& point, const double alpha);
+
 
 protected: // Variables //
 
-	double   _x;     // This points' x coordinate.
-	double   _y;     // This points' y coordinate.
-	double   _z;     // This points' z coordinate.
+	double _x; // This points' x coordinate.
+	double _y; // This points' y coordinate.
+	double _z; // This points' z coordinate.
 };
 
 #endif // !ARC3DPOINT_H

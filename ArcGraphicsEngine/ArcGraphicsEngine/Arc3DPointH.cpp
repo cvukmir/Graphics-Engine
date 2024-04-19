@@ -119,6 +119,17 @@ void Arc3DPointH::operator*(const double scalar)
 }
 
 
+// Public Methods - Static //
+
+Arc3DPointH Arc3DPointH::interpolateTo(const Arc3DPointH& startPoint, const Arc3DPointH& endPoint, const double alpha)
+{
+	return Arc3DPointH(startPoint.x() + (alpha * (endPoint.x() - startPoint.x())),
+		               startPoint.y() + (alpha * (endPoint.y() - startPoint.y())),
+		               startPoint.z() + (alpha * (endPoint.z() - startPoint.z())),
+		               startPoint.w() + (alpha * (endPoint.w() - startPoint.w())));
+}
+
+
 // Public Methods //
 
 void Arc3DPointH::scale(const double scalar)
@@ -134,4 +145,12 @@ Arc3DPoint Arc3DPointH::toCartesianPoint() const
 	return _w == 0.0 ?
 		Arc3DPoint(  0.0,     0.0,     0.0) :
 		Arc3DPoint(_x / _w, _y / _w, _z / _w);
+}
+
+void Arc3DPointH::selfInterpolateTo(const Arc3DPointH& point, const double alpha)
+{
+	_x = _x + (alpha * (point.x() - _x));
+	_y = _y + (alpha * (point.y() - _y));
+	_z = _z + (alpha * (point.z() - _z));
+	_w = _w + (alpha * (point.w() - _w));
 }
