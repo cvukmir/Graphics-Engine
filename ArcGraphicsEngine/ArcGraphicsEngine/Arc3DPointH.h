@@ -57,9 +57,22 @@ public: // Methods - Overload //
 	/* Scales this object by the given value. */
 	void operator*(const double scalar);
 
+	/* Muiltiplication operator for two points. */
+	Arc3DPointH operator*(const double rhs) const;
+
+	/* Division operator for two points. */
+	Arc3DPointH operator/(const double rhs) const;
+
+	/* Subtraction operator for two points. */
+	Arc3DPointH operator-(const double rhs) const;
+
+	/* Addition operator for two points. */
+	Arc3DPointH operator+(const double rhs) const;
+
 
 public: // Methods - Static //
 
+	/* Interpolates a position between the two points using the given percentage. */
 	static Arc3DPointH interpolateTo(const Arc3DPointH& startPoint, const Arc3DPointH& endPoint, const double alpha);
 
 
@@ -71,10 +84,17 @@ public: // Methods //
 	/* Returns this object scaled to a cartesian point. */
 	Arc3DPoint toCartesianPoint() const;
 
+	/* Interpolates this point a percentage distance to the given next point. */
 	void selfInterpolateTo(const Arc3DPointH& point, const double alpha);
 
+	/* Updates the X, Y, and Z values to the given position (sets W = 1.0). */
+	void updatePosition(const Arc3DPoint& point);
 
-private: // Variables //
+	/* Updates the X, Y, Z, and W values to the given position. */
+	void updatePosition(const Arc3DPointH& point);
+
+
+protected: // Variables //
 
 	double _w; // This point's w scale value.
 	double _x; // This point's x coordinate.

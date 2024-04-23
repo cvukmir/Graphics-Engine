@@ -15,6 +15,7 @@
 #include "ArcTypedefs.h"
 #include "ArcTransformMatrixH.h"
 #include "Arc3DLine.h"
+#include "ArcEdgeTable.h"
 
 #include "ArcEnums.h"
 
@@ -120,6 +121,8 @@ public: // Methods //
 	/* Run a circular disc through the pipeline.The disk should have a given radius.The disk is parallel to the xy plane and centered about the z axis.A height parameters gives the position of the disk along the z axis. */
 	void drawDisk(const double height, const double radius, const double thetaMax);
 
+	void drawPolygon(const Arc3DAttributedPointList& pointList);
+
 	/* Run a sphere(or some representation of a sphere) through the pipeline.The sphere should be centered at the origin and have a radius given by a parameter. */
 	void drawSphere(double radius, double zMin, double zMax, double degrees);
 
@@ -159,8 +162,14 @@ public: // Methods //
 
 private: // Methods //
 
+	void clipAPoint(Arc3DAttributedPoint* pPoint, BoundaryType boundary, Arc3DAttributedPointList& firstPointList, Arc3DAttributedPointList& lastPointList, bool faceSeenList[6], Arc3DAttributedPointList& outputArray);
+
+	void clipLastPoint(Arc3DAttributedPointList& firstPointList, Arc3DAttributedPointList& lastPointList, bool faceSeenList[6], Arc3DAttributedPointList& outputArray);
+
 	/* Gets the color at the given position. */
 	ArcColor colorAt(const int xPos, const int yPos);
+
+	bool cross(Arc3DAttributedPoint* pPoint1, Arc3DAttributedPoint* pPoint2, BoundaryType boundary);
 
 	void cyberPunk(double radius);
 
@@ -185,11 +194,20 @@ private: // Methods //
 	/* Gets the specified bit. */
 	const uint getBit(const uint value, const uint place);
 
+	Arc3DAttributedPoint* intersect(Arc3DAttributedPoint* pPoint1, Arc3DAttributedPoint* pPoint2, BoundaryType boundary);
+
+	bool inside(Arc3DAttributedPoint* pPoint, BoundaryType boundary);
+
 	/* Whether the given position is within the window bounds. */
 	bool inWindow(const int xPos, const int yPos) const;
 
 	/* Moves the current drawing point to the given point and draws a line between the previous point if flagged. */
 	void linePipeline(const Arc3DPoint& point, const bool isDrawing);
+
+	Arc3DAttributedPointList polygonClip(Arc3DAttributedPointList& pointList);
+
+	/* Draws the given polygon to the screen. */
+	bool polygonPipeline(Arc3DAttributedPointList& vertexList, Arc3DAttributedPoint* point, const bool endFlag);
 
 	/* Draws the given point to the screen. */
 	void pointPipeline(const Arc3DPoint& point);
@@ -210,6 +228,7 @@ private: // Variables //
 	double                 _clippingFar;         // The far clipping value.
 	double                 _clippingNear;        // The near clipping value.
 	ArcColor               _currentColor;        // The current drawing color.
+	ArcEdgeTable*          _edgeTable;           // Contains the edge table for scan conversion.
 	ArcFrameList           _frameList;           // Contains all the frames to display to the window.
 	int                    _frameNumber;         // The frame number of this window.
 	int                    _height;              // The height of this window.

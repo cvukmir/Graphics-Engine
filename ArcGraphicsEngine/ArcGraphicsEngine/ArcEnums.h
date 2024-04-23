@@ -114,6 +114,7 @@ enum class VertexTypes
 	Weight    = 0b00010000,
 	Texture   = 0b00100000,
 	Opacity   = 0b01000000,
+	Last      = 0b10000000,
 };
 
 enum class PlaneType
@@ -121,6 +122,18 @@ enum class PlaneType
 	XY = 0,
 	YZ = 1,
 	ZX = 2,
+};
+
+enum class BoundaryType
+{
+	First = 0,
+	Left = 0,
+	Right,
+	Top,
+	Bottom,
+	Front,
+	Back,
+	Last = Back,
 };
 
 #endif // !ARCENUMS_H

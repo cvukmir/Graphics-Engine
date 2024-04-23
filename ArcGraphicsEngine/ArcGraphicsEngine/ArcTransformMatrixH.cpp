@@ -78,10 +78,10 @@ Arc3DPointH ArcTransformMatrixH::clip_to_device(const Arc3DPointH& point, const 
 	const double e = 0.00001;
 
 	ArcMatrix4x4 clipToDeviceMatrix(
-		{{ (double)width - e,              0.0,      0.0,          0.0   },
-		 {          0.0,      -(double)(height - e), 0.0, (double)height - e },
-		 {          0.0,                   0.0,      1.0,          0.0   },
-		 {          0.0,                   0.0,      0.0,          1.0   }});
+		{{ (double)width - e,              0.0,      0.0,          -0.5            },
+		 {          0.0,      -(double)(height - e), 0.0, (double)height - e - 0.5 },
+		 {          0.0,                   0.0,      1.0,           0.0            },
+		 {          0.0,                   0.0,      0.0,           1.0            }});
 
 	return clipToDeviceMatrix * point;
 }

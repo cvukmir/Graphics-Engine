@@ -365,9 +365,6 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 
 									pWindow->currentColor(ArcColor(r, g, b));
 								}
-								///////////////////////////
-								// TODO: Rest of the cases.
-								///////////////////////////
 
 								pWindow->draw3DPoint(newPoint);
 							}
@@ -447,9 +444,6 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 
 									colorVector.push_back(ArcColor(r, g, b));
 								}
-								///////////////////////////
-								// TODO: Rest of the cases.
-								///////////////////////////
 							}
 
 							if (pointVector.size() != numPoints || ((flags & static_cast<uint>(VertexTypes::Color) && colorVector.size() != numPoints)))
@@ -589,19 +583,18 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 						}
 						else if (isInWorldBlock)
 						{
-							const ArcColor& currentColor = pWindow->currentColor();
-
 							uint argumentIndex = 0;
 
 							const uint flags     = getVertexTypes(argumentList[  argumentIndex]);
 							const int  numPoints =      std::stoi(argumentList[++argumentIndex]);
 							const int  numFaces  =      std::stoi(argumentList[++argumentIndex]);
 
-							std::vector<Arc3DPoint> pointVector;
-							std::vector<ArcColor>   colorVector;
+							Arc3DAttributedPointList pointList;
 
 							for (int i = 0; i < numPoints; ++i)
 							{
+								Arc3DAttributedPoint* newPoint = new Arc3DAttributedPoint();
+
 								if (flags & static_cast<uint>(VertexTypes::Position))
 								{
 									if (argumentIndex + 6U >= argumentSize)
@@ -613,8 +606,23 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 									double x = std::stod(argumentList[++argumentIndex]);
 									double y = std::stod(argumentList[++argumentIndex]);
 									double z = std::stod(argumentList[++argumentIndex]);
-									
-									pointVector.push_back(Arc3DPoint(x, y, z));
+
+									newPoint->updatePosition(Arc3DPoint(x, y, z));
+								}
+
+								if (flags & static_cast<uint>(VertexTypes::Normal))
+								{
+									if (argumentIndex + 3U >= argumentSize)
+									{
+										// Not enough arguments to finish.
+										break;
+									}
+
+									double x = std::stod(argumentList[++argumentIndex]);
+									double y = std::stod(argumentList[++argumentIndex]);
+									double z = std::stod(argumentList[++argumentIndex]);
+
+									newPoint->vector(ArcVector(x, y, z));
 								}
 
 								if (flags & static_cast<uint>(VertexTypes::Color))
@@ -629,24 +637,57 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 									float g = std::stof(argumentList[++argumentIndex]);
 									float b = std::stof(argumentList[++argumentIndex]);
 
-									colorVector.push_back(ArcColor(r, g, b));
+									newPoint->color(ArcColor(r, g, b));
 								}
-								///////////////////////////
-								// TODO: Rest of the cases.
-								///////////////////////////
+
+								if (flags & static_cast<uint>(VertexTypes::Weight))
+								{
+									if (argumentIndex + 1U >= argumentSize)
+									{
+										// Not enough arguments to finish.
+										break;
+									}
+
+									double weight = std::stod(argumentList[++argumentIndex]);
+
+									newPoint->weight(weight);
+								}
+
+								if (flags & static_cast<uint>(VertexTypes::Texture))
+								{
+									if (argumentIndex + 2U >= argumentSize)
+									{
+										// Not enough arguments to finish.
+										break;
+									}
+
+									double s = std::stod(argumentList[++argumentIndex]);
+									double t = std::stod(argumentList[++argumentIndex]);
+
+									newPoint->textureS(s);
+									newPoint->textureT(t);
+								}
+
+								if (flags & static_cast<uint>(VertexTypes::Opacity))
+								{
+									if (argumentIndex + 3U >= argumentSize)
+									{
+										// Not enough arguments to finish.
+										break;
+									}
+
+									double opacity = std::stod(argumentList[++argumentIndex]);
+
+									newPoint->opacity(opacity);
+								}
+
+								pointList.push_back(newPoint);
 							}
 
-							if (pointVector.size() != numPoints || ((flags & static_cast<uint>(VertexTypes::Color) && colorVector.size() != numPoints)))
-							{
-								// We didn't find the correct number of points specified for this object.
-								break;
-							}
-
-							int prevVertex = -1;
 							int currentVertex = -1;
-							int firstVertex = -1;
 
 							std::vector<int> pointIndexList;
+							Arc3DAttributedPointList faceList;
 
 							for (int i = 0; i < numFaces; ++i)
 							{
@@ -655,43 +696,24 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 									break;
 								}
 
-								while ((currentVertex = std::stoi(argumentList[++argumentIndex])) != -1)
+								while (argumentIndex + 1U > argumentSize && (currentVertex = std::stoi(argumentList[++argumentIndex])) != -1)
 								{
-									if (firstVertex == -1)
+									// Ensure the current vertex is valid.
+									if (currentVertex < numPoints)
 									{
-										firstVertex = currentVertex;
+										faceList.push_back(pointList[currentVertex]);
 									}
-
-									if (prevVertex != -1)
-									{
-										if (flags & static_cast<uint>(VertexTypes::Color))
-										{
-											pWindow->currentColor(colorVector[i]);
-										}
-
-										pWindow->draw3DLine(Arc3DLine(pointVector[prevVertex], pointVector[currentVertex]));
-									}
-
-									if (argumentIndex + 1 > argumentSize)
-									{
-										break;
-									}
-
-									prevVertex = currentVertex;
 								}
 
-								if (firstVertex != -1 && prevVertex != -1)
-								{
-									pWindow->draw3DLine(Arc3DLine(pointVector[prevVertex], pointVector[firstVertex]));
-								}
-
-								prevVertex = -1;
-								currentVertex = -1;
-								firstVertex = -1;
+								pWindow->drawPolygon(faceList);
 							}
 
-							// Reset the window color back to the orignal current color.
-							pWindow->currentColor(currentColor);
+							for (Arc3DAttributedPointList::iterator it = pointList.begin(); it != faceList.end(); ++it)
+							{
+								delete(*it);
+							}
+
+							pointList.clear();
 						}
 					}
 					break;

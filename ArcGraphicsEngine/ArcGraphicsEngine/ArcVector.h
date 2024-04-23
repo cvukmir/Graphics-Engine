@@ -42,16 +42,34 @@ public: // Methods - Overload //
 	bool operator!=(const ArcVector& vector);
 
 	/* Addition operator for two vectors. */
-	void operator+(const ArcVector& vector);
+	ArcVector operator+(const ArcVector& vector) const;
 
 	/* Subtraction operator for two vectors. */
-	void operator-(const ArcVector& vector);
+	ArcVector operator-(const ArcVector& vector) const;
 
 	/* Division operator for two vectors. */
-	void operator/(const ArcVector& vector);
+	ArcVector operator/(const ArcVector& vector) const;
 
 	/* Multiplication operator for two vectors. */
-	void operator*(const ArcVector& vector);
+	ArcVector operator*(const ArcVector& vector) const;
+
+	/* Division operator for two vectors. */
+	ArcVector operator/(const double rhs) const;
+
+	/* Multiplication operator for two vectors. */
+	ArcVector operator*(const double rhs) const;
+
+	/* Subtraction operator for two vectors. */
+	ArcVector operator-(const double rhs) const;
+
+	/* Addition operator for two vectors. */
+	ArcVector operator+(const double rhs) const;
+
+
+public: // Methods - Static //
+
+	/* Interpolates a position between the two vectors using the given percentage. */
+	static ArcVector interpolateTo(const ArcVector& startvector, const ArcVector& endvector, const double alpha);
 
 
 public: // Methods //
@@ -67,6 +85,9 @@ public: // Methods //
 
 	/* Normalizes this vector inplace. */
 	void normalize();
+
+	/* Interpolates this vector a percentage distance to the given next vector. */
+	void selfInterpolateTo(const ArcVector& vector, const double alpha);
 
 
 private: // Variables

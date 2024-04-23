@@ -4,6 +4,7 @@
 #include "ArcColor.h"
 #include "ArcEnums.h"
 #include "ArcBoundaryCodes.hpp"
+#include "Arc3DAttributedPoint.h"
 
 
 // Private Constructor //
@@ -17,6 +18,7 @@ ArcWindow::ArcWindow()
 	, _clippingFar      (1.0e+09)
 	, _clippingNear     (1.0)
 	, _currentColor     (ArcColor::WHITE)
+	, _edgeTable        (nullptr)
 	, _frameNumber      (0)
 	, _height           (640)
 	, _isRunning        (true)
@@ -46,6 +48,11 @@ ArcWindow::~ArcWindow()
 	if (_pDepthBuffer)
 	{
 		delete(_pDepthBuffer);
+	}
+
+	if (_edgeTable)
+	{
+		delete(_edgeTable);
 	}
 }
 
@@ -313,6 +320,25 @@ void ArcWindow::drawDisk(const double height, const double radius, const double 
 	}
 }
 
+void ArcWindow::drawPolygon(const Arc3DAttributedPointList& pointList)
+{
+	if (pointList.size() < 3U)
+	{
+		// A polygon is defined to have at least three sides...
+		return;
+	}
+
+	Arc3DAttributedPointList vertex_list;
+
+	Arc3DAttributedPointList::const_reverse_iterator itEnd = ++pointList.rbegin();
+	for (Arc3DAttributedPointList::const_iterator it = pointList.begin(); (*it) != (*itEnd); ++it)
+	{
+		polygonPipeline(vertex_list , *it, false);
+	}
+
+	polygonPipeline(vertex_list, *itEnd, true);
+}
+
 void ArcWindow::draw2DLine(const Arc2DPoint& startPoint, const Arc2DPoint& endPoint)
 {
 	const int startPointX = static_cast<int>(startPoint.x());
@@ -547,6 +573,7 @@ void ArcWindow::initializeNewFrame()
 	if (!_pDepthBuffer)
 	{
 		_pDepthBuffer = new double[size];
+		_edgeTable    = new ArcEdgeTable(_height);
 	}
 
 	double* iter = _pDepthBuffer;
@@ -585,6 +612,68 @@ void ArcWindow::translateTransformation(const double t1, const double t2, const 
 	_pCurrentTransform->translate(t1, t2, t3);
 }
 
+void ArcWindow::clipAPoint(Arc3DAttributedPoint* pPoint, BoundaryType boundary, Arc3DAttributedPointList& firstPointList, Arc3DAttributedPointList& lastPointList, bool faceSeenList[6], Arc3DAttributedPointList& outputArray)
+{
+	const uint index = static_cast<uint>(boundary);
+	if (firstPointList[index] == nullptr)
+	{
+		firstPointList[index] = pPoint;
+		faceSeenList[index] = true;
+	}
+	else
+	{
+		// Previous point exists
+		if (cross(pPoint, lastPointList[index], boundary))
+		{
+			Arc3DAttributedPoint* ipt = intersect(pPoint, lastPointList[index], boundary);
+			// send ipt to the next stage of the pipeline or to the output array depending on b, i.e.
+			if (boundary != BoundaryType::Last)
+			{
+				clipAPoint(ipt, static_cast<BoundaryType>(index + 1U), firstPointList, lastPointList, faceSeenList, outputArray);
+			}
+			else
+			{
+				outputArray.push_back(ipt);
+			}
+		}
+	}
+
+	// Save the most recent vertex seen at this stage.
+	lastPointList[index] = pPoint;
+
+	if (inside(pPoint, boundary))
+	{
+		if (boundary != BoundaryType::Last)
+		{
+			clipAPoint(pPoint, static_cast<BoundaryType>(index + 1U), firstPointList, lastPointList, faceSeenList, outputArray);
+		}
+		else
+		{
+			outputArray.push_back(pPoint);
+		}
+	}
+}
+
+void ArcWindow::clipLastPoint(Arc3DAttributedPointList& firstPointList, Arc3DAttributedPointList& lastPointList, bool faceSeenList[6], Arc3DAttributedPointList& outputArray)
+{
+	for (uint i = 0; i <= static_cast<uint>(BoundaryType::Last); ++i)
+	{
+		if (firstPointList[i] != nullptr && cross(firstPointList[i], lastPointList[i], static_cast<BoundaryType>(i)))
+		{
+			Arc3DAttributedPoint* ipt = intersect(lastPointList[i], firstPointList[i], static_cast<BoundaryType>(i));
+
+			if (static_cast<BoundaryType>(i) != BoundaryType::Last)
+			{
+				clipAPoint(ipt, static_cast<BoundaryType>(i + 1U), firstPointList, lastPointList, faceSeenList, outputArray);
+			}
+			else
+			{
+				outputArray.push_back(ipt);
+			}
+		}
+	}
+}
+
 void ArcWindow::scaleTransformation(const double s1, const double s2, const double s3)
 {
 	_pCurrentTransform->scale(s1, s2, s3);
@@ -613,6 +702,11 @@ void ArcWindow::rotateTransformationZX(const double degrees)
 ArcColor ArcWindow::colorAt(const int xPos, const int yPos)
 {
 	return ArcColor(*(_pMemory + (_width * yPos) + xPos));
+}
+
+bool ArcWindow::cross(Arc3DAttributedPoint* pPoint1, Arc3DAttributedPoint* pPoint2, BoundaryType boundary)
+{
+	return inside(pPoint1, boundary) && inside(pPoint2, boundary);
 }
 
 void ArcWindow::cyberPunk(double radius)
@@ -765,6 +859,34 @@ const uint ArcWindow::getBit(const uint value, const uint place)
 	return ((value >> place) & 0x00000001);;
 }
 
+Arc3DAttributedPoint* ArcWindow::intersect(Arc3DAttributedPoint* pPoint1, Arc3DAttributedPoint* pPoint2, BoundaryType boundary)
+{
+	return nullptr;
+}
+
+bool ArcWindow::inside(Arc3DAttributedPoint* pPoint, BoundaryType boundary)
+{
+	switch (boundary)
+	{
+		case (BoundaryType::Left):
+			return pPoint->position().x() >= 0.0;
+		case (BoundaryType::Right):
+			return pPoint->position().x() <= 1.0;
+		case (BoundaryType::Top):
+			return pPoint->position().y() <= 1.0;
+		case (BoundaryType::Bottom):
+			return pPoint->position().y() >= 0.0;
+		case (BoundaryType::Front):
+			return pPoint->position().z() >= 0.0;
+		case (BoundaryType::Back):
+			return pPoint->position().z() <= 0.0;
+		default:
+			break;
+	}
+
+	return false;
+}
+
 bool ArcWindow::inWindow(const int xPos, const int yPos) const
 {
 	return (xPos >= 0 && xPos < _width) && (yPos >= 0 && yPos < _height);
@@ -791,6 +913,79 @@ void ArcWindow::linePipeline(const Arc3DPoint& point, const bool isDrawing)
 	}
 
 	_prevClipPoint = mutablePoint;
+}
+
+Arc3DAttributedPointList ArcWindow::polygonClip(Arc3DAttributedPointList& pointList)
+{
+	Arc3DAttributedPointList outputArray;
+	Arc3DAttributedPointList firstPointList(6);
+	Arc3DAttributedPointList lastPointList(6);
+	bool                     faceSeenList[6] = { false };
+
+	Arc3DAttributedPointList vertex_list;
+
+	Arc3DAttributedPointList::const_iterator itEnd = pointList.end();
+	for (Arc3DAttributedPointList::const_iterator it = pointList.begin(); (*it) != (*itEnd); ++it)
+	{
+		clipAPoint(*it, BoundaryType::First, firstPointList, lastPointList, faceSeenList, outputArray);
+	}
+
+	clipLastPoint(firstPointList, lastPointList, faceSeenList, outputArray);
+
+	return Arc3DAttributedPointList();
+}
+
+bool ArcWindow::polygonPipeline(Arc3DAttributedPointList& vertexList, Arc3DAttributedPoint* point, const bool endFlag)
+{
+	Arc3DPointH geom(point->position());
+	const uint MAX_VERTEX_LIST_SIZE = 50;
+
+	// Run geometry through current transform
+
+	geom = (*_pCurrentTransform) * geom;
+	
+	// Run through world to clip
+	geom = ArcTransformMatrixH::world_to_camera(geom, _cameraEyePoint, _cameraAtPoint, _cameraUpVector);
+
+	geom = ArcTransformMatrixH::camera_to_clip(geom, _cameraFov, _clippingNear, _clippingFar, static_cast<double>(_width) / static_cast<double>(_height));
+	
+	point->updatePosition(geom);
+
+	// Store in vertex list
+	if (vertexList.size() == MAX_VERTEX_LIST_SIZE)
+	{
+		return false;  // Overflow
+	}
+
+	vertexList.push_back(point);
+
+	if (endFlag == false) // Move along to the next vertex
+	{
+		return true;
+	}
+
+	Arc3DAttributedPointList clipped_list = polygonClip(vertexList);
+
+	if (clipped_list.size() > 0U)
+	{
+		// There's something left! --- Let's draw it
+	
+		// Pre process vertex list
+		for (uint i = 0; i < clipped_list.size(); i++)
+		{
+			// Convert geometry to device coordinates
+			Arc3DPointH dev(clipped_list[i]->position());
+
+			dev = ArcTransformMatrixH::clip_to_device(dev, _width, _height);
+
+			clipped_list[i]->updatePosition(dev.toCartesianPoint());
+		}
+
+		_edgeTable->scan_convert(clipped_list);
+	}
+	
+	// Reset structures for next polygon
+	vertexList.clear();
 }
 
 void ArcWindow::pointPipeline(const Arc3DPoint& point)

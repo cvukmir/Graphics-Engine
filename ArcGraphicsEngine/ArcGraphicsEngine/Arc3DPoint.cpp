@@ -1,22 +1,18 @@
 #include "Arc3DPoint.h"
-
 #include "Arc3DPointH.h"
-#include "ArcBaseAttributes.h"
 
 
 // Constructor/Destructor(s) //
 
 Arc3DPoint::Arc3DPoint()
-	: ArcBaseAttributes()
-	, _x(0.0)
+	: _x(0.0)
 	, _y(0.0)
 	, _z(0.0)
 {
 }
 
 Arc3DPoint::Arc3DPoint(double x, double y, double z)
-	: ArcBaseAttributes()
-	, _x(x)
+	: _x(x)
 	, _y(y)
 	, _z(z)
 {
@@ -25,8 +21,6 @@ Arc3DPoint::Arc3DPoint(double x, double y, double z)
 Arc3DPoint::~Arc3DPoint()
 {
 }
-
-
 
 
 // Public Properties //
@@ -39,8 +33,6 @@ const double Arc3DPoint::y() const             { return _y;  }
 
 void         Arc3DPoint::z(const double value) { _z = value; }
 const double Arc3DPoint::z() const             { return _z;  }
-
-
 
 
 // Public Methods - Overload //

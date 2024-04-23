@@ -138,8 +138,10 @@
     <ClCompile Include="Arc3DPoint.cpp" />
     <ClCompile Include="Arc3DPointH.cpp" />
     <ClCompile Include="Arc3DPolygon.cpp" />
-    <ClCompile Include="ArcBaseAttributes.cpp" />
+    <ClCompile Include="Arc3DAttributedPoint.cpp" />
+    <ClCompile Include="ArcBaseTypes.h" />
     <ClCompile Include="ArcColor.cpp" />
+    <ClCompile Include="ArcEdgeTable.cpp" />
     <ClCompile Include="ArcGeometryForward.h" />
     <ClCompile Include="ArcMain.cpp" />
     <ClCompile Include="ArcBaseObject.cpp" />
@@ -204,11 +206,13 @@
     <ClInclude Include="Arc3DPoint.h" />
     <ClInclude Include="Arc3DPointH.h" />
     <ClInclude Include="Arc3DPolygon.h" />
-    <ClInclude Include="ArcBaseAttributes.h" />
+    <ClInclude Include="Arc3DAttributedPoint.h" />
     <ClInclude Include="ArcBaseObject.h" />
     <ClInclude Include="ArcBoundaryCodes.hpp" />
     <ClInclude Include="ArcColor.h" />
     <ClInclude Include="ArcConstants.h" />
+    <ClInclude Include="ArcEdge.hpp" />
+    <ClInclude Include="ArcEdgeTable.h" />
     <ClInclude Include="ArcEnums.h" />
     <ClInclude Include="ArcMatrix4x4.hpp" />
     <ClInclude Include="ArcRdObject.hpp" />

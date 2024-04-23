@@ -114,8 +114,14 @@
     <ClCompile Include="ArcGeometryForward.h">
       <Filter>ArcGeometry\Header Files</Filter>
     </ClCompile>
-    <ClCompile Include="ArcBaseAttributes.cpp">
-      <Filter>ArcFramework\Source Files</Filter>
+    <ClCompile Include="Arc3DAttributedPoint.cpp">
+      <Filter>ArcGeometry\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArcBaseTypes.h">
+      <Filter>ArcFramework\Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArcEdgeTable.cpp">
+      <Filter>ArcGeometry\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -310,8 +316,14 @@
     <ClInclude Include="ArcBoundaryCodes.hpp">
       <Filter>ArcWorld\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ArcBaseAttributes.h">
-      <Filter>ArcFramework\Header Files</Filter>
+    <ClInclude Include="Arc3DAttributedPoint.h">
+      <Filter>ArcGeometry\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcEdge.hpp">
+      <Filter>ArcGeometry\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcEdgeTable.h">
+      <Filter>ArcGeometry\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

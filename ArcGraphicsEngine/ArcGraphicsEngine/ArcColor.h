@@ -7,7 +7,7 @@
 #include <stdint.h>
 
 // ArcFramework
-#include "ArcTypedefs.h"
+#include "ArcBaseTypes.h"
 
 class ArcColor
 {
@@ -22,7 +22,35 @@ public: // Constructor/Destructor(s) //
 
 public: // Overload(s) //
 
-	bool operator ==(ArcColor color);
+	/* Copy operator. */
+	void operator=(const ArcColor& rhs) const;
+
+	/* Equality operator. */
+	bool operator==(const ArcColor& rhs) const;
+
+	/* Subtraction operator for two colors. */
+	ArcColor operator-(const ArcColor& rhs) const;
+
+	/* Division operator for two colors. */
+	ArcColor operator/(const ArcColor& rhs) const;
+
+	/* Addition operator for two colors. */
+	ArcColor operator+(const ArcColor& rhs) const;
+
+	/* Multiplication operator for two colors. */
+	ArcColor operator*(const ArcColor& rhs) const;
+
+	/* Division operator for two colors. */
+	ArcColor operator/(const double rhs) const;
+
+	/* Multiplication operator for two colors. */
+	ArcColor operator*(const double rhs) const;
+
+	/* Subtraction operator for two colors. */
+	ArcColor operator-(const double rhs) const;
+
+	/* Addition operator for two colors. */
+	ArcColor operator+(const double rhs) const;
 
 
 public: // Properties //
@@ -40,9 +68,22 @@ public: // Static Properties //
 	static uint getRedComponent(const uint value);
 
 
+public: // Methods - Static //
+
+	static uint colorFromFloat(const float red, const float green, const float blue);
+
+	/* Interpolates a position between the two points using the given percentage. */
+	static ArcColor interpolateTo(const ArcColor& startColor, const ArcColor& endColor, const double alpha);
+
+
+public: // Methods //
+
+	/* Interpolates this point a percentage distance to the given next point. */
+	void selfInterpolateTo(const ArcColor& color, const double alpha);
+
+
 private: // Methods //
 
-	const int colorFromFloat(const float red, const float green, const float blue);
 
 
 public: // Static Variables //

@@ -56,8 +56,6 @@ void         Arc3DPointH::z(const double value) { _z = value; }
 const double Arc3DPointH::z() const             { return _z;  }
 
 
-
-
 // Public Methods - Overload //
 
 void Arc3DPointH::operator=(const Arc3DPointH& point)
@@ -70,7 +68,7 @@ void Arc3DPointH::operator=(const Arc3DPointH& point)
 
 bool Arc3DPointH::operator==(const Arc3DPointH& point)
 {
-	return this->_w == point._w  &&
+	return this->_w == point._w &&
 		   this->_x == point._x &&
 		   this->_y == point._y &&
 		   this->_z == point._z;
@@ -86,7 +84,7 @@ Arc3DPointH Arc3DPointH::operator+(const Arc3DPointH& point) const
 	return Arc3DPointH(this->_x + point._x,
 		               this->_y + point._y,
 		               this->_z + point._z,
-		               this->_z + point._z);
+		               this->_w + point._w);
 }
 
 Arc3DPointH Arc3DPointH::operator-(const Arc3DPointH& point) const
@@ -94,15 +92,15 @@ Arc3DPointH Arc3DPointH::operator-(const Arc3DPointH& point) const
 	return Arc3DPointH(this->_x - point._x,
 		               this->_y - point._y,
 		               this->_z - point._z,
-		               this->_z - point._z);
+		               this->_w - point._w);
 }
 
 Arc3DPointH Arc3DPointH::operator/(const Arc3DPointH& point) const
 {
-	return Arc3DPointH(point._w != 0.0 ? this->_w / point._w : 0.0,
-		               point._x != 0.0 ? this->_x / point._x : 0.0,
-		               point._y != 0.0 ? this->_x / point._y : 0.0,
-		               point._z != 0.0 ? this->_x / point._z : 0.0);
+	return Arc3DPointH(point._x != 0.0 ? this->_x / point._x : 0.0,
+		               point._y != 0.0 ? this->_y / point._y : 0.0,
+		               point._z != 0.0 ? this->_z / point._z : 0.0,
+		               point._w != 0.0 ? this->_w / point._w : 0.0);
 }
 
 Arc3DPointH Arc3DPointH::operator*(const Arc3DPointH& point) const
@@ -110,12 +108,49 @@ Arc3DPointH Arc3DPointH::operator*(const Arc3DPointH& point) const
 	return Arc3DPointH(this->_x * point._x,
 		               this->_y * point._y,
 		               this->_z * point._z,
-		               this->_z * point._z);
+		               this->_w * point._w);
 }
 
 void Arc3DPointH::operator*(const double scalar)
 {
 	scale(scalar);
+}
+
+Arc3DPointH Arc3DPointH::operator*(const double rhs) const
+{
+	return Arc3DPointH(this->_x * rhs,
+		               this->_y * rhs,
+		               this->_z * rhs,
+		               this->_w * rhs);
+}
+
+Arc3DPointH Arc3DPointH::operator/(const double rhs) const
+{
+	if (rhs == 0.0)
+	{
+		return Arc3DPointH();
+	}
+
+	return Arc3DPointH(this->_x / rhs,
+		               this->_y / rhs,
+		               this->_z / rhs,
+		               this->_w / rhs);
+}
+
+Arc3DPointH Arc3DPointH::operator-(const double rhs) const
+{
+	return Arc3DPointH(this->_x - rhs,
+		               this->_y - rhs,
+		               this->_z - rhs,
+		               this->_w - rhs);
+}
+
+Arc3DPointH Arc3DPointH::operator+(const double rhs) const
+{
+	return Arc3DPointH(this->_x + rhs,
+		               this->_y + rhs,
+		               this->_z + rhs,
+		               this->_w + rhs);
 }
 
 
@@ -143,7 +178,7 @@ void Arc3DPointH::scale(const double scalar)
 Arc3DPoint Arc3DPointH::toCartesianPoint() const
 {
 	return _w == 0.0 ?
-		Arc3DPoint(  0.0,     0.0,     0.0) :
+		Arc3DPoint(0.0, 0.0, 0.0) :
 		Arc3DPoint(_x / _w, _y / _w, _z / _w);
 }
 
@@ -153,4 +188,20 @@ void Arc3DPointH::selfInterpolateTo(const Arc3DPointH& point, const double alpha
 	_y = _y + (alpha * (point.y() - _y));
 	_z = _z + (alpha * (point.z() - _z));
 	_w = _w + (alpha * (point.w() - _w));
+}
+
+void Arc3DPointH::updatePosition(const Arc3DPoint& point)
+{
+	_x = point.x();
+	_y = point.y();
+	_z = point.z();
+	_w = 1.0;
+}
+
+void Arc3DPointH::updatePosition(const Arc3DPointH& point)
+{
+	_x = point.x();
+	_y = point.y();
+	_z = point.z();
+	_w = point.w();
 }

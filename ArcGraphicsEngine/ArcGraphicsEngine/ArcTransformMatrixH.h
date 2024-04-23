@@ -4,6 +4,7 @@
 #define ARCTRANSFORMMATRIXH_H
 
 #include "Arc3DPointH.h"
+#include "Arc3DPoint.h"
 #include "ArcVector.h"
 
 #include "ArcMatrix4x4.hpp"

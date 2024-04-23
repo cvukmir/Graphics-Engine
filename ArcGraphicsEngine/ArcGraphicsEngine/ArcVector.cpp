@@ -57,68 +57,109 @@ const double ArcVector::z() const             { return _z;  }
 
 // Public Methods - Overload //
 
-void ArcVector::operator=(const ArcVector& point)
+void ArcVector::operator=(const ArcVector& vector)
 {
-	this->_x = point._x;
-	this->_y = point._y;
-	this->_z = point._z;
+	this->_x = vector._x;
+	this->_y = vector._y;
+	this->_z = vector._z;
 }
 
-bool ArcVector::operator==(const ArcVector& point)
+bool ArcVector::operator==(const ArcVector& vector)
 {
-	return this->_x == point._x &&
-		   this->_y == point._y &&
-		   this->_z == point._z;
+	return this->_x == vector._x &&
+		   this->_y == vector._y &&
+		   this->_z == vector._z;
 }
 
-bool ArcVector::operator!=(const ArcVector& point)
+bool ArcVector::operator!=(const ArcVector& vector)
 {
-	return !(*this == point);
+	return !(*this == vector);
 }
 
-void ArcVector::operator+(const ArcVector& point)
+ArcVector ArcVector::operator+(const ArcVector& vector) const
 {
-	this->_x += point._x;
-	this->_y += point._y;
-	this->_z += point._z;
+	return ArcVector(this->_x + vector._x,
+		             this->_y + vector._y,
+		             this->_z + vector._z);
 }
 
-void ArcVector::operator-(const ArcVector& point)
+ArcVector ArcVector::operator-(const ArcVector& vector) const
 {
-	this->_x -= point._x;
-	this->_y -= point._y;
-	this->_z -= point._z;
+	return ArcVector(this->_x - vector._x,
+		             this->_y - vector._y,
+		             this->_z - vector._z);
 }
 
-void ArcVector::operator/(const ArcVector& point)
+ArcVector ArcVector::operator/(const ArcVector& vector) const
 {
-	this->_x = point._x != 0.0 ? this->_x / point._x : 0.0;
-	this->_y = point._y != 0.0 ? this->_x / point._y : 0.0;
-	this->_z = point._z != 0.0 ? this->_x / point._z : 0.0;
+	return ArcVector(vector._x != 0.0 ? this->_x / vector._x : 0.0,
+		             vector._y != 0.0 ? this->_x / vector._y : 0.0,
+		             vector._z != 0.0 ? this->_x / vector._z : 0.0);
 }
 
-void ArcVector::operator*(const ArcVector& point)
+ArcVector ArcVector::operator*(const ArcVector& vector) const
 {
-	this->_x *= point._x;
-	this->_y *= point._y;
-	this->_z *= point._z;
+	return ArcVector(this->_x * vector._x,
+		             this->_y * vector._y,
+		             this->_z * vector._z);
+}
+
+ArcVector ArcVector::operator/(const double rhs) const
+{
+	if (rhs == 0.0)
+	{
+		return ArcVector();
+	}
+
+	return ArcVector(this->_x / rhs,
+		             this->_y / rhs,
+		             this->_z / rhs);
+}
+
+ArcVector ArcVector::operator*(const double rhs) const
+{
+	return ArcVector(this->_x * rhs,
+		             this->_y * rhs,
+		             this->_z * rhs);
+}
+
+ArcVector ArcVector::operator-(const double rhs) const
+{
+	return ArcVector(this->_x - rhs,
+		             this->_y - rhs,
+		             this->_z - rhs);
+}
+
+ArcVector ArcVector::operator+(const double rhs) const
+{
+	return ArcVector(this->_x + rhs,
+		             this->_y + rhs,
+		             this->_z + rhs);
 }
 
 
+// Public Methods - Static //
+
+ArcVector ArcVector::interpolateTo(const ArcVector& startVector, const ArcVector& endVector, const double alpha)
+{
+	return ArcVector(startVector.x() + (alpha * (endVector.x() - startVector.x())),
+		             startVector.y() + (alpha * (endVector.y() - startVector.y())),
+		             startVector.z() + (alpha * (endVector.z() - startVector.z())));
+}
 
 
 // Public Methods //
 
-ArcVector ArcVector::crossProduct(const ArcVector& point)
+ArcVector ArcVector::crossProduct(const ArcVector& vector)
 {
-	return ArcVector(  (this->_y * point._z) - (this->_z * point._y),  // x
-		             -((this->_x * point._z) - (this->_z * point._x)), // y
-		               (this->_x * point._y) - (this->_y * point._x)); // z
+	return ArcVector(  (this->_y * vector._z) - (this->_z * vector._y),  // x
+		             -((this->_x * vector._z) - (this->_z * vector._x)), // y
+		               (this->_x * vector._y) - (this->_y * vector._x)); // z
 }
 
-double ArcVector::dot(const ArcVector& point)
+double ArcVector::dot(const ArcVector& vector)
 {
-	return (this->_x * point._x) + (this->_y * point._y) + (this->_z * point._z);
+	return (this->_x * vector._x) + (this->_y * vector._y) + (this->_z * vector._z);
 }
 
 double ArcVector::magnitudeSquared()
@@ -135,4 +176,11 @@ void ArcVector::normalize()
 	_z = magnitude != 0.0 ? _z / magnitude : 0.0;
 
 	return;
+}
+
+void ArcVector::selfInterpolateTo(const ArcVector& vector, const double alpha)
+{
+	_x = _x + (alpha * (vector.x() - _x));
+	_y = _y + (alpha * (vector.y() - _y));
+	_z = _z + (alpha * (vector.z() - _z));
 }

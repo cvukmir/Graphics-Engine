@@ -3,10 +3,8 @@
 #ifndef ARC3DPOINT_H
 #define ARC3DPOINT_H
 
-#include "ArcBaseAttributes.h"
 
-
-class Arc3DPoint : public ArcBaseAttributes
+class Arc3DPoint
 {
 public: // Constructor/Destructor(s) //
 
@@ -57,6 +55,7 @@ public: // Methods - Overload //
 
 public: // Methods - Static //
 
+	/* Interpolates a position between the two points using the given percentage. */
 	static Arc3DPoint interpolateTo(const Arc3DPoint& startPoint, const Arc3DPoint& endPoint, const double alpha);
 
 
@@ -65,6 +64,7 @@ public: // Methods - Override //
 	/* Multiplies each coordinate by the scalar value. */
 	virtual void scale(const double scalar);
 
+	/* Interpolates this point a percentage distance to the given next point. */
 	void selfInterpolateTo(const Arc3DPoint& point, const double alpha);
 
 
