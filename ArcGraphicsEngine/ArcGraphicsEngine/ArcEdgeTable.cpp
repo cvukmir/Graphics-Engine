@@ -42,6 +42,8 @@ void ArcEdgeTable::scan_convert(Arc3DAttributedPointList& pointList)
 
 		if (!_activeEdgeTable)
 		{
+			// Insert into AET and sort  AET
+
 			// fill between the edge pairs in the AET
 			//fillBetweenEdges(_activeEdgeTable);
 

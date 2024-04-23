@@ -320,7 +320,7 @@ void ArcWindow::drawDisk(const double height, const double radius, const double 
 	}
 }
 
-void ArcWindow::drawPolygon(const Arc3DAttributedPointList& pointList)
+bool ArcWindow::drawPolygon(const Arc3DAttributedPointList& pointList)
 {
 	if (pointList.size() < 3U)
 	{
@@ -333,10 +333,13 @@ void ArcWindow::drawPolygon(const Arc3DAttributedPointList& pointList)
 	Arc3DAttributedPointList::const_reverse_iterator itEnd = ++pointList.rbegin();
 	for (Arc3DAttributedPointList::const_iterator it = pointList.begin(); (*it) != (*itEnd); ++it)
 	{
-		polygonPipeline(vertex_list , *it, false);
+		if (!polygonPipeline(vertex_list, *it, false))
+		{
+			return false;
+		}
 	}
 
-	polygonPipeline(vertex_list, *itEnd, true);
+	return polygonPipeline(vertex_list, *itEnd, true);
 }
 
 void ArcWindow::draw2DLine(const Arc2DPoint& startPoint, const Arc2DPoint& endPoint)
@@ -706,7 +709,7 @@ ArcColor ArcWindow::colorAt(const int xPos, const int yPos)
 
 bool ArcWindow::cross(Arc3DAttributedPoint* pPoint1, Arc3DAttributedPoint* pPoint2, BoundaryType boundary)
 {
-	return inside(pPoint1, boundary) && inside(pPoint2, boundary);
+	return inside(pPoint1, boundary) != inside(pPoint2, boundary);
 }
 
 void ArcWindow::cyberPunk(double radius)
@@ -861,6 +864,11 @@ const uint ArcWindow::getBit(const uint value, const uint place)
 
 Arc3DAttributedPoint* ArcWindow::intersect(Arc3DAttributedPoint* pPoint1, Arc3DAttributedPoint* pPoint2, BoundaryType boundary)
 {
+	// t = BC0 / (BC0 - BC1) -> w0-x0 / (w0-x0) - (w1-x1)
+	switch (boundary)
+	{
+
+	}
 	return nullptr;
 }
 
@@ -869,9 +877,9 @@ bool ArcWindow::inside(Arc3DAttributedPoint* pPoint, BoundaryType boundary)
 	switch (boundary)
 	{
 		case (BoundaryType::Left):
-			return pPoint->position().x() >= 0.0;
+			return !(pPoint->position().x() < 0.0);
 		case (BoundaryType::Right):
-			return pPoint->position().x() <= 1.0;
+			return !(pPoint->position().w() - pPoint->position().x() < 0.0);
 		case (BoundaryType::Top):
 			return pPoint->position().y() <= 1.0;
 		case (BoundaryType::Bottom):
@@ -938,10 +946,9 @@ Arc3DAttributedPointList ArcWindow::polygonClip(Arc3DAttributedPointList& pointL
 bool ArcWindow::polygonPipeline(Arc3DAttributedPointList& vertexList, Arc3DAttributedPoint* point, const bool endFlag)
 {
 	Arc3DPointH geom(point->position());
-	const uint MAX_VERTEX_LIST_SIZE = 50;
+	const uint MAX_VERTEX_LIST_SIZE = 50U;
 
 	// Run geometry through current transform
-
 	geom = (*_pCurrentTransform) * geom;
 	
 	// Run through world to clip
@@ -954,7 +961,7 @@ bool ArcWindow::polygonPipeline(Arc3DAttributedPointList& vertexList, Arc3DAttri
 	// Store in vertex list
 	if (vertexList.size() == MAX_VERTEX_LIST_SIZE)
 	{
-		return false;  // Overflow
+		return false; // Overflow
 	}
 
 	vertexList.push_back(point);

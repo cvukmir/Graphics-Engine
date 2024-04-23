@@ -121,7 +121,7 @@ public: // Methods //
 	/* Run a circular disc through the pipeline.The disk should have a given radius.The disk is parallel to the xy plane and centered about the z axis.A height parameters gives the position of the disk along the z axis. */
 	void drawDisk(const double height, const double radius, const double thetaMax);
 
-	void drawPolygon(const Arc3DAttributedPointList& pointList);
+	bool drawPolygon(const Arc3DAttributedPointList& pointList);
 
 	/* Run a sphere(or some representation of a sphere) through the pipeline.The sphere should be centered at the origin and have a radius given by a parameter. */
 	void drawSphere(double radius, double zMin, double zMax, double degrees);
