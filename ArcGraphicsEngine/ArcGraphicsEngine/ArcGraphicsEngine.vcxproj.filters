@@ -254,6 +254,45 @@
     <None Include="..\SceneFiles\CVPersonal3.rd">
       <Filter>Tests</Filter>
     </None>
+    <None Include="..\SceneFiles\s38.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s39.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s40.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s41.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s42.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s43.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s44.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s45.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s46.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s47.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s48.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s49.rd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\SceneFiles\s50.rd">
+      <Filter>Tests</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArcWindow.h">

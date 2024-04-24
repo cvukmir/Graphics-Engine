@@ -708,7 +708,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 								pWindow->drawPolygon(faceList);
 							}
 
-							for (Arc3DAttributedPointList::iterator it = pointList.begin(); it != faceList.end(); ++it)
+							for (Arc3DAttributedPointList::iterator it = pointList.begin(); it != pointList.end(); ++it)
 							{
 								delete(*it);
 							}

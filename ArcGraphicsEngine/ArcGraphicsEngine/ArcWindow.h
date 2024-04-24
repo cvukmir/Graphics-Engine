@@ -91,6 +91,12 @@ public: // Methods //
 	/* Draws a circle at the given start point with the given radius using the currently set color. */
 	void draw2DCircle(const Arc3DPoint& startPoint, const int radius);
 
+	/* Draws a pixel in memory at the given position using the currently set color. */
+	void draw2DPixel(const int xPos, const int yPos);
+
+	/* Draws a 3D Pixel in memory at the given position using the currently set color. */
+	void draw3DPixel(const Arc3DPoint& point);
+
 	/* Draws the given line with the currently set color (Bresenham's Line Drawing Algorithm). */
 	void draw2DLine(const Arc2DPoint& startPoint, const Arc2DPoint& endPoint);
 
@@ -175,12 +181,6 @@ private: // Methods //
 
 	/* Draws a point using the Digital Differential Analyzer algorithm. */
 	void DDA(const Arc3DPoint& startPoint, const Arc3DPoint& endPoint);
-
-	/* Draws a pixel in memory at the given position using the currently set color. */
-	void draw2DPixel(const int xPos, const int yPos);
-
-	/* Draws a 3D Pixel in memory at the given position using the currently set color. */
-	void draw3DPixel(const Arc3DPoint& point);
 
 	/* Recursive call to fill a given area. */
 	void fastFloodFill(const int startX, const int endX, const int y, ArcColor seedColor);

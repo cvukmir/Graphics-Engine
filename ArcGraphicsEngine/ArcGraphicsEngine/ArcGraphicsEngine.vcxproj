@@ -195,6 +195,19 @@
     <None Include="..\SceneFiles\s35.rd" />
     <None Include="..\SceneFiles\s36.rd" />
     <None Include="..\SceneFiles\s37.rd" />
+    <None Include="..\SceneFiles\s38.rd" />
+    <None Include="..\SceneFiles\s39.rd" />
+    <None Include="..\SceneFiles\s40.rd" />
+    <None Include="..\SceneFiles\s41.rd" />
+    <None Include="..\SceneFiles\s42.rd" />
+    <None Include="..\SceneFiles\s43.rd" />
+    <None Include="..\SceneFiles\s44.rd" />
+    <None Include="..\SceneFiles\s45.rd" />
+    <None Include="..\SceneFiles\s46.rd" />
+    <None Include="..\SceneFiles\s47.rd" />
+    <None Include="..\SceneFiles\s48.rd" />
+    <None Include="..\SceneFiles\s49.rd" />
+    <None Include="..\SceneFiles\s50.rd" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\SceneFiles\Notes.txt" />

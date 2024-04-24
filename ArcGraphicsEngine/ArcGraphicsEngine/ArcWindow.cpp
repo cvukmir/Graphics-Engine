@@ -153,6 +153,35 @@ void ArcWindow::draw2DCircle(const Arc3DPoint& startPoint, const int radius)
 	}
 }
 
+void ArcWindow::draw2DPixel(const int xPos, const int yPos)
+{
+	if (!inWindow(xPos, yPos))
+	{
+		return;
+	}
+
+	*(_pMemory + (_width * yPos) + xPos) = _currentColor.color();
+}
+
+void ArcWindow::draw3DPixel(const Arc3DPoint& point)
+{
+	if (!inWindow(point.x(), point.y()))
+	{
+		return;
+	}
+
+	const uint offset = (_width * int(point.y())) + int(point.x());
+	double* depthPosition = _pDepthBuffer + offset;
+	
+	if (*depthPosition < point.z() || point.z() < 0.0)
+	{
+		return;
+	}
+	
+	*depthPosition       = point.z();
+	*(_pMemory + offset) = _currentColor.color();
+}
+
 void ArcWindow::draw3DCircle(const double radius, const double zMin, const double zMax, const double degrees, PlaneType plane)
 {
 	const double NSTEPS = degrees;
@@ -235,33 +264,102 @@ void ArcWindow::drawCone(const double height, const double radius, const double 
 
 void ArcWindow::drawCube()
 {
+	// Using Wireframe //
+//	// Close Face
+//	linePipeline(Arc3DPoint(-1.0, -1.0,  1.0), false); // Bottom left point
+//	linePipeline(Arc3DPoint( 1.0, -1.0,  1.0), true);  // Bottom right point
+//	linePipeline(Arc3DPoint( 1.0,  1.0,  1.0), true);  // Top right point
+//	linePipeline(Arc3DPoint(-1.0,  1.0,  1.0), true);  // Top left point
+////	linePipeline(Arc3DPoint(-1.0, -1.0,  1.0), true);  // Bottom left point
+//
+//	// Right Face
+//	linePipeline(Arc3DPoint( 1.0, -1.0,  1.0), false); // Bottom left point
+//	linePipeline(Arc3DPoint( 1.0, -1.0, -1.0), true);  // Bottom right point
+//	linePipeline(Arc3DPoint( 1.0,  1.0, -1.0), true);  // ...
+//	linePipeline(Arc3DPoint( 1.0,  1.0,  1.0), true);
+////	linePipeline(Arc3DPoint( 1.0, -1.0,  1.0), true);
+//
+//	// Far Face
+//	linePipeline(Arc3DPoint( 1.0, -1.0, -1.0), false);
+//	linePipeline(Arc3DPoint(-1.0, -1.0, -1.0), true);
+//	linePipeline(Arc3DPoint(-1.0,  1.0, -1.0), true);
+//	linePipeline(Arc3DPoint( 1.0,  1.0, -1.0), true);
+////	linePipeline(Arc3DPoint( 1.0, -1.0, -1.0), true);
+//
+//	// Left Face
+//	linePipeline(Arc3DPoint(-1.0, -1.0, -1.0), false);
+//	linePipeline(Arc3DPoint(-1.0, -1.0,  1.0), true);
+//	linePipeline(Arc3DPoint(-1.0,  1.0,  1.0), true);
+//	linePipeline(Arc3DPoint(-1.0,  1.0, -1.0), true);
+////	linePipeline(Arc3DPoint(-1.0, -1.0, -1.0), true);
+
+
+	// Using solid fill //
+	Arc3DAttributedPointList pointList;
+
 	// Close Face
-	linePipeline(Arc3DPoint(-1.0, -1.0,  1.0), false); // Bottom left point
-	linePipeline(Arc3DPoint( 1.0, -1.0,  1.0), true);  // Bottom right point
-	linePipeline(Arc3DPoint( 1.0,  1.0,  1.0), true);  // Top right point
-	linePipeline(Arc3DPoint(-1.0,  1.0,  1.0), true);  // Top left point
-//	linePipeline(Arc3DPoint(-1.0, -1.0,  1.0), true);  // Bottom left point
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0, -1.0,  1.0), _currentColor)); // Bottom left point
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0,  1.0), _currentColor)); // Bottom right point
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0,  1.0,  1.0), _currentColor)); // Top right point
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0,  1.0,  1.0), _currentColor)); // Top left point
+//	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0, -1.0,  1.0), _currentColor)); // Bottom left point
+
+	drawPolygon(pointList);
+
+	for (Arc3DAttributedPointList::iterator it = pointList.begin(); it != pointList.end(); ++it)
+	{
+		delete(*it);
+	}
+
+	pointList.clear();
 
 	// Right Face
-	linePipeline(Arc3DPoint( 1.0, -1.0,  1.0), false); // Bottom left point
-	linePipeline(Arc3DPoint( 1.0, -1.0, -1.0), true);  // Bottom right point
-	linePipeline(Arc3DPoint( 1.0,  1.0, -1.0), true);  // ...
-	linePipeline(Arc3DPoint( 1.0,  1.0,  1.0), true);
-//	linePipeline(Arc3DPoint( 1.0, -1.0,  1.0), true);
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0,  1.0), _currentColor)); // Bottom left point
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0, -1.0), _currentColor)); // Bottom right point
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0,  1.0, -1.0), _currentColor)); // ...
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0,  1.0,  1.0), _currentColor));
+//	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0,  1.0), _currentColor));
+
+	drawPolygon(pointList);
+
+	for (Arc3DAttributedPointList::iterator it = pointList.begin(); it != pointList.end(); ++it)
+	{
+		delete(*it);
+	}
+
+	pointList.clear();
 
 	// Far Face
-	linePipeline(Arc3DPoint( 1.0, -1.0, -1.0), false);
-	linePipeline(Arc3DPoint(-1.0, -1.0, -1.0), true);
-	linePipeline(Arc3DPoint(-1.0,  1.0, -1.0), true);
-	linePipeline(Arc3DPoint( 1.0,  1.0, -1.0), true);
-//	linePipeline(Arc3DPoint( 1.0, -1.0, -1.0), true);
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0, -1.0), _currentColor));
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0, -1.0, -1.0), _currentColor));
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0,  1.0, -1.0), _currentColor));
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0,  1.0, -1.0), _currentColor));
+//	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0, -1.0), _currentColor));
+
+	drawPolygon(pointList);
+
+	for (Arc3DAttributedPointList::iterator it = pointList.begin(); it != pointList.end(); ++it)
+	{
+		delete(*it);
+	}
+
+	pointList.clear();
 
 	// Left Face
-	linePipeline(Arc3DPoint(-1.0, -1.0, -1.0), false);
-	linePipeline(Arc3DPoint(-1.0, -1.0,  1.0), true);
-	linePipeline(Arc3DPoint(-1.0,  1.0,  1.0), true);
-	linePipeline(Arc3DPoint(-1.0,  1.0, -1.0), true);
-//	linePipeline(Arc3DPoint(-1.0, -1.0, -1.0), true);
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0, -1.0, -1.0), _currentColor));
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0, -1.0,  1.0), _currentColor));
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0,  1.0,  1.0), _currentColor));
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0,  1.0, -1.0), _currentColor));
+//	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0, -1.0, -1.0), _currentColor));
+
+	drawPolygon(pointList);
+
+	for (Arc3DAttributedPointList::iterator it = pointList.begin(); it != pointList.end(); ++it)
+	{
+		delete(*it);
+	}
+
+	pointList.clear();
 }
 
 void ArcWindow::drawCylinder(const double radius, const double zmin, const double zmax, const double degrees)
@@ -325,12 +423,12 @@ bool ArcWindow::drawPolygon(const Arc3DAttributedPointList& pointList)
 	if (pointList.size() < 3U)
 	{
 		// A polygon is defined to have at least three sides...
-		return;
+		return false;
 	}
 
 	Arc3DAttributedPointList vertex_list;
 
-	Arc3DAttributedPointList::const_reverse_iterator itEnd = ++pointList.rbegin();
+	Arc3DAttributedPointList::const_reverse_iterator itEnd = pointList.rbegin();
 	for (Arc3DAttributedPointList::const_iterator it = pointList.begin(); (*it) != (*itEnd); ++it)
 	{
 		if (!polygonPipeline(vertex_list, *it, false))
@@ -615,24 +713,49 @@ void ArcWindow::translateTransformation(const double t1, const double t2, const 
 	_pCurrentTransform->translate(t1, t2, t3);
 }
 
+void ArcWindow::scaleTransformation(const double s1, const double s2, const double s3)
+{
+	_pCurrentTransform->scale(s1, s2, s3);
+}
+
+void ArcWindow::rotateTransformationXY(const double degrees)
+{
+	_pCurrentTransform->rotate_xy(degrees);
+}
+
+void ArcWindow::rotateTransformationYZ(const double degrees)
+{
+	_pCurrentTransform->rotate_yz(degrees);
+}
+
+void ArcWindow::rotateTransformationZX(const double degrees)
+{
+	_pCurrentTransform->rotate_zx(degrees);
+}
+
+
+
+
+// Private Methods //
+
 void ArcWindow::clipAPoint(Arc3DAttributedPoint* pPoint, BoundaryType boundary, Arc3DAttributedPointList& firstPointList, Arc3DAttributedPointList& lastPointList, bool faceSeenList[6], Arc3DAttributedPointList& outputArray)
 {
-	const uint index = static_cast<uint>(boundary);
-	if (firstPointList[index] == nullptr)
+	const uint b = static_cast<uint>(boundary);
+	if (faceSeenList[b] == false)
 	{
-		firstPointList[index] = pPoint;
-		faceSeenList[index] = true;
+		firstPointList[b] = pPoint;
+		faceSeenList[b] = true;
 	}
 	else
 	{
 		// Previous point exists
-		if (cross(pPoint, lastPointList[index], boundary))
+		if (cross(pPoint, lastPointList[b], boundary))
 		{
-			Arc3DAttributedPoint* ipt = intersect(pPoint, lastPointList[index], boundary);
+			Arc3DAttributedPoint* ipt = intersect(pPoint, lastPointList[b], boundary);
 			// send ipt to the next stage of the pipeline or to the output array depending on b, i.e.
 			if (boundary != BoundaryType::Last)
 			{
-				clipAPoint(ipt, static_cast<BoundaryType>(index + 1U), firstPointList, lastPointList, faceSeenList, outputArray);
+				clipAPoint(ipt, static_cast<BoundaryType>(b + 1U), firstPointList, lastPointList, faceSeenList, outputArray);
 			}
 			else
 			{
@@ -642,13 +765,13 @@ void ArcWindow::clipAPoint(Arc3DAttributedPoint* pPoint, BoundaryType boundary, 
 	}
 
 	// Save the most recent vertex seen at this stage.
-	lastPointList[index] = pPoint;
+	lastPointList[b] = pPoint;
 
 	if (inside(pPoint, boundary))
 	{
 		if (boundary != BoundaryType::Last)
 		{
-			clipAPoint(pPoint, static_cast<BoundaryType>(index + 1U), firstPointList, lastPointList, faceSeenList, outputArray);
+			clipAPoint(pPoint, static_cast<BoundaryType>(b + 1U), firstPointList, lastPointList, faceSeenList, outputArray);
 		}
 		else
 		{
@@ -676,31 +799,6 @@ void ArcWindow::clipLastPoint(Arc3DAttributedPointList& firstPointList, Arc3DAtt
 		}
 	}
 }
-
-void ArcWindow::scaleTransformation(const double s1, const double s2, const double s3)
-{
-	_pCurrentTransform->scale(s1, s2, s3);
-}
-
-void ArcWindow::rotateTransformationXY(const double degrees)
-{
-	_pCurrentTransform->rotate_xy(degrees);
-}
-
-void ArcWindow::rotateTransformationYZ(const double degrees)
-{
-	_pCurrentTransform->rotate_yz(degrees);
-}
-
-void ArcWindow::rotateTransformationZX(const double degrees)
-{
-	_pCurrentTransform->rotate_zx(degrees);
-}
-
-
-
-
-// Private Methods //
 
 ArcColor ArcWindow::colorAt(const int xPos, const int yPos)
 {
@@ -755,35 +853,6 @@ void ArcWindow::DDA(const Arc3DPoint& startPoint, const Arc3DPoint& endPoint)
 		double alpha = i / double(NSTEPS);
 		draw3DPixel(Arc3DPoint::interpolateTo(startPoint, endPoint, alpha));
 	}
-}
-
-void ArcWindow::draw2DPixel(const int xPos, const int yPos)
-{
-	if (!inWindow(xPos, yPos))
-	{
-		return;
-	}
-
-	*(_pMemory + (_width * yPos) + xPos) = _currentColor.color();
-}
-
-void ArcWindow::draw3DPixel(const Arc3DPoint& point)
-{
-	if (!inWindow(point.x(), point.y()))
-	{
-		return;
-	}
-
-	const uint offset = (_width * int(point.y())) + int(point.x());
-	double* depthPosition = _pDepthBuffer + offset;
-	
-	if (*depthPosition < point.z() || point.z() < 0.0)
-	{
-		return;
-	}
-	
-	*depthPosition       = point.z();
-	*(_pMemory + offset) = _currentColor.color();
 }
 
 void ArcWindow::fastFloodFill(const int startX, const int endX, const int y, const ArcColor seedColor)
@@ -865,10 +934,32 @@ const uint ArcWindow::getBit(const uint value, const uint place)
 Arc3DAttributedPoint* ArcWindow::intersect(Arc3DAttributedPoint* pPoint1, Arc3DAttributedPoint* pPoint2, BoundaryType boundary)
 {
 	// t = BC0 / (BC0 - BC1) -> w0-x0 / (w0-x0) - (w1-x1)
+	double alpha = 0.0;
+
 	switch (boundary)
 	{
-
+		case (BoundaryType::Left):
+			alpha = pPoint1->position().x() / (pPoint1->position().x() - pPoint2->position().x());
+			return new Arc3DAttributedPoint(Arc3DAttributedPoint::interpolateTo(*pPoint1, *pPoint2, alpha));
+		case (BoundaryType::Right):
+			alpha = (pPoint1->position().w() - pPoint1->position().x()) / ((pPoint1->position().w() - pPoint1->position().x()) - (pPoint2->position().w() - pPoint2->position().x()));
+			return new Arc3DAttributedPoint(Arc3DAttributedPoint::interpolateTo(*pPoint1, *pPoint2, alpha));
+		case (BoundaryType::Bottom):
+			alpha = pPoint1->position().y() / (pPoint1->position().y() - pPoint2->position().y());
+			return new Arc3DAttributedPoint(Arc3DAttributedPoint::interpolateTo(*pPoint1, *pPoint2, alpha));
+		case (BoundaryType::Top):
+			alpha = (pPoint1->position().w() - pPoint1->position().y()) / ((pPoint1->position().w() - pPoint1->position().y()) - (pPoint2->position().w() - pPoint2->position().y()));
+			return new Arc3DAttributedPoint(Arc3DAttributedPoint::interpolateTo(*pPoint1, *pPoint2, alpha));
+		case (BoundaryType::Front):
+			alpha = pPoint1->position().z() / (pPoint1->position().z() - pPoint2->position().z());
+			return new Arc3DAttributedPoint(Arc3DAttributedPoint::interpolateTo(*pPoint1, *pPoint2, alpha));
+		case (BoundaryType::Back):
+			alpha = (pPoint1->position().w() - pPoint1->position().z()) / ((pPoint1->position().w() - pPoint1->position().z()) - (pPoint2->position().w() - pPoint2->position().z()));
+			return new Arc3DAttributedPoint(Arc3DAttributedPoint::interpolateTo(*pPoint1, *pPoint2, alpha));
+		default:
+			break;
 	}
+
 	return nullptr;
 }
 
@@ -880,14 +971,14 @@ bool ArcWindow::inside(Arc3DAttributedPoint* pPoint, BoundaryType boundary)
 			return !(pPoint->position().x() < 0.0);
 		case (BoundaryType::Right):
 			return !(pPoint->position().w() - pPoint->position().x() < 0.0);
-		case (BoundaryType::Top):
-			return pPoint->position().y() <= 1.0;
 		case (BoundaryType::Bottom):
-			return pPoint->position().y() >= 0.0;
+			return !(pPoint->position().y() < 0.0);
+		case (BoundaryType::Top):
+			return !(pPoint->position().w() - pPoint->position().y() < 0.0);
 		case (BoundaryType::Front):
-			return pPoint->position().z() >= 0.0;
+			return !(pPoint->position().z() < 0.0);
 		case (BoundaryType::Back):
-			return pPoint->position().z() <= 0.0;
+			return !(pPoint->position().w() - pPoint->position().z() < 0.0);
 		default:
 			break;
 	}
@@ -933,14 +1024,14 @@ Arc3DAttributedPointList ArcWindow::polygonClip(Arc3DAttributedPointList& pointL
 	Arc3DAttributedPointList vertex_list;
 
 	Arc3DAttributedPointList::const_iterator itEnd = pointList.end();
-	for (Arc3DAttributedPointList::const_iterator it = pointList.begin(); (*it) != (*itEnd); ++it)
+	for (Arc3DAttributedPointList::const_iterator it = pointList.begin(); it != itEnd; ++it)
 	{
 		clipAPoint(*it, BoundaryType::First, firstPointList, lastPointList, faceSeenList, outputArray);
 	}
 
 	clipLastPoint(firstPointList, lastPointList, faceSeenList, outputArray);
 
-	return Arc3DAttributedPointList();
+	return outputArray;
 }
 
 bool ArcWindow::polygonPipeline(Arc3DAttributedPointList& vertexList, Arc3DAttributedPoint* point, const bool endFlag)
@@ -989,10 +1080,12 @@ bool ArcWindow::polygonPipeline(Arc3DAttributedPointList& vertexList, Arc3DAttri
 		}
 
 		_edgeTable->scan_convert(clipped_list);
+
+		//for (uint i = 0; i < clipped_list.size(); i++)
+		//{
+		//	draw3DPixel(clipped_list[i]->position().toCartesianPoint());
+		//}
 	}
-	
-	// Reset structures for next polygon
-	vertexList.clear();
 }
 
 void ArcWindow::pointPipeline(const Arc3DPoint& point)

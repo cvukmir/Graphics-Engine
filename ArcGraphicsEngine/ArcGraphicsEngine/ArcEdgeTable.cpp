@@ -1,5 +1,6 @@
 #include "ArcEdgeTable.h"
 #include "ArcEdge.hpp"
+#include "ArcWindow.h"
 #include <vector>
 #include <math.h>
 
@@ -13,11 +14,6 @@ ArcEdgeTable::ArcEdgeTable(const uint scanlineCount)
 
 ArcEdgeTable::~ArcEdgeTable()
 {
-	std::vector<ArcEdge*>::iterator itEnd = _edgeTable.end();
-	for (std::vector<ArcEdge*>::iterator it = _edgeTable.begin(); it != itEnd; ++it)
-	{
-		//delete(*it);
-	}
 }
 
 
@@ -25,35 +21,45 @@ ArcEdgeTable::~ArcEdgeTable()
 
 void ArcEdgeTable::scan_convert(Arc3DAttributedPointList& pointList)
 {
-	ArcEdge* pHeadEdge = new ArcEdge();
-
 	if (!buildEdgeList(pointList))
 	{
 		// No edges cross a scanline
 		return;
 	}
 
-	clearEdgeTable();
+	clearEdgeTables();
 
-	std::vector<ArcEdge*>::iterator itEnd = _edgeTable.end();
-	for (std::vector<ArcEdge*>::iterator it = _edgeTable.begin(); it != itEnd; ++it)
+	for (uint scan = 0U; scan < _edgeTable.size(); ++scan)
 	{
 		// Take the edges starting on this scanline from the edge table and add them to the active edge table(AET).
-
-		if (!_activeEdgeTable)
+		if (_edgeTable[scan])
 		{
-			// Insert into AET and sort  AET
+			if (_activeEdgeTable)
+			{
+				addActiveList(scan, _activeEdgeTable);
+			}
+			else
+			{
+				// This?
+				_activeEdgeTable = _edgeTable[scan];
+				_edgeTable[scan] = nullptr;
+			}
+		}
 
+		if (_activeEdgeTable)
+		{
 			// fill between the edge pairs in the AET
-			//fillBetweenEdges(_activeEdgeTable);
+			fillBetweenEdges(scan);
 
 			// update the AET
-			//updateAET();
+			updateAET(scan, _activeEdgeTable);
 			
 			// resort the AET
-			//resortAET();
+			resortAET();
 		}
 	}
+
+	clearEdgeTables();
 }
 
 bool ArcEdgeTable::buildEdgeList(Arc3DAttributedPointList& pointList)
@@ -106,7 +112,16 @@ void ArcEdgeTable::makeEdgeRec(Arc3DAttributedPoint* upper, Arc3DAttributedPoint
 	// Find the last scanline for the edge
 	pNewEdge->yLast = ceil(upper->position().y()) - 1;
 	
-	//Insert e into the edge table list of edges starting on scanline ceil(lower.y)
+	// Insert e into the edge table list of edges starting on scanline ceil(lower.y)
+	// IS THIS CORRECT?
+	if (ArcEdge* pExistingEdge = _edgeTable[ceil(lower->position().y())])
+	{
+		insertEdge(pExistingEdge, pNewEdge);
+	}
+	else
+	{
+		_edgeTable[ceil(lower->position().y())] = pNewEdge;
+	}
 }
 
 void ArcEdgeTable::addActiveList(const uint scanLine, ArcEdge* pEdge)
@@ -114,12 +129,13 @@ void ArcEdgeTable::addActiveList(const uint scanLine, ArcEdge* pEdge)
 	ArcEdge* p = nullptr;
 	ArcEdge* q = nullptr;
 
+	// THIS WAS CHANGED FROM .next yes or no?
 	p = _edgeTable[scanLine]; // Get the edges starting on this scan line
 	
 	while (p)
 	{
 		q = p->next; // Hold the rest of the list
-		insertEdge(_activeEdgeTable, p);
+		insertEdge(pEdge, p);
 		p = q;
 	}
 	
@@ -135,7 +151,7 @@ void ArcEdgeTable::insertEdge(ArcEdge* edgeList, ArcEdge* pEdge)
 	// p leads
 	p = q->next;
 
-	while (p != 0 && (pEdge->p.position().x() > pEdge->p.position().x()))
+	while (p && (pEdge->p.position().x() > pEdge->p.position().x()))
 	{
 		// Step to the next edge
 		q = p;
@@ -164,11 +180,10 @@ void ArcEdgeTable::updateAET(const uint scanLine, ArcEdge* pEdge)
 		{
 			// Update the attribute values
 			p->p = p->p + p->inc;
+			q = p;
+			p = p->next;
 		}
 	}
-	
-	q = p;
-	p = p->next;
 }
 
 void ArcEdgeTable::deleteAfter(ArcEdge* pEdge)
@@ -198,7 +213,7 @@ void ArcEdgeTable::fillBetweenEdges(const uint scanLine)
 	ArcEdge* p1;
 	ArcEdge* p2;
 
-	p1 = _activeEdgeTable->next;
+	p1 = _activeEdgeTable;
 	while (p1)
 	{
 		p2 = p1->next;  // Get the pair of edges from the AET
@@ -219,6 +234,7 @@ void ArcEdgeTable::fillBetweenEdges(const uint scanLine)
 			while (value.position().x() < endx)
 			{
 				//Calculate the color for the pixel and plot it. x and z come from the current values, y is the current scanline
+				ArcWindow::window()->draw3DPixel(Arc3DPoint(value.position().x(), scanLine, value.position().z()));
 
 				// Increment the values
 				value = value + inc;
@@ -231,14 +247,24 @@ void ArcEdgeTable::fillBetweenEdges(const uint scanLine)
 
 // Private Methods //
 
-void ArcEdgeTable::clearEdgeTable()
+void ArcEdgeTable::clearEdgeTables()
 {
-	std::vector<ArcEdge*>::iterator itEnd = _edgeTable.end();
-	for (std::vector<ArcEdge*>::iterator it = _edgeTable.begin(); it != itEnd; ++it)
+	ArcEdge* pCurrentNode = _activeEdgeTable;
+
+	if (!pCurrentNode)
 	{
-		//delete(*it);
+		// Already clear!
+		return;
 	}
 
-	_edgeTable.clear();
+	while (ArcEdge* pNextNode = pCurrentNode->next)
+	{
+		delete (pCurrentNode);
+		pCurrentNode = pNextNode;
+	}
+
+	delete(pCurrentNode);
+
+	_activeEdgeTable = nullptr;
 }
 

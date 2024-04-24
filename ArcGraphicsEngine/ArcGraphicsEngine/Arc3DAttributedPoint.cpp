@@ -29,6 +29,16 @@ Arc3DAttributedPoint::Arc3DAttributedPoint(const Arc3DPoint& point)
 {
 }
 
+Arc3DAttributedPoint::Arc3DAttributedPoint(const Arc3DPoint& point, const ArcColor& color)
+	: _opacity(0.0)
+	, _position(point)
+	, _s(0.0)
+	, _t(0.0)
+	, _weight(0.0)
+{
+	_color = color;
+}
+
 Arc3DAttributedPoint::~Arc3DAttributedPoint()
 {
 }

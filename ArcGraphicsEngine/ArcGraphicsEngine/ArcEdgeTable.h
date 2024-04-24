@@ -41,7 +41,7 @@ public: // Methods //
 private: // Methods //
 
 	/* Clear the edges in the nested list of the edge table. */
-	void clearEdgeTable();
+	void clearEdgeTables();
 
 
 private: 

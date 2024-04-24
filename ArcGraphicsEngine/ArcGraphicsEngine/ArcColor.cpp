@@ -97,7 +97,17 @@ uint ArcColor::getRedComponent(const uint value)   { return (value & 0x00FF0000U
 
 ArcColor ArcColor::interpolateTo(const ArcColor& startColor, const ArcColor& endColor, const double alpha)
 {
-	return ArcColor(startColor._color + (alpha * (endColor._color - startColor._color)));
+	float r1 = static_cast<float>(  getRedComponent(startColor._color));
+	float g1 = static_cast<float>(getGreenComponent(startColor._color));
+	float b1 = static_cast<float>( getBlueComponent(startColor._color));
+
+	float r2 = static_cast<float>(  getRedComponent(endColor._color));
+	float g2 = static_cast<float>(getGreenComponent(endColor._color));
+	float b2 = static_cast<float>( getBlueComponent(endColor._color));
+	
+	return ArcColor(r1 + (alpha * (r2 - r1)),
+		            g1 + (alpha * (g2 - g1)),
+		            b1 + (alpha * (b2 - b1))).color();
 }
 
 uint ArcColor::colorFromFloat(const float red, const float green, const float blue)
@@ -117,7 +127,17 @@ uint ArcColor::colorFromFloat(const float red, const float green, const float bl
 
 void ArcColor::selfInterpolateTo(const ArcColor& color, const double alpha)
 {
-	_color = _color + (alpha * (color._color - _color));
+	float r1 = static_cast<float>(  getRedComponent(_color));
+	float g1 = static_cast<float>(getGreenComponent(_color));
+	float b1 = static_cast<float>( getBlueComponent(_color));
+
+	float r2 = static_cast<float>(  getRedComponent(color._color));
+	float g2 = static_cast<float>(getGreenComponent(color._color));
+	float b2 = static_cast<float>( getBlueComponent(color._color));
+
+	_color = ArcColor(r1 + (alpha * (r2 - r1)),
+		              g1 + (alpha * (g2 - g1)),
+		              b1 + (alpha * (b2 - b1))).color();
 }
 
 

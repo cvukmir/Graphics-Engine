@@ -14,6 +14,7 @@ public:
 	Arc3DAttributedPoint();
 	Arc3DAttributedPoint(const Arc3DPointH& point);
 	Arc3DAttributedPoint(const Arc3DPoint& point);
+	Arc3DAttributedPoint(const Arc3DPoint& point, const ArcColor& color);
 
 	~Arc3DAttributedPoint();
 
