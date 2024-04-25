@@ -23,7 +23,7 @@ public: // Constructor/Destructor(s) //
 public: // Overload(s) //
 
 	/* Copy operator. */
-	void operator=(const ArcColor& rhs) const;
+	void operator=(const ArcColor& rhs);
 
 	/* Equality operator. */
 	bool operator==(const ArcColor& rhs) const;

@@ -182,6 +182,25 @@ void ArcWindow::draw3DPixel(const Arc3DPoint& point)
 	*(_pMemory + offset) = _currentColor.color();
 }
 
+void ArcWindow::draw3DPixel(const Arc3DPoint& point, const ArcColor& color)
+{
+	if (!inWindow(point.x(), point.y()))
+	{
+		return;
+	}
+
+	const uint offset = (_width * int(point.y())) + int(point.x());
+	double* depthPosition = _pDepthBuffer + offset;
+
+	if (*depthPosition < point.z() || point.z() < 0.0)
+	{
+		return;
+	}
+
+	*depthPosition = point.z();
+	*(_pMemory + offset) = _currentColor.color();
+}
+
 void ArcWindow::draw3DCircle(const double radius, const double zMin, const double zMax, const double degrees, PlaneType plane)
 {
 	const double NSTEPS = degrees;
@@ -239,6 +258,8 @@ void ArcWindow::drawCone(const double height, const double radius, const double 
 	Arc3DPoint currDrawPoint;
 	Arc3DPoint prevDrawPoint = Arc3DPoint(radius, 0, 0);
 
+	Arc3DAttributedPointList pointList;
+
 	// TODO Remove <= to <. Why is that broken?
 	for (double i = 1; i <= NSTEPS; ++i)
 	{
@@ -253,10 +274,21 @@ void ArcWindow::drawCone(const double height, const double radius, const double 
 		double y = radius * sin(theta2);
 
 		currDrawPoint = Arc3DPoint(x, y, 0);
-		linePipeline(currDrawPoint, true);
-		linePipeline(Arc3DPoint(0, 0, height), true);
-		linePipeline(prevDrawPoint, true);
-		linePipeline(currDrawPoint, false);
+
+		// Close Face
+		pointList.push_back(new Arc3DAttributedPoint(currDrawPoint,            _currentColor));
+		pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(0, 0, height), _currentColor));
+		pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(0, 0, height), _currentColor));
+		pointList.push_back(new Arc3DAttributedPoint(prevDrawPoint,            _currentColor));
+
+		drawPolygon(pointList);
+
+		for (Arc3DAttributedPointList::iterator it = pointList.begin(); it != pointList.end(); ++it)
+		{
+			delete(*it);
+		}
+
+		pointList.clear();
 
 		prevDrawPoint = currDrawPoint;
 	}
@@ -298,11 +330,10 @@ void ArcWindow::drawCube()
 	Arc3DAttributedPointList pointList;
 
 	// Close Face
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0, -1.0,  1.0), _currentColor)); // Bottom left point
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0,  1.0), _currentColor)); // Bottom right point
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0,  1.0,  1.0), _currentColor)); // Top right point
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0,  1.0,  1.0), _currentColor)); // Top left point
-//	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0, -1.0,  1.0), _currentColor)); // Bottom left point
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0, -1.0,  1.0), _currentColor));
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0,  1.0), _currentColor));
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0,  1.0,  1.0), _currentColor));
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0,  1.0,  1.0), _currentColor));
 
 	drawPolygon(pointList);
 
@@ -314,11 +345,10 @@ void ArcWindow::drawCube()
 	pointList.clear();
 
 	// Right Face
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0,  1.0), _currentColor)); // Bottom left point
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0, -1.0), _currentColor)); // Bottom right point
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0,  1.0, -1.0), _currentColor)); // ...
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0,  1.0), _currentColor));
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0, -1.0), _currentColor));
+	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0,  1.0, -1.0), _currentColor));
 	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0,  1.0,  1.0), _currentColor));
-//	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0,  1.0), _currentColor));
 
 	drawPolygon(pointList);
 
@@ -334,7 +364,6 @@ void ArcWindow::drawCube()
 	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0, -1.0, -1.0), _currentColor));
 	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0,  1.0, -1.0), _currentColor));
 	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0,  1.0, -1.0), _currentColor));
-//	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0, -1.0), _currentColor));
 
 	drawPolygon(pointList);
 
@@ -350,7 +379,6 @@ void ArcWindow::drawCube()
 	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0, -1.0,  1.0), _currentColor));
 	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0,  1.0,  1.0), _currentColor));
 	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0,  1.0, -1.0), _currentColor));
-//	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0, -1.0, -1.0), _currentColor));
 
 	drawPolygon(pointList);
 
@@ -372,6 +400,8 @@ void ArcWindow::drawCylinder(const double radius, const double zmin, const doubl
 	Arc3DPoint currDrawPoint;
 	Arc3DPoint prevDrawPoint = Arc3DPoint(radius, 0, zmin);
 
+	Arc3DAttributedPointList pointList;
+
 	// TODO Remove <= to <. Why is that broken?
 	for (double i = 1; i <= NSTEPS; ++i)
 	{
@@ -386,11 +416,21 @@ void ArcWindow::drawCylinder(const double radius, const double zmin, const doubl
 		double y = radius * sin(theta2);
 
 		currDrawPoint = Arc3DPoint(x, y, zmin);
-		linePipeline(currDrawPoint, true);
-		linePipeline(Arc3DPoint(x, y, zmax), true);
-		linePipeline(Arc3DPoint(prevDrawPoint.x(), prevDrawPoint.y(), zmax), true);
-		linePipeline(prevDrawPoint, true);
-		linePipeline(currDrawPoint, false);
+
+		// Close Face
+		pointList.push_back(new Arc3DAttributedPoint(currDrawPoint, _currentColor));
+		pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(x, y, zmax), _currentColor));
+		pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(prevDrawPoint.x(), prevDrawPoint.y(), zmax), _currentColor));
+		pointList.push_back(new Arc3DAttributedPoint(prevDrawPoint, _currentColor));
+
+		drawPolygon(pointList);
+
+		for (Arc3DAttributedPointList::iterator it = pointList.begin(); it != pointList.end(); ++it)
+		{
+			delete(*it);
+		}
+
+		pointList.clear();
 
 		prevDrawPoint = currDrawPoint;
 	}
@@ -607,6 +647,8 @@ void ArcWindow::drawSphere2(double radius, double zMin, double zMax, double degr
 {
 	const uint NSTEPS_LONG = 20U; // Should be multiple of 4 (4 quadrents).
 	const uint NSTEPS_LAT  = 10U; // Should be multiple of 2 (2 halves).
+			
+	Arc3DAttributedPointList pointList;
 
 	for (uint i = 0U; i < NSTEPS_LAT; ++i)
 	{
@@ -624,12 +666,21 @@ void ArcWindow::drawSphere2(double radius, double zMin, double zMax, double degr
 			const Arc3DPoint point2(radius * cos(phi1) * cos(theta2), radius * cos(phi1) * sin(theta2), radius * sin(phi1));
 			const Arc3DPoint point3(radius * cos(phi2) * cos(theta2), radius * cos(phi2) * sin(theta2), radius * sin(phi2));
 			const Arc3DPoint point4(radius * cos(phi2) * cos(theta1), radius * cos(phi2) * sin(theta1), radius * sin(phi2));
+		
+			// Close Face
+			pointList.push_back(new Arc3DAttributedPoint(point1, _currentColor));
+			pointList.push_back(new Arc3DAttributedPoint(point2, _currentColor));
+			pointList.push_back(new Arc3DAttributedPoint(point3, _currentColor));
+			pointList.push_back(new Arc3DAttributedPoint(point4, _currentColor));
+		
+			drawPolygon(pointList);
+		
+			for (Arc3DAttributedPointList::iterator it = pointList.begin(); it != pointList.end(); ++it)
+			{
+				delete(*it);
+			}
 
-			linePipeline(point1, false);
-			linePipeline(point2, true);
-			linePipeline(point3, true);
-			linePipeline(point4, true);
-			linePipeline(point1, true);
+			pointList.clear();
 		}
 	}
 }

@@ -232,7 +232,7 @@ void ArcEdgeTable::fillBetweenEdges(const uint scanLine)
 			while (value.position().x() < endx)
 			{
 				//Calculate the color for the pixel and plot it. x and z come from the current values, y is the current scanline
-				ArcWindow::window()->draw3DPixel(Arc3DPoint(value.position().x(), scanLine, value.position().z()));
+				ArcWindow::window()->draw3DPixel(Arc3DPoint(value.position().x(), scanLine, value.position().z()), value.color());
 
 				// Increment the values
 				value = value + inc;

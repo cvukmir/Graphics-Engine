@@ -156,6 +156,7 @@
     <None Include="..\SceneFiles\CVPersonal.rd" />
     <None Include="..\SceneFiles\CVPersonal2.rd" />
     <None Include="..\SceneFiles\CVPersonal3.rd" />
+    <None Include="..\SceneFiles\CVPersonal4.rd" />
     <None Include="..\SceneFiles\FloodFill.rd" />
     <None Include="..\SceneFiles\Lines.rd" />
     <None Include="..\SceneFiles\s01.rd" />

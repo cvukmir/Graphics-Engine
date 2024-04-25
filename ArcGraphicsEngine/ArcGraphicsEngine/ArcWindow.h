@@ -97,6 +97,9 @@ public: // Methods //
 	/* Draws a 3D Pixel in memory at the given position using the currently set color. */
 	void draw3DPixel(const Arc3DPoint& point);
 
+
+	void draw3DPixel(const Arc3DPoint& point, const ArcColor& color);
+
 	/* Draws the given line with the currently set color (Bresenham's Line Drawing Algorithm). */
 	void draw2DLine(const Arc2DPoint& startPoint, const Arc2DPoint& endPoint);
 

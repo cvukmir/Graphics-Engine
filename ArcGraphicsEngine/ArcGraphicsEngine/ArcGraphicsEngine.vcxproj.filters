@@ -293,6 +293,9 @@
     <None Include="..\SceneFiles\s50.rd">
       <Filter>Tests</Filter>
     </None>
+    <None Include="..\SceneFiles\CVPersonal4.rd">
+      <Filter>Tests</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArcWindow.h">

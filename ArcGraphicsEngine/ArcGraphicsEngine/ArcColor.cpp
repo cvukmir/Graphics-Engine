@@ -27,9 +27,9 @@ ArcColor::~ArcColor()
 
 // Overload(s) //
 
-void ArcColor::operator=(const ArcColor& rhs) const
+void ArcColor::operator=(const ArcColor& rhs)
 {
-	this->_color == rhs._color;
+	this->_color = rhs._color;
 }
 
 bool ArcColor::operator==(const ArcColor& rhs) const
