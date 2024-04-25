@@ -7,13 +7,14 @@
 // Constructor/Destructor(s) //
 
 ArcEdgeTable::ArcEdgeTable(const uint scanlineCount)
-	: _activeEdgeTable(nullptr)
+	: _activeEdgeTable(new ArcEdge())
 	, _edgeTable      (scanlineCount)
 {
 }
 
 ArcEdgeTable::~ArcEdgeTable()
 {
+	delete(_activeEdgeTable);
 }
 
 
@@ -34,19 +35,10 @@ void ArcEdgeTable::scan_convert(Arc3DAttributedPointList& pointList)
 		// Take the edges starting on this scanline from the edge table and add them to the active edge table(AET).
 		if (_edgeTable[scan])
 		{
-			if (_activeEdgeTable)
-			{
-				addActiveList(scan, _activeEdgeTable);
-			}
-			else
-			{
-				// This?
-				_activeEdgeTable = _edgeTable[scan];
-				_edgeTable[scan] = nullptr;
-			}
+			addActiveList(scan, _activeEdgeTable);
 		}
 
-		if (_activeEdgeTable)
+		if (_activeEdgeTable->next)
 		{
 			// fill between the edge pairs in the AET
 			fillBetweenEdges(scan);
@@ -77,15 +69,15 @@ bool ArcEdgeTable::buildEdgeList(Arc3DAttributedPointList& pointList)
 		{
 			scanlineCrossed = true;
 	
-			if (v1y < v2y)
+			if (pointList[vertex1]->position().y() < pointList[vertex2]->position().y())
 			{
 				//Make an edge record from vertex[v1] to vertex[v2]
-				makeEdgeRec(pointList[vertex1], pointList[vertex2]);
+				makeEdgeRec(pointList[vertex2], pointList[vertex1]);
 			}
 			else
 			{
 				//Make an edge record from vertex[v2] to vertex[v1]
-				makeEdgeRec(pointList[vertex2], pointList[vertex1]);
+				makeEdgeRec(pointList[vertex1], pointList[vertex2]);
 			}
 		}
 		vertex1 = vertex2; // Move to next edge
@@ -116,7 +108,13 @@ void ArcEdgeTable::makeEdgeRec(Arc3DAttributedPoint* upper, Arc3DAttributedPoint
 	// IS THIS CORRECT?
 	if (ArcEdge* pExistingEdge = _edgeTable[ceil(lower->position().y())])
 	{
-		insertEdge(pExistingEdge, pNewEdge);
+		// while (pExistingEdge->next)
+		// {
+		// 	pExistingEdge = pExistingEdge->next;
+		// }
+		// 
+		// pExistingEdge->next = pNewEdge;
+		insertEdge(_edgeTable[ceil(lower->position().y())], pNewEdge);
 	}
 	else
 	{
@@ -151,7 +149,7 @@ void ArcEdgeTable::insertEdge(ArcEdge* edgeList, ArcEdge* pEdge)
 	// p leads
 	p = q->next;
 
-	while (p && (pEdge->p.position().x() > pEdge->p.position().x()))
+	while (p && (pEdge->p.position().x() > p->p.position().x()))
 	{
 		// Step to the next edge
 		q = p;
@@ -213,7 +211,7 @@ void ArcEdgeTable::fillBetweenEdges(const uint scanLine)
 	ArcEdge* p1;
 	ArcEdge* p2;
 
-	p1 = _activeEdgeTable;
+	p1 = _activeEdgeTable->next;
 	while (p1)
 	{
 		p2 = p1->next;  // Get the pair of edges from the AET
@@ -249,7 +247,7 @@ void ArcEdgeTable::fillBetweenEdges(const uint scanLine)
 
 void ArcEdgeTable::clearEdgeTables()
 {
-	ArcEdge* pCurrentNode = _activeEdgeTable;
+	ArcEdge* pCurrentNode = _activeEdgeTable->next;
 
 	if (!pCurrentNode)
 	{
@@ -265,6 +263,6 @@ void ArcEdgeTable::clearEdgeTables()
 
 	delete(pCurrentNode);
 
-	_activeEdgeTable = nullptr;
+	_activeEdgeTable->next = nullptr;
 }
 

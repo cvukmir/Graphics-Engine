@@ -1080,11 +1080,6 @@ bool ArcWindow::polygonPipeline(Arc3DAttributedPointList& vertexList, Arc3DAttri
 		}
 
 		_edgeTable->scan_convert(clipped_list);
-
-		//for (uint i = 0; i < clipped_list.size(); i++)
-		//{
-		//	draw3DPixel(clipped_list[i]->position().toCartesianPoint());
-		//}
 	}
 }
 
