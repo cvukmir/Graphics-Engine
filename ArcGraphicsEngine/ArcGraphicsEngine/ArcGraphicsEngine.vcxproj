@@ -221,6 +221,7 @@
     <ClInclude Include="Arc3DPointH.h" />
     <ClInclude Include="Arc3DPolygon.h" />
     <ClInclude Include="Arc3DAttributedPoint.h" />
+    <ClInclude Include="ArcAmbientLight.hpp" />
     <ClInclude Include="ArcBaseObject.h" />
     <ClInclude Include="ArcBoundaryCodes.hpp" />
     <ClInclude Include="ArcColor.h" />
@@ -228,7 +229,9 @@
     <ClInclude Include="ArcEdge.hpp" />
     <ClInclude Include="ArcEdgeTable.h" />
     <ClInclude Include="ArcEnums.h" />
+    <ClInclude Include="ArcFarLight.hpp" />
     <ClInclude Include="ArcMatrix4x4.hpp" />
+    <ClInclude Include="ArcPointLight.hpp" />
     <ClInclude Include="ArcRdObject.hpp" />
     <ClInclude Include="ArcTransformMatrixH.h" />
     <ClInclude Include="ArcPnmParser.h" />

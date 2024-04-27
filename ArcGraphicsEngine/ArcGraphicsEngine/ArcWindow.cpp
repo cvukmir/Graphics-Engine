@@ -10,22 +10,27 @@
 // Private Constructor //
 
 ArcWindow::ArcWindow()
-	: _backgroundColor  (ArcColor::BLACK)
-	, _cameraAtPoint    (0, 0, -1)
-	, _cameraEyePoint   (0, 0, 0)
-	, _cameraFov        (90.0)
-	, _cameraUpVector   (0, 1, 0)
-	, _clippingFar      (1.0e+09)
-	, _clippingNear     (1.0)
-	, _currentColor     (ArcColor::WHITE)
-	, _edgeTable        (nullptr)
-	, _frameNumber      (0)
-	, _height           (640)
-	, _isRunning        (true)
-	, _pCurrentTransform(new ArcTransformMatrixH(ArcMatrix4x4::IDENTITY_MATRIX))
-	, _pDepthBuffer     (nullptr)
-	, _pMemory          (nullptr)
-	, _width            (480)
+	: _ambientCoefficient (0.0)
+	, _ambientLight       (new ArcAmbientLight())
+	, _backgroundColor    (ArcColor::BLACK)
+	, _cameraAtPoint      (0, 0, -1)
+	, _cameraEyePoint     (0, 0, 0)
+	, _cameraFov          (90.0)
+	, _cameraUpVector     (0, 1, 0)
+	, _clippingFar        (1.0e+09)
+	, _clippingNear       (1.0)
+	, _currentColor       (ArcColor::WHITE)
+	, _diffuseCoefficient (0.0)
+	, _edgeTable          (nullptr)
+	, _frameNumber        (0)
+	, _height             (640)
+	, _isRunning          (true)
+	, _pCurrentTransform  (new ArcTransformMatrixH(ArcMatrix4x4::IDENTITY_MATRIX))
+	, _pDepthBuffer       (nullptr)
+	, _pMemory            (nullptr)
+	, _specularCoefficient(0.0)
+	, _surfaceColor       (ArcColor::WHITE)
+	, _width              (480)
 {
 }
 
@@ -37,6 +42,16 @@ ArcWindow::~ArcWindow()
 	for (ArcFrameList::iterator it = _frameList.begin(); it != _frameList.end(); ++it)
 	{
 		// Destroys _pMemory as well.
+		delete(*it);
+	}
+
+	for (ArcFarLightList::iterator it = _farLightList.begin(); it != _farLightList.end(); ++it)
+	{
+		delete(*it);
+	}
+
+	for (ArcPointLightList::iterator it = _pointLightList.begin(); it != _pointLightList.end(); ++it)
+	{
 		delete(*it);
 	}
 
@@ -53,6 +68,11 @@ ArcWindow::~ArcWindow()
 	if (_edgeTable)
 	{
 		delete(_edgeTable);
+	}
+
+	if (_ambientLight)
+	{
+		delete(_ambientLight);
 	}
 }
 
@@ -71,6 +91,12 @@ ArcWindow* ArcWindow::window()
 
 
 // Public Properties //
+
+void                         ArcWindow::ambientCoefficient(double value)        { _ambientCoefficient = 0.0; }
+const double                 ArcWindow::ambientCoefficient() const              { return _ambientCoefficient; }
+
+void                         ArcWindow::ambientLight(ArcAmbientLight* value)    { _ambientLight = value; }
+const ArcAmbientLight*       ArcWindow::ambientLight() const                    { return _ambientLight;  }
 
 void                         ArcWindow::backgroundColor(const ArcColor& color)  { _backgroundColor = color; }
 
@@ -95,6 +121,11 @@ const double                 ArcWindow::clippingNear() const                    
 void                         ArcWindow::currentColor(const ArcColor value)      { _currentColor = value; }
 const ArcColor               ArcWindow::currentColor() const                    { return _currentColor;  }
 
+void                         ArcWindow::diffuseCoefficient(double value)        { _diffuseCoefficient = value;}
+const double                 ArcWindow::diffuseCoefficient() const              { return _diffuseCoefficient; }
+
+ArcFarLightList              ArcWindow::farLightList() const                    { return _farLightList; }
+
 void                         ArcWindow::frameNumber(const int value)            { _frameNumber = value; }
 const int                    ArcWindow::frameNumber() const                     { return _frameNumber;  }
 
@@ -105,6 +136,14 @@ void                         ArcWindow::isRunning(const bool value)             
 const bool                   ArcWindow::isRunning() const                       { return _isRunning;  }
 
 const UINT32*                ArcWindow::memory() const                          { return _pMemory; }
+
+ArcPointLightList            ArcWindow::pointLightList() const                  { return _pointLightList; }
+
+void                         ArcWindow::specularCoefficient(double value)       { _specularCoefficient = value;}
+const double                 ArcWindow::specularCoefficient() const             { return _specularCoefficient; }
+
+void                         ArcWindow::surfaceColor(const ArcColor value)      { _surfaceColor = value; }
+const ArcColor               ArcWindow::surfaceColor() const                    { return _surfaceColor;  }
 
 const int                    ArcWindow::windowHeight() const                    { return _height;  }
 void                         ArcWindow::windowHeight(const int value)           { _height = value; }

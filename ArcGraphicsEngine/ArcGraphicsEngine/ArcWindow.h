@@ -16,6 +16,9 @@
 #include "ArcTransformMatrixH.h"
 #include "Arc3DLine.h"
 #include "ArcEdgeTable.h"
+#include "ArcAmbientLight.hpp"
+#include "ArcFarLight.hpp"
+#include "ArcPointLight.hpp"
 
 #include "ArcEnums.h"
 
@@ -38,6 +41,12 @@ public: // Static Methods (Singleton) //
 
 
 public: // Properties //
+
+	void                         ambientCoefficient(double value);        // Sets the ambient coefficient.
+	const double                 ambientCoefficient() const;              // Gets the ambient coefficient.
+
+	void                         ambientLight(ArcAmbientLight* value);    // Sets the ambient light of the scene.
+	const ArcAmbientLight*       ambientLight() const;                    // Gets the ambient light of the scene.
 
 	void                         backgroundColor(const ArcColor& color);  // Sets the default background color for new frames.
 
@@ -62,6 +71,11 @@ public: // Properties //
 	void                         currentColor(const ArcColor value);      // Sets the current drawing color.
 	const ArcColor               currentColor() const;                    // Gets the current drawing color.
 
+	void                         diffuseCoefficient(double value);        // Sets the diffuse coefficient.
+	const double                 diffuseCoefficient() const;              // Gets the diffuse coefficient.
+
+	ArcFarLightList              farLightList() const;                    // Gets the far light list.
+
 	void                         frameNumber(const int value);            // Sets the current frame number.
 	const int                    frameNumber() const;                     // Gets the current frame number.
 
@@ -72,6 +86,14 @@ public: // Properties //
 	const bool                   isRunning() const;                       // Gets whether the display window is running.
 
 	const UINT32*                memory() const;                          // Gets the current memory color map.
+
+	ArcPointLightList            pointLightList() const;                  // Gets the point light list.
+
+	void                         specularCoefficient(double value);       // Sets the diffuse coefficient.
+	const double                 specularCoefficient() const;             // Gets the diffuse coefficient.
+
+	void                         surfaceColor(const ArcColor value);      // Sets the surface drawing color.
+	const ArcColor               surfaceColor() const;                    // Gets the surface drawing color.
 
 	void                         windowHeight(const int value);           // Sets the height of the display window.
 	const int                    windowHeight() const;                    // Gets the height of the display window.
@@ -223,6 +245,20 @@ private: // Static Variables //
 
 private: // Variables //
 
+	ArcColor _specularColor;
+	double   _specularExponent;
+	bool _vertexColorFlag;
+	bool _vertexNormalFlag;
+	bool _vertexTextureFlag;
+	bool _useInterpolationFlag;
+	ArcVector _viewingVector;
+	ArcVector _polygonNormal;
+	Arc3DAttributedPoint _surfacePointValues;
+	void* _pFunctionPointer;
+
+
+	double                 _ambientCoefficient;  // The ambient coefficient for lighting calculations.
+	ArcAmbientLight*       _ambientLight;        // The ambient light of this scene.
 	ArcColor               _backgroundColor;     // The background color to initialize each frame to.
 	Arc3DPoint             _cameraAtPoint;       // The position of where the camera is looking at.
 	Arc3DPoint             _cameraEyePoint;      // The position of the camera.
@@ -231,7 +267,9 @@ private: // Variables //
 	double                 _clippingFar;         // The far clipping value.
 	double                 _clippingNear;        // The near clipping value.
 	ArcColor               _currentColor;        // The current drawing color.
+	double                 _diffuseCoefficient;  // The diffuse coefficient for lighting calculations.
 	ArcEdgeTable*          _edgeTable;           // Contains the edge table for scan conversion.
+	ArcFarLightList        _farLightList;        // The list of far lights.
 	ArcFrameList           _frameList;           // Contains all the frames to display to the window.
 	int                    _frameNumber;         // The frame number of this window.
 	int                    _height;              // The height of this window.
@@ -240,6 +278,9 @@ private: // Variables //
 	double*                _pDepthBuffer;        // The current frame being changed.
 	UINT32*                _pMemory;             // The current frame being changed.
 	Arc3DPointH            _prevClipPoint;       // Previously moved to point for drawing lines.
+	ArcPointLightList      _pointLightList;      // The list of point lists.
+	double                 _specularCoefficient; // The specular coefficient for lighting calculations.
+	ArcColor               _surfaceColor;        // The color of the surface.
 	ArcTransformationStack _transformationStack; // The stack of transformations to perform on objects.
 	int                    _width;               // The width of this window.
 };

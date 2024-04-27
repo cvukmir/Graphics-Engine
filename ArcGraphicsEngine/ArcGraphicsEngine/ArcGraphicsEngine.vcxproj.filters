@@ -367,6 +367,15 @@
     <ClInclude Include="ArcEdgeTable.h">
       <Filter>ArcGeometry\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ArcAmbientLight.hpp">
+      <Filter>ArcFramework\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcFarLight.hpp">
+      <Filter>ArcFramework\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcPointLight.hpp">
+      <Filter>ArcFramework\Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\SceneFiles\Notes.txt">
