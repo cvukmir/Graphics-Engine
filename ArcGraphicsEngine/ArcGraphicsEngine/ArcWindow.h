@@ -45,8 +45,7 @@ public: // Properties //
 	void                         ambientCoefficient(double value);        // Sets the ambient coefficient.
 	const double                 ambientCoefficient() const;              // Gets the ambient coefficient.
 
-	void                         ambientLight(ArcAmbientLight* value);    // Sets the ambient light of the scene.
-	const ArcAmbientLight*       ambientLight() const;                    // Gets the ambient light of the scene.
+	ArcAmbientLight*             ambientLight() const;                    // Gets the ambient light of the scene.
 
 	void                         backgroundColor(const ArcColor& color);  // Sets the default background color for new frames.
 
@@ -94,6 +93,9 @@ public: // Properties //
 
 	void                         surfaceColor(const ArcColor value);      // Sets the surface drawing color.
 	const ArcColor               surfaceColor() const;                    // Gets the surface drawing color.
+
+	void                         useInterpolation(const bool value);      // Sets the surface drawing color.
+	const bool                   useInterpolation() const;                // Gets the surface drawing color.
 
 	void                         windowHeight(const int value);           // Sets the height of the display window.
 	const int                    windowHeight() const;                    // Gets the height of the display window.
@@ -237,10 +239,18 @@ private: // Methods //
 	/* Draws the given point to the screen. */
 	void pointPipeline(const Arc3DPoint& point);
 
-
 private: // Static Variables //
 
 	static ArcWindow* _pInstancePtr; // The only and only instance of this object.
+
+
+private: // Static Methods //
+
+	static void matte(ArcColor& color);
+
+	static void metal(ArcColor& color);
+
+	static void plastic(ArcColor& color);
 
 
 private: // Variables //
@@ -254,7 +264,7 @@ private: // Variables //
 	ArcVector _viewingVector;
 	ArcVector _polygonNormal;
 	Arc3DAttributedPoint _surfacePointValues;
-	void* _pFunctionPointer;
+	void* _pSurfaceShader;
 
 
 	double                 _ambientCoefficient;  // The ambient coefficient for lighting calculations.
@@ -277,6 +287,7 @@ private: // Variables //
 	ArcTransformMatrixH*   _pCurrentTransform;   // The current transformation matrix.
 	double*                _pDepthBuffer;        // The current frame being changed.
 	UINT32*                _pMemory;             // The current frame being changed.
+	ArcTransformMatrixH*   _pNormalTransform;    // The current transformation matrix used for vector normals.
 	Arc3DPointH            _prevClipPoint;       // Previously moved to point for drawing lines.
 	ArcPointLightList      _pointLightList;      // The list of point lists.
 	double                 _specularCoefficient; // The specular coefficient for lighting calculations.

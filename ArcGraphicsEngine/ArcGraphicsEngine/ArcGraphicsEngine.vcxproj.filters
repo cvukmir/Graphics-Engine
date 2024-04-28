@@ -123,6 +123,12 @@
     <ClCompile Include="ArcEdgeTable.cpp">
       <Filter>ArcGeometry\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ArcMath.cpp">
+      <Filter>ArcFramework\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArcMath.h">
+      <Filter>ArcFramework\Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\SceneFiles\s01.rd">

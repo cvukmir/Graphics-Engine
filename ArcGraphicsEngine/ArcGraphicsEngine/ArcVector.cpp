@@ -162,7 +162,7 @@ double ArcVector::dot(const ArcVector& vector)
 	return (this->_x * vector._x) + (this->_y * vector._y) + (this->_z * vector._z);
 }
 
-double ArcVector::magnitudeSquared()
+double ArcVector::magnitudeSquared() const
 {
 	return (this->_x * this->_x) + (this->_y * this->_y) + (this->_z * this->_z);
 }
@@ -174,8 +174,11 @@ void ArcVector::normalize()
 	_x = magnitude != 0.0 ? _x / magnitude : 0.0;
 	_y = magnitude != 0.0 ? _y / magnitude : 0.0;
 	_z = magnitude != 0.0 ? _z / magnitude : 0.0;
+}
 
-	return;
+void ArcVector::reflect(const ArcVector& reflectAbout)
+{
+	(*this) = (((reflectAbout * (*this)) * 2) / reflectAbout.magnitudeSquared()) * reflectAbout - (*this);
 }
 
 void ArcVector::selfInterpolateTo(const ArcVector& vector, const double alpha)

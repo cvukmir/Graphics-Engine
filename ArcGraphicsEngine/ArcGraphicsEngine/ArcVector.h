@@ -81,10 +81,12 @@ public: // Methods //
 	double dot(const ArcVector& vector);
 
 	/* Computes the squared magnitued of this vector. */
-	double magnitudeSquared();
+	double magnitudeSquared() const;
 
 	/* Normalizes this vector inplace. */
 	void normalize();
+
+	void reflect(const ArcVector& reflectAbout);
 
 	/* Interpolates this vector a percentage distance to the given next vector. */
 	void selfInterpolateTo(const ArcVector& vector, const double alpha);

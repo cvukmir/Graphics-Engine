@@ -220,8 +220,8 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 					if (argumentSize == 3U)
 					{
 						pWindow->backgroundColor(ArcColor(std::stof(argumentList[0]),   // Red
-							                             std::stof(argumentList[1]),   // Blue
-							                             std::stof(argumentList[2]))); // Green
+							                              std::stof(argumentList[1]),   // Blue
+							                              std::stof(argumentList[2]))); // Green
 					}
 
 					break;
@@ -248,7 +248,15 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 				/////////////
 
 				case ArcRdCommandType::OptionArray: break;
-				case ArcRdCommandType::OptionBool: break;
+				case ArcRdCommandType::OptionBool:
+					if (argumentSize == 2U)
+					{
+						if (argumentList[0] == "Interpolate")
+						{
+							pWindow->useInterpolation(argumentList[1] == "True");
+						}
+					}
+					break;
 				case ArcRdCommandType::OptionList: break;
 				case ArcRdCommandType::OptionReal: break;
 				case ArcRdCommandType::OptionString: break;
@@ -834,7 +842,13 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 				// Lighting //
 				//////////////
 
-				case ArcRdCommandType::AmbientLight: break;
+				case ArcRdCommandType::AmbientLight:
+					if (argumentSize == 4U)
+					{
+						pWindow->ambientLight()->color(ArcColor());
+						pWindow->ambientLight()
+					}
+					break;
 				case ArcRdCommandType::FarLight: break;
 				case ArcRdCommandType::PointLight: break;
 				case ArcRdCommandType::ConeLight: break;

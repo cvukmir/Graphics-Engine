@@ -31,6 +31,10 @@ ArcWindow::ArcWindow()
 	, _specularCoefficient(0.0)
 	, _surfaceColor       (ArcColor::WHITE)
 	, _width              (480)
+
+	, _specularExponent(10.0)
+	, _pSurfaceShader(matte)
+	, _pNormalTransform (new ArcTransformMatrixH(ArcMatrix4x4::IDENTITY_MATRIX))
 {
 }
 
@@ -74,6 +78,11 @@ ArcWindow::~ArcWindow()
 	{
 		delete(_ambientLight);
 	}
+
+	if (_pNormalTransform)
+	{
+		delete(_pNormalTransform);
+	}
 }
 
 
@@ -95,8 +104,7 @@ ArcWindow* ArcWindow::window()
 void                         ArcWindow::ambientCoefficient(double value)        { _ambientCoefficient = 0.0; }
 const double                 ArcWindow::ambientCoefficient() const              { return _ambientCoefficient; }
 
-void                         ArcWindow::ambientLight(ArcAmbientLight* value)    { _ambientLight = value; }
-const ArcAmbientLight*       ArcWindow::ambientLight() const                    { return _ambientLight;  }
+ArcAmbientLight*             ArcWindow::ambientLight() const                    { return _ambientLight;  }
 
 void                         ArcWindow::backgroundColor(const ArcColor& color)  { _backgroundColor = color; }
 
@@ -144,6 +152,9 @@ const double                 ArcWindow::specularCoefficient() const             
 
 void                         ArcWindow::surfaceColor(const ArcColor value)      { _surfaceColor = value; }
 const ArcColor               ArcWindow::surfaceColor() const                    { return _surfaceColor;  }
+
+void                         ArcWindow::useInterpolation(const bool value)      { _useInterpolationFlag = value; }
+const bool                   ArcWindow::useInterpolation() const                { return _useInterpolationFlag; }
 
 const int                    ArcWindow::windowHeight() const                    { return _height;  }
 void                         ArcWindow::windowHeight(const int value)           { _height = value; }
@@ -777,6 +788,29 @@ void ArcWindow::initializeNewFrame()
 	_frameList.push_back(_pMemory);
 
 	fillBackground(_backgroundColor);
+
+	// Clear the light lists.
+	for (ArcFarLightList::iterator it = _farLightList.begin(); it != _farLightList.end(); ++it)
+	{
+		delete(*it);
+	}
+
+	_farLightList.clear();
+
+	for (ArcPointLightList::iterator it = _pointLightList.begin(); it != _pointLightList.end(); ++it)
+	{
+		delete(*it);
+	}
+
+	_pointLightList.clear();
+
+	// Regenerate the ambient light (NOT DELETING ATM)
+//	if (_ambientLight)
+//	{
+//		delete _ambientLight;
+//	}
+//
+//	_ambientLight = new ArcAmbientLight();
 }
 
 void ArcWindow::popTransformation()
@@ -1196,4 +1230,16 @@ void ArcWindow::pointPipeline(const Arc3DPoint& point)
 	mutablePoint = ArcTransformMatrixH::clip_to_device(clipCoordinates, _width, _height);
 	//draw2DPixel(mutablePoint.x(), mutablePoint.y());
 	draw3DPixel(mutablePoint.toCartesianPoint());
+}
+
+void ArcWindow::matte(ArcColor& color)
+{
+}
+
+void ArcWindow::metal(ArcColor& color)
+{
+}
+
+void ArcWindow::plastic(ArcColor& color)
+{
 }

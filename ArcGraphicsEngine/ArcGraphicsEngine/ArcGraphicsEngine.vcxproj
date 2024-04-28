@@ -145,6 +145,8 @@
     <ClCompile Include="ArcGeometryForward.h" />
     <ClCompile Include="ArcMain.cpp" />
     <ClCompile Include="ArcBaseObject.cpp" />
+    <ClCompile Include="ArcMath.cpp" />
+    <ClCompile Include="ArcMath.h" />
     <ClCompile Include="ArcTransformMatrixH.cpp" />
     <ClCompile Include="ArcPnmParser.cpp" />
     <ClCompile Include="ArcRdParser.cpp" />
