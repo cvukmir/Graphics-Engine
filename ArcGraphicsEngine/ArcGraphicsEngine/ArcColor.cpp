@@ -1,23 +1,32 @@
 // ArcFramework
 #include "ArcColor.h"
 #include "ArcTypedefs.h"
+#include "ArcMath.h"
 
 
 // Constructor/Destructor(s) //
 
+const double MAX_COLOR_VAL = 254.999;
+
 ArcColor::ArcColor()
-	: _color(ArcColor::WHITE)
+	: _blue (1.0)
+	, _green(1.0)
+	, _red  (1.0)
 {
 }
 
 ArcColor::ArcColor(const uint color)
-	: _color(color)
 {
+	_blue  = ArcMath::clamp(static_cast<double>(getBlueComponent( color)) / MAX_COLOR_VAL, 0.0, 1.0);
+	_green = ArcMath::clamp(static_cast<double>(getGreenComponent(color)) / MAX_COLOR_VAL, 0.0, 1.0);
+	_red   = ArcMath::clamp(static_cast<double>(getRedComponent(  color)) / MAX_COLOR_VAL, 0.0, 1.0);
 }
 
-ArcColor::ArcColor(const float red, const float blue, const float green)
+ArcColor::ArcColor(const double red, const double green, const double blue)
+	: _blue (blue)
+	, _green(green)
+	, _red  (red)
 {
-	_color = colorFromFloat(red, blue, green);
 }
 
 ArcColor::~ArcColor()
@@ -29,59 +38,85 @@ ArcColor::~ArcColor()
 
 void ArcColor::operator=(const ArcColor& rhs)
 {
-	this->_color = rhs._color;
+	this->_blue  = rhs._blue;
+	this->_green = rhs._green;
+	this->_red   = rhs._red;
 }
 
 bool ArcColor::operator==(const ArcColor& rhs) const
 {
-	return this->_color == rhs._color;
+	return this->_blue  == rhs._blue
+		&& this->_green == rhs._green
+		&& this->_red   == rhs._red;
 }
 
 ArcColor ArcColor::operator-(const ArcColor& rhs) const
 {
-	return this->_color - rhs._color;
+	return ArcColor(this->_red   - rhs._red,
+		            this->_green - rhs._green,
+		            this->_blue  - rhs._blue);
 }
 
 ArcColor ArcColor::operator/(const ArcColor& rhs) const
 {
-	return this->_color / rhs._color;
+	return ArcColor(this->_red   / rhs._red,
+		            this->_green / rhs._green,
+		            this->_blue  / rhs._blue);
 }
 
 ArcColor ArcColor::operator+(const ArcColor& rhs) const
 {
-	return this->_color + rhs._color;
+	return ArcColor(this->_red   + rhs._red,
+		            this->_green + rhs._green,
+		            this->_blue  + rhs._blue);
 }
 
 ArcColor ArcColor::operator*(const ArcColor& rhs) const
 {
-	return this->_color * rhs._color;
+	return ArcColor(this->_red   * rhs._red,
+		            this->_green * rhs._green,
+		            this->_blue  * rhs._blue);
 }
 
 ArcColor ArcColor::operator/(const double rhs) const
 {
-	return this->_color / rhs;
+	return ArcColor(this->_red   / rhs,
+		            this->_green / rhs,
+		            this->_blue  / rhs);
 }
 
 ArcColor ArcColor::operator*(const double rhs) const
 {
-	return this->_color * rhs;
+	return ArcColor(this->_red   * rhs,
+		            this->_green * rhs,
+		            this->_blue  * rhs);
 }
 
 ArcColor ArcColor::operator-(const double rhs) const
 {
-	return this->_color - rhs;
+	return ArcColor(this->_red   - rhs,
+		            this->_green - rhs,
+		            this->_blue  - rhs);
 }
 
 ArcColor ArcColor::operator+(const double rhs) const
 {
-	return this->_color + rhs;
+	return ArcColor(this->_red   + rhs,
+		            this->_green + rhs,
+		            this->_blue  + rhs);
 }
 
 
 // Public Properties //
 
-void       ArcColor::color(const uint value) { _color = value; }
-const uint ArcColor::color() const           { return _color; }
+void         ArcColor::blue(const double value)  { _blue = value; }
+const double ArcColor::blue() const              { return _blue;  }
+
+void         ArcColor::green(const double value) { _green = value; }
+const double ArcColor::green() const             { return _green;  }
+
+void         ArcColor::red(const double value)   { _red = value; }
+const double ArcColor::red() const               { return _red;  }
 
 
 // Static Properties //
@@ -97,29 +132,9 @@ uint ArcColor::getRedComponent(const uint value)   { return (value & 0x00FF0000U
 
 ArcColor ArcColor::interpolateTo(const ArcColor& startColor, const ArcColor& endColor, const double alpha)
 {
-	float r1 = static_cast<float>(  getRedComponent(startColor._color));
-	float g1 = static_cast<float>(getGreenComponent(startColor._color));
-	float b1 = static_cast<float>( getBlueComponent(startColor._color));
-
-	float r2 = static_cast<float>(  getRedComponent(endColor._color));
-	float g2 = static_cast<float>(getGreenComponent(endColor._color));
-	float b2 = static_cast<float>( getBlueComponent(endColor._color));
-	
-	return ArcColor(r1 + (alpha * (r2 - r1)),
-		            g1 + (alpha * (g2 - g1)),
-		            b1 + (alpha * (b2 - b1))).color();
-}
-
-uint ArcColor::colorFromFloat(const float red, const float green, const float blue)
-{
-	//(Max – E)* x
-	const float max = 254.999f;
-
-	const uint redComponent   = static_cast<uint>(max * red) << 16;
-	const uint blueComponent  = static_cast<uint>(max * green) << 8;
-	const uint greenComponent = static_cast<uint>(max * blue);
-
-	return redComponent | blueComponent | greenComponent;
+	return ArcColor(startColor._red   + (alpha * (endColor._red   - startColor._red)),
+		            startColor._green + (alpha * (endColor._green - startColor._green)),
+		            startColor._blue  + (alpha * (endColor._blue  - startColor._blue)));
 }
 
 
@@ -127,17 +142,20 @@ uint ArcColor::colorFromFloat(const float red, const float green, const float bl
 
 void ArcColor::selfInterpolateTo(const ArcColor& color, const double alpha)
 {
-	float r1 = static_cast<float>(  getRedComponent(_color));
-	float g1 = static_cast<float>(getGreenComponent(_color));
-	float b1 = static_cast<float>( getBlueComponent(_color));
+	_red   = _red   + (alpha * (color._red   - _red));
+	_green = _green + (alpha * (color._green - _green));
+	_blue  = _blue  + (alpha * (color._blue  - _blue));
+}
 
-	float r2 = static_cast<float>(  getRedComponent(color._color));
-	float g2 = static_cast<float>(getGreenComponent(color._color));
-	float b2 = static_cast<float>( getBlueComponent(color._color));
+uint ArcColor::colorToUint() const
+{
 
-	_color = ArcColor(r1 + (alpha * (r2 - r1)),
-		              g1 + (alpha * (g2 - g1)),
-		              b1 + (alpha * (b2 - b1))).color();
+	//(Max – E) * x --> (256 - .001) * colorVal
+	const uint redComponent   = static_cast<uint>(MAX_COLOR_VAL * _red)   << 16;
+	const uint greenComponent = static_cast<uint>(MAX_COLOR_VAL * _green) << 8;
+	const uint blueComponent  = static_cast<uint>(MAX_COLOR_VAL * _blue);
+
+	return redComponent | greenComponent | blueComponent;
 }
 
 

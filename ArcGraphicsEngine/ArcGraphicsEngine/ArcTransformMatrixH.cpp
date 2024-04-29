@@ -41,6 +41,14 @@ Arc3DPointH ArcTransformMatrixH::operator*(const Arc3DPointH& point)
 	return this->_matrix * point;
 }
 
+ArcVector ArcTransformMatrixH::operator*(const ArcVector& vector)
+{
+	// Treat a vector as a homogenous point with W of zero since we don't need it.
+	Arc3DPointH newPoint = this->_matrix * Arc3DPointH(vector.x(), vector.y(), vector.z(), 0.0);
+
+	return ArcVector(newPoint.x(), newPoint.y(), newPoint.z());
+}
+
 
 
 
@@ -128,12 +136,185 @@ Arc3DPointH ArcTransformMatrixH::world_to_camera(const Arc3DPointH& point, const
 	return (worldToCameraRotation * worldToCameraTranslation) * point;
 }
 
+ArcTransformMatrixH ArcTransformMatrixH::rotateXYMatrix(const double theta)
+{
+	//////////////////////////////////////
+	// cos(theta) | -sin(theta) | 0 | 0 //
+	// sin(theta) |  cos(theta) | 0 | 0 //
+	//      0     |       0     | 1 | 0 //
+	//      0     |       0     | 0 | 1 //
+	//////////////////////////////////////
+
+	const double thetaRad = (theta * std::numbers::pi) / 180;
+
+	return ArcTransformMatrixH(ArcMatrix4x4(
+		{ { cos(thetaRad), -(sin(thetaRad)), 0.0, 0.0 },
+		 { sin(thetaRad),   cos(thetaRad),  0.0, 0.0 },
+		 {    0.0,          0.0,      1.0, 0.0 },
+		 {    0.0,          0.0,      0.0, 1.0 } }));
+
+}
+
+ArcTransformMatrixH ArcTransformMatrixH::rotateXYInverseMatrix(const double theta)
+{
+	//////////////////////////////////////
+	//  cos(theta) | sin(theta) | 0 | 0 //
+	// -sin(theta) | cos(theta) | 0 | 0 //
+	//       0     |      0     | 1 | 0 //
+	//       0     |      0     | 0 | 1 //
+	//////////////////////////////////////
+
+	const double thetaRad = (theta * std::numbers::pi) / 180;
+
+	return ArcTransformMatrixH(ArcMatrix4x4(
+		{ {   cos(thetaRad),  sin(thetaRad),  0.0, 0.0 },
+		 { -(sin(thetaRad)), cos(thetaRad),  0.0, 0.0 },
+		 {      0.0,               0.0,      1.0, 0.0 },
+		 {      0.0,               0.0,      0.0, 1.0 } }));
+}
+
+ArcTransformMatrixH ArcTransformMatrixH::rotateYZMatrix(const double theta)
+{
+	//////////////////////////////////////
+	// 1 |      0     |      0      | 0 //
+	// 0 | cos(theta) | -sin(theta) | 0 //
+	// 0 | sin(theta) |  cos(theta) | 0 //
+	// 0 |      0     |      0      | 1 //
+	//////////////////////////////////////
+
+	const double thetaRad = (theta * std::numbers::pi) / 180;
+
+	return ArcTransformMatrixH(ArcMatrix4x4(
+		{ { 1.0,    0.0,          0.0,      0.0 },
+		 { 0.0, cos(thetaRad), -(sin(thetaRad)), 0.0 },
+		 { 0.0, sin(thetaRad),   cos(thetaRad),  0.0 },
+		 { 0.0,    0.0,          0.0,      1.0 } }));
+}
+
+ArcTransformMatrixH ArcTransformMatrixH::rotateYZInverseMatrix(const double theta)
+{
+	//////////////////////////////////////
+	// 1 |       0     |     0      | 0 //
+	// 0 |  cos(theta) | sin(theta) | 0 //
+	// 0 | -sin(theta) | cos(theta) | 0 //
+	// 0 |       0     |     0      | 1 //
+	//////////////////////////////////////
+
+	const double thetaRad = (theta * std::numbers::pi) / 180;
+
+	return ArcTransformMatrixH(ArcMatrix4x4(
+		{ { 1.0,      0.0,            0.0,        0.0 },
+		 { 0.0,   cos(thetaRad),  sin(thetaRad), 0.0 },
+		 { 0.0, -(sin(thetaRad)), cos(thetaRad), 0.0 },
+		 { 0.0,      0.0,            0.0,        1.0 } }));
+}
+
+ArcTransformMatrixH ArcTransformMatrixH::rotateZXMatrix(const double theta)
+{
+	//////////////////////////////////////
+	//  cos(theta) | 0 | sin(theta) | 0 //
+	//       0     | 1 |      0     | 0 //
+	// -sin(theta) | 0 | cos(theta) | 0 //
+	//       0     | 0 |      0     | 1 //
+	//////////////////////////////////////
+
+	const double thetaRad = (theta * std::numbers::pi) / 180;
+
+	return ArcTransformMatrixH(ArcMatrix4x4(
+		{ {   cos(thetaRad),  0.0, sin(thetaRad), 0.0 },
+		 {      0.0,      1.0,    0.0,     0.0 },
+		 { -(sin(thetaRad)), 0.0, cos(thetaRad), 0.0 },
+		 {      0.0,      0.0,    0.0,     1.0 } }));
+}
+
+ArcTransformMatrixH ArcTransformMatrixH::rotateZXInverseMatrix(const double theta)
+{
+	//////////////////////////////////////
+	//  cos(theta) | 0 | sin(theta) | 0 //
+	//       0     | 1 |      0     | 0 //
+	// -sin(theta) | 0 | cos(theta) | 0 //
+	//       0     | 0 |      0     | 1 //
+	//////////////////////////////////////
+
+	const double thetaRad = (theta * std::numbers::pi) / 180;
+
+	return ArcTransformMatrixH(ArcMatrix4x4(
+		{ { cos(thetaRad), 0.0, -(sin(thetaRad)), 0.0 },
+		 {    0.0,        1.0,      0.0,         0.0 },
+		 { sin(thetaRad), 0.0,   cos(thetaRad),  0.0 },
+		 {    0.0,        0.0,      0.0,         1.0 } }));
+}
+
+ArcTransformMatrixH ArcTransformMatrixH::scaleMatrix(const double sx, const double sy, const double sz)
+{
+	////////////////
+	// Sx 0  0  0 //
+	// 0  Sy 0  0 //
+	// 0  0  Sz 0 //
+	// 0  0  0  1 //
+	////////////////
+
+	return ArcTransformMatrixH(ArcMatrix4x4(
+		{ { sx,  0.0, 0.0, 0.0 },
+		 { 0.0, sy,  0.0, 0.0 },
+		 { 0.0, 0.0, sz,  0.0 },
+		 { 0.0, 0.0, 0.0, 1.0 } }));
+}
+
+ArcTransformMatrixH ArcTransformMatrixH::scaleInverseMatrix(const double sx, const double sy, const double sz)
+{
+	//////////////////////
+	// 1/Sx  0    0   0 //
+	// 0    1/Sy  0   0 //
+	// 0     0   1/Sz 0 //
+	// 0     0    0   1 //
+	//////////////////////
+
+	return ArcTransformMatrixH(ArcMatrix4x4(
+		{ { 1.0 / sx,    0.0,      0.0,   0.0 },
+		 {    0.0,   1.0 / sy,    0.0,   0.0 },
+		 {    0.0,      0.0,   1.0 / sz, 0.0 },
+		 {    0.0,      0.0,      0.0,   1.0 } }));
+}
+
+ArcTransformMatrixH ArcTransformMatrixH::translateMatrix(const double tx, const double ty, const double tz)
+{
+	//////////////
+	// 1 0 0 Tx //
+	// 0 1 0 Ty //
+	// 0 0 1 Tz //
+	// 0 0 0 1  //
+	//////////////
+
+	return ArcTransformMatrixH(ArcMatrix4x4(
+		{ { 1.0, 0.0, 0.0, tx  },
+		 { 0.0, 1.0, 0.0, ty  },
+		 { 0.0, 0.0, 1.0, tz  },
+		 { 0.0, 0.0, 0.0, 1.0 } }));
+}
+
+ArcTransformMatrixH ArcTransformMatrixH::translateInverseMatrix(const double tx, const double ty, const double tz)
+{
+	///////////////
+	// 1 0 0 -Tx //
+	// 0 1 0 -Ty //
+	// 0 0 1 -Tz //
+	// 0 0 0  1  //
+	///////////////
+
+	return ArcTransformMatrixH(ArcMatrix4x4(
+		{ { 1.0, 0.0, 0.0, -tx },
+		 { 0.0, 1.0, 0.0, -ty },
+		 { 0.0, 0.0, 1.0, -tz },
+		 { 0.0, 0.0, 0.0, 1.0 } }));
+}
+
 
 
 
 // Public Methods - Instance //
 
-void ArcTransformMatrixH::rotate_xy(const double theta)
+void ArcTransformMatrixH::rotateXY(const double theta)
 {
 	//////////////////////////////////////
 	// cos(theta) | -sin(theta) | 0 | 0 //
@@ -153,7 +334,27 @@ void ArcTransformMatrixH::rotate_xy(const double theta)
 	_matrix = _matrix * rotationMatrixXY;
 }
 
-void ArcTransformMatrixH::rotate_yz(const double theta)
+void ArcTransformMatrixH::rotateXYInverse(const double theta)
+{
+	//////////////////////////////////////
+	//  cos(theta) | sin(theta) | 0 | 0 //
+	// -sin(theta) | cos(theta) | 0 | 0 // * this
+	//       0     |      0     | 1 | 0 //
+	//       0     |      0     | 0 | 1 //
+	//////////////////////////////////////
+
+	const double thetaRad = (theta * std::numbers::pi) / 180;
+
+	ArcMatrix4x4 rotationMatrixXY(
+		{{   cos(thetaRad),  sin(thetaRad),  0.0, 0.0 },
+		 { -(sin(thetaRad)), cos(thetaRad),  0.0, 0.0 },
+		 {      0.0,               0.0,      1.0, 0.0 },
+		 {      0.0,               0.0,      0.0, 1.0 }});
+
+	_matrix = _matrix * rotationMatrixXY;
+}
+
+void ArcTransformMatrixH::rotateYZ(const double theta)
 {
 	//////////////////////////////////////
 	// 1 |      0     |      0      | 0 //
@@ -173,7 +374,27 @@ void ArcTransformMatrixH::rotate_yz(const double theta)
 	_matrix = _matrix * rotationMatrixYZ;
 }
 
-void ArcTransformMatrixH::rotate_zx(const double theta)
+void ArcTransformMatrixH::rotateYZInverse(const double theta)
+{
+	//////////////////////////////////////
+	// 1 |       0     |     0      | 0 //
+	// 0 |  cos(theta) | sin(theta) | 0 // * this
+	// 0 | -sin(theta) | cos(theta) | 0 //
+	// 0 |       0     |     0      | 1 //
+	//////////////////////////////////////
+
+	const double thetaRad = (theta * std::numbers::pi) / 180;
+
+	ArcMatrix4x4 rotationMatrixYZ(
+		{{ 1.0,      0.0,            0.0,        0.0 },
+		 { 0.0,   cos(thetaRad),  sin(thetaRad), 0.0 },
+		 { 0.0, -(sin(thetaRad)), cos(thetaRad), 0.0 },
+		 { 0.0,      0.0,            0.0,        1.0 }});
+
+	_matrix = _matrix * rotationMatrixYZ;
+}
+
+void ArcTransformMatrixH::rotateZX(const double theta)
 {
 	//////////////////////////////////////
 	//  cos(theta) | 0 | sin(theta) | 0 //
@@ -189,6 +410,26 @@ void ArcTransformMatrixH::rotate_zx(const double theta)
 		 {      0.0,      1.0,    0.0,     0.0 },
 		 { -(sin(thetaRad)), 0.0, cos(thetaRad), 0.0 },
 		 {      0.0,      0.0,    0.0,     1.0 }});
+
+	_matrix = _matrix * rotationMatrixZX;
+}
+
+void ArcTransformMatrixH::rotateZXInverse(const double theta)
+{
+	//////////////////////////////////////
+	//  cos(theta) | 0 | sin(theta) | 0 //
+	//       0     | 1 |      0     | 0 // * this
+	// -sin(theta) | 0 | cos(theta) | 0 //
+	//       0     | 0 |      0     | 1 //
+	//////////////////////////////////////
+
+	const double thetaRad = (theta * std::numbers::pi) / 180;
+
+	ArcMatrix4x4 rotationMatrixZX(
+		{{ cos(thetaRad), 0.0, -(sin(thetaRad)), 0.0 },
+		 {    0.0,        1.0,      0.0,         0.0 },
+		 { sin(thetaRad), 0.0,   cos(thetaRad),  0.0 },
+		 {    0.0,        0.0,      0.0,         1.0 }});
 
 	_matrix = _matrix * rotationMatrixZX;
 }
@@ -211,6 +452,24 @@ void ArcTransformMatrixH::scale(const double sx, const double sy, const double s
 	_matrix = _matrix * rotationMatrixZX;
 }
 
+void ArcTransformMatrixH::scaleInverse(const double sx, const double sy, const double sz)
+{
+	//////////////////////
+	// 1/Sx  0    0   0 //
+	// 0    1/Sy  0   0 // * this
+	// 0     0   1/Sz 0 //
+	// 0     0    0   1 //
+	//////////////////////
+
+	ArcMatrix4x4 rotationMatrixZX(
+		{{ 1.0 / sx,    0.0,      0.0,   0.0 },
+		 {    0.0,   1.0 / sy,    0.0,   0.0 },
+		 {    0.0,      0.0,   1.0 / sz, 0.0 },
+		 {    0.0,      0.0,      0.0,   1.0 }});
+
+	_matrix = _matrix * rotationMatrixZX;
+}
+
 void ArcTransformMatrixH::translate(const double tx, const double ty, const double tz)
 {
 	//////////////
@@ -224,6 +483,24 @@ void ArcTransformMatrixH::translate(const double tx, const double ty, const doub
 		{{ 1.0, 0.0, 0.0, tx  },
 		 { 0.0, 1.0, 0.0, ty  },
 		 { 0.0, 0.0, 1.0, tz  },
+		 { 0.0, 0.0, 0.0, 1.0 }});
+
+	_matrix = _matrix * translationMatrix;
+}
+
+void ArcTransformMatrixH::translateInverse(const double tx, const double ty, const double tz)
+{
+	///////////////
+	// 1 0 0 -Tx //
+	// 0 1 0 -Ty // * this
+	// 0 0 1 -Tz //
+	// 0 0 0  1  //
+	///////////////
+
+	ArcMatrix4x4 translationMatrix(
+		{{ 1.0, 0.0, 0.0, -tx },
+		 { 0.0, 1.0, 0.0, -ty },
+		 { 0.0, 0.0, 1.0, -tz },
 		 { 0.0, 0.0, 0.0, 1.0 }});
 
 	_matrix = _matrix * translationMatrix;

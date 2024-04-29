@@ -12,6 +12,7 @@ public: // Constructor/Destructor(s) //
 
 	ArcVector();
 	ArcVector(double x, double y, double z);
+	ArcVector(const Arc3DPoint& point);
 	ArcVector(const Arc3DPoint& startPoint, const Arc3DPoint& endPoint);
 	ArcVector(const Arc3DPointH& startPoint, const Arc3DPointH& endPoint);
 
@@ -75,16 +76,19 @@ public: // Methods - Static //
 public: // Methods //
 
 	/* Computes the cross product and returns the vector value. */
-	ArcVector crossProduct(const ArcVector& vector);
+	ArcVector crossProduct(const ArcVector& vector) const;
 
 	/* Computes the dot product and returns the scalar value. */
-	double dot(const ArcVector& vector);
+	double dot(const ArcVector& vector) const;
 
 	/* Computes the squared magnitued of this vector. */
 	double magnitudeSquared() const;
 
 	/* Normalizes this vector inplace. */
 	void normalize();
+
+	/* Returns a normalized version of this vector. */
+	ArcVector normalized() const;
 
 	void reflect(const ArcVector& reflectAbout);
 

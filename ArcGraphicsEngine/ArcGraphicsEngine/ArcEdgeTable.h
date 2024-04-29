@@ -48,6 +48,7 @@ private:
 
 	ArcEdge*              _activeEdgeTable;
 	std::vector<ArcEdge*> _edgeTable;
+	Arc3DAttributedPoint _surfacePointValues;
 };
 
 

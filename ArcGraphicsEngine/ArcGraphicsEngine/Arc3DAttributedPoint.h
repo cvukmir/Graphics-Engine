@@ -6,6 +6,7 @@
 #include "ArcColor.h"
 #include "ArcVector.h"
 #include "Arc3DPointH.h"
+#include "Arc3DPoint.h"
 
 class Arc3DAttributedPoint
 {
@@ -14,6 +15,7 @@ public:
 	Arc3DAttributedPoint();
 	Arc3DAttributedPoint(const Arc3DPointH& point);
 	Arc3DAttributedPoint(const Arc3DPoint& point);
+	Arc3DAttributedPoint(const Arc3DPoint& point, const ArcVector& normalVector);
 	Arc3DAttributedPoint(const Arc3DPoint& point, const ArcColor& color);
 
 	~Arc3DAttributedPoint();
@@ -21,8 +23,13 @@ public:
 
 public: // Properties //
 
+	void              constant(const double value);
+	const double      constant() const;
+
 	void              color(const ArcColor& value);
 	const ArcColor&   color() const;
+	ArcColor&         colorM();
+
 
 	void              opacity(const double value);
 	const double      opacity() const;
@@ -36,11 +43,14 @@ public: // Properties //
 	void              textureT(const double value);
 	const double      textureT() const;
 
-	void              vector(const ArcVector& value);
-	const ArcVector&  vector() const;
+	void              normalVector(const ArcVector& value);
+	const ArcVector&  normalVector() const;
 
 	void              weight(const double value);
 	const double      weight() const;
+
+	void              worldPosition(const Arc3DPoint& value);
+	const Arc3DPoint  worldPosition() const;
 
 
 public: // Methods - Overload //
@@ -96,16 +106,24 @@ public: // Methods
 	/* Updates the underlying position for this class to the given value. */
 	void updatePosition(const Arc3DPointH& point);
 
+	/* Updates the underlying position for this class to the given value. */
+	void updateWorldPosition(const Arc3DPoint& point);
+
+	/* Updates the underlying position for this class to the given value. */
+	void updateWorldPosition(const Arc3DPointH& point);
+
 
 private:
 
+	double      _constant;
 	ArcColor    _color;
 	double      _opacity;
 	Arc3DPointH _position;
 	double      _s;
 	double      _t;
-	ArcVector   _vector;
+	ArcVector   _normalVector;
 	double      _weight;
+	Arc3DPoint  _worldPosition;
 };
 
 #endif // !ARC3DATTRIBUTEDPOINT_H

@@ -17,6 +17,13 @@ ArcVector::ArcVector(double x, double y, double z)
 {
 }
 
+ArcVector::ArcVector(const Arc3DPoint& point)
+	: _x(point.x())
+	, _y(point.y())
+	, _z(point.z())
+{
+}
+
 ArcVector::ArcVector(const Arc3DPoint& startPoint, const Arc3DPoint& endPoint)
 	: _x(endPoint.x() - startPoint.x())
 	, _y(endPoint.y() - startPoint.y())
@@ -150,14 +157,14 @@ ArcVector ArcVector::interpolateTo(const ArcVector& startVector, const ArcVector
 
 // Public Methods //
 
-ArcVector ArcVector::crossProduct(const ArcVector& vector)
+ArcVector ArcVector::crossProduct(const ArcVector& vector) const
 {
 	return ArcVector(  (this->_y * vector._z) - (this->_z * vector._y),  // x
 		             -((this->_x * vector._z) - (this->_z * vector._x)), // y
 		               (this->_x * vector._y) - (this->_y * vector._x)); // z
 }
 
-double ArcVector::dot(const ArcVector& vector)
+double ArcVector::dot(const ArcVector& vector) const
 {
 	return (this->_x * vector._x) + (this->_y * vector._y) + (this->_z * vector._z);
 }
@@ -176,9 +183,22 @@ void ArcVector::normalize()
 	_z = magnitude != 0.0 ? _z / magnitude : 0.0;
 }
 
+ArcVector ArcVector::normalized() const
+{
+	const double magnitude = ::sqrt(magnitudeSquared());
+
+	return ArcVector(magnitude != 0.0 ? _x / magnitude : 0.0,
+		             magnitude != 0.0 ? _y / magnitude : 0.0,
+		             magnitude != 0.0 ? _z / magnitude : 0.0);
+}
+
 void ArcVector::reflect(const ArcVector& reflectAbout)
 {
-	(*this) = (((reflectAbout * (*this)) * 2) / reflectAbout.magnitudeSquared()) * reflectAbout - (*this);
+	// ReflectedVector = R
+	// NormalVector (reflect about axis vector) = N
+	// OriginalVector = L
+	// R = 2 * ((N.dot(L)) / ||N||^2) * (N - L)
+	(*this) =  (reflectAbout - (*this)) * ((reflectAbout.dot(*this) * 2) / reflectAbout.magnitudeSquared());
 }
 
 void ArcVector::selfInterpolateTo(const ArcVector& vector, const double alpha)

@@ -19,6 +19,9 @@
 #include "Arc2DLine.h"
 #include "Arc3DLine.h"
 
+#include "ArcFarLight.hpp"
+#include "ArcPointLight.hpp"
+
 
 // Public Constructor/Destructor(s) //
 
@@ -219,9 +222,9 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 				case ArcRdCommandType::Background:
 					if (argumentSize == 3U)
 					{
-						pWindow->backgroundColor(ArcColor(std::stof(argumentList[0]),   // Red
-							                              std::stof(argumentList[1]),   // Blue
-							                              std::stof(argumentList[2]))); // Green
+						pWindow->backgroundColor(ArcColor(std::stod(argumentList[0]),   // Red
+							                              std::stod(argumentList[1]),   // Blue
+							                              std::stod(argumentList[2]))); // Green
 					}
 
 					break;
@@ -235,9 +238,9 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 						}
 						else if (isInWorldBlock)
 						{
-							pWindow->currentColor(ArcColor(std::stof(argumentList[0]),   // Red
-								                           std::stof(argumentList[1]),   // Blue
-								                           std::stof(argumentList[2]))); // Green
+							pWindow->currentColor(ArcColor(std::stod(argumentList[0]),   // Red
+								                           std::stod(argumentList[1]),   // Blue
+								                           std::stod(argumentList[2]))); // Green
 						}
 					}
 					break;
@@ -367,9 +370,9 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 										break;
 									}
 
-									float r = std::stof(argumentList[++argumentIndex]);
-									float g = std::stof(argumentList[++argumentIndex]);
-									float b = std::stof(argumentList[++argumentIndex]);
+									double r = std::stod(argumentList[++argumentIndex]);
+									double g = std::stod(argumentList[++argumentIndex]);
+									double b = std::stod(argumentList[++argumentIndex]);
 
 									pWindow->currentColor(ArcColor(r, g, b));
 								}
@@ -446,9 +449,9 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 										break;
 									}
 
-									float r = std::stof(argumentList[++argumentIndex]);
-									float g = std::stof(argumentList[++argumentIndex]);
-									float b = std::stof(argumentList[++argumentIndex]);
+									double r = std::stod(argumentList[++argumentIndex]);
+									double g = std::stod(argumentList[++argumentIndex]);
+									double b = std::stod(argumentList[++argumentIndex]);
 
 									colorVector.push_back(ArcColor(r, g, b));
 								}
@@ -630,7 +633,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 									double y = std::stod(argumentList[++argumentIndex]);
 									double z = std::stod(argumentList[++argumentIndex]);
 
-									newPoint->vector(ArcVector(x, y, z));
+									newPoint->normalVector(ArcVector(x, y, z));
 								}
 
 								if (flags & static_cast<uint>(VertexTypes::Color))
@@ -641,9 +644,9 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 										break;
 									}
 
-									float r = std::stof(argumentList[++argumentIndex]);
-									float g = std::stof(argumentList[++argumentIndex]);
-									float b = std::stof(argumentList[++argumentIndex]);
+									double r = std::stod(argumentList[++argumentIndex]);
+									double g = std::stod(argumentList[++argumentIndex]);
+									double b = std::stod(argumentList[++argumentIndex]);
 
 									newPoint->color(ArcColor(r, g, b));
 								}
@@ -845,12 +848,38 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 				case ArcRdCommandType::AmbientLight:
 					if (argumentSize == 4U)
 					{
-						pWindow->ambientLight()->color(ArcColor());
-						pWindow->ambientLight()
+						double intensity = std::stod(argumentList[3]);
+						pWindow->ambientLight()->color = ArcColor(std::stod(argumentList[0]) * intensity,
+							                                      std::stod(argumentList[1]) * intensity,
+							                                      std::stod(argumentList[2]) * intensity);
 					}
 					break;
-				case ArcRdCommandType::FarLight: break;
-				case ArcRdCommandType::PointLight: break;
+				case ArcRdCommandType::FarLight:
+					if (argumentSize == 7U)
+					{
+						const double intensity = std::stod(argumentList[6]);
+
+						pWindow->farLightList().push_back(new ArcFarLight( ArcColor(std::stod(argumentList[3]) * intensity,
+							                                                        std::stod(argumentList[4]) * intensity,
+							                                                        std::stod(argumentList[5]) * intensity),
+							                                              ArcVector(std::stod(argumentList[0]),
+							                                                        std::stod(argumentList[1]),
+							                                                        std::stod(argumentList[2]))));
+					}
+					break;
+				case ArcRdCommandType::PointLight:
+					if (argumentSize == 7U)
+					{
+						const double intensity = std::stod(argumentList[6]);
+
+						pWindow->pointLightList().push_back(new ArcPointLight(  ArcColor(std::stod(argumentList[3]) * intensity,
+							                                                             std::stod(argumentList[4]) * intensity,
+							                                                             std::stod(argumentList[5]) * intensity),
+							                                                  Arc3DPoint(std::stod(argumentList[0]),
+							                                                             std::stod(argumentList[1]),
+							                                                             std::stod(argumentList[2]))));
+					}
+					break;
 				case ArcRdCommandType::ConeLight: break;
 
 				////////////////////////

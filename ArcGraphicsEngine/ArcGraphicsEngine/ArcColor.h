@@ -15,7 +15,7 @@ public: // Constructor/Destructor(s) //
 
 	ArcColor();
 	ArcColor(const uint color);
-	ArcColor(const float red, const float green, const float blue);
+	ArcColor(const double red, const double green, const double blue);
 
 	~ArcColor();
 
@@ -55,8 +55,14 @@ public: // Overload(s) //
 
 public: // Properties //
 
-	void       color(const uint value);
-	const uint color() const;
+	void         blue(const double value);
+	const double blue() const;
+
+	void         green(const double value);
+	const double green() const;
+
+	void         red(const double value);
+	const double red() const;
 
 
 public: // Static Properties //
@@ -70,8 +76,6 @@ public: // Static Properties //
 
 public: // Methods - Static //
 
-	static uint colorFromFloat(const float red, const float green, const float blue);
-
 	/* Interpolates a position between the two points using the given percentage. */
 	static ArcColor interpolateTo(const ArcColor& startColor, const ArcColor& endColor, const double alpha);
 
@@ -80,6 +84,8 @@ public: // Methods //
 
 	/* Interpolates this point a percentage distance to the given next point. */
 	void selfInterpolateTo(const ArcColor& color, const double alpha);
+
+	uint colorToUint() const;
 
 
 private: // Methods //
@@ -101,7 +107,9 @@ public: // Static Variables //
 
 private: // Variables //
 
-	uint _color;
+	double _red;
+	double _green;
+	double _blue;
 };
 
 #endif // !ARCCOLOR_H

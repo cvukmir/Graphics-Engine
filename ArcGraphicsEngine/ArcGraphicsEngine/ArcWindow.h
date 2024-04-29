@@ -40,6 +40,11 @@ public: // Static Methods (Singleton) //
 	static ArcWindow* window();
 
 
+public: // Variables - Shading //
+	
+	void (*_pSurfaceShader)(ArcColor&, const ArcVector&);
+
+
 public: // Properties //
 
 	void                         ambientCoefficient(double value);        // Sets the ambient coefficient.
@@ -246,25 +251,24 @@ private: // Static Variables //
 
 private: // Static Methods //
 
-	static void matte(ArcColor& color);
+	static void matte(ArcColor& color, const ArcVector& vertexVector);
 
-	static void metal(ArcColor& color);
+	static void metal(ArcColor& color, const ArcVector& vertexVector);
 
-	static void plastic(ArcColor& color);
+	static void plastic(ArcColor& color, const ArcVector& vertexVector);
 
 
 private: // Variables //
 
-	ArcColor _specularColor;
-	double   _specularExponent;
-	bool _vertexColorFlag;
-	bool _vertexNormalFlag;
-	bool _vertexTextureFlag;
-	bool _useInterpolationFlag;
+	ArcColor  _specularColor;
+	double    _specularExponent;
+	bool      _vertexColorFlag;
+	bool      _vertexNormalFlag;
+	bool      _vertexTextureFlag;
+	bool      _useInterpolationFlag;
 	ArcVector _viewingVector;
-	ArcVector _polygonNormal;
-	Arc3DAttributedPoint _surfacePointValues;
-	void* _pSurfaceShader;
+	ArcVector _surfaceNormal;
+	ArcTransformationStack _normalTransformationStack; // The stack of transformations to perform on objects.
 
 
 	double                 _ambientCoefficient;  // The ambient coefficient for lighting calculations.

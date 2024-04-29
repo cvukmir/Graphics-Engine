@@ -10,7 +10,7 @@
 // Private Constructor //
 
 ArcWindow::ArcWindow()
-	: _ambientCoefficient (0.0)
+	: _ambientCoefficient (1.0)
 	, _ambientLight       (new ArcAmbientLight())
 	, _backgroundColor    (ArcColor::BLACK)
 	, _cameraAtPoint      (0, 0, -1)
@@ -31,10 +31,15 @@ ArcWindow::ArcWindow()
 	, _specularCoefficient(0.0)
 	, _surfaceColor       (ArcColor::WHITE)
 	, _width              (480)
-
-	, _specularExponent(10.0)
-	, _pSurfaceShader(matte)
-	, _pNormalTransform (new ArcTransformMatrixH(ArcMatrix4x4::IDENTITY_MATRIX))
+	
+	, _vertexColorFlag     (false)
+	, _vertexNormalFlag    (false)
+	, _vertexTextureFlag   (false)
+	, _useInterpolationFlag(true)
+	, _specularColor       (ArcColor::WHITE)
+	, _specularExponent    (10.0)
+	, _pSurfaceShader      (matte)
+	, _pNormalTransform    (new ArcTransformMatrixH(ArcMatrix4x4::IDENTITY_MATRIX))
 {
 }
 
@@ -47,6 +52,18 @@ ArcWindow::~ArcWindow()
 	{
 		// Destroys _pMemory as well.
 		delete(*it);
+	}
+
+	while (!_transformationStack.empty())
+	{
+		delete(_transformationStack.top());
+		_transformationStack.pop();
+	}
+
+	while (!_normalTransformationStack.empty())
+	{
+		delete(_transformationStack.top());
+		_transformationStack.pop();
 	}
 
 	for (ArcFarLightList::iterator it = _farLightList.begin(); it != _farLightList.end(); ++it)
@@ -126,7 +143,7 @@ const double                 ArcWindow::clippingFar() const                     
 void                         ArcWindow::clippingNear(const double value)        { _clippingNear = value; }
 const double                 ArcWindow::clippingNear() const                    { return _clippingNear;  }
 
-void                         ArcWindow::currentColor(const ArcColor value)      { _currentColor = value; }
+void                         ArcWindow::currentColor(const ArcColor value)      { _currentColor = value; _surfaceColor = value; }
 const ArcColor               ArcWindow::currentColor() const                    { return _currentColor;  }
 
 void                         ArcWindow::diffuseCoefficient(double value)        { _diffuseCoefficient = value;}
@@ -168,6 +185,7 @@ const int                    ArcWindow::windowWidth() const                     
 void ArcWindow::clearTransformationMaxtrix()
 {
 	(*_pCurrentTransform) = ArcMatrix4x4::IDENTITY_MATRIX;
+	(*_pNormalTransform)  = ArcMatrix4x4::IDENTITY_MATRIX;
 }
 
 void ArcWindow::draw2DCircle(const Arc3DPoint& startPoint, const int radius)
@@ -210,7 +228,7 @@ void ArcWindow::draw2DPixel(const int xPos, const int yPos)
 		return;
 	}
 
-	*(_pMemory + (_width * yPos) + xPos) = _currentColor.color();
+	*(_pMemory + (_width * yPos) + xPos) = _currentColor.colorToUint();
 }
 
 void ArcWindow::draw3DPixel(const Arc3DPoint& point)
@@ -229,7 +247,7 @@ void ArcWindow::draw3DPixel(const Arc3DPoint& point)
 	}
 	
 	*depthPosition       = point.z();
-	*(_pMemory + offset) = _currentColor.color();
+	*(_pMemory + offset) = _currentColor.colorToUint();
 }
 
 void ArcWindow::draw3DPixel(const Arc3DPoint& point, const ArcColor& color)
@@ -248,7 +266,7 @@ void ArcWindow::draw3DPixel(const Arc3DPoint& point, const ArcColor& color)
 	}
 
 	*depthPosition = point.z();
-	*(_pMemory + offset) = _currentColor.color();
+	*(_pMemory + offset) = color.colorToUint();
 }
 
 void ArcWindow::draw3DCircle(const double radius, const double zMin, const double zMax, const double degrees, PlaneType plane)
@@ -299,14 +317,23 @@ void ArcWindow::drawCone(const double height, const double radius, const double 
 	//Starts at origin.
 	//	Same as cylinder but drawing points are at x = 0, y = 0, height
 	//	Keep them as rectangles and not triangles.Will affect lighting later on.
+
+	_vertexColorFlag   = false;
+	_vertexTextureFlag = false;
+	_vertexNormalFlag  = true;
 	
-	double theta2Rad = degrees * std::numbers::pi / 180;
-	double NSTEPS = 20;
+	const double theta2Rad = degrees * std::numbers::pi / 180;
+	const double NSTEPS = 20;
+	const double vecAngleZ = (radius * radius) / height;
 
 	linePipeline(Arc3DPoint(radius, 0, 0), false);
 
 	Arc3DPoint currDrawPoint;
-	Arc3DPoint prevDrawPoint = Arc3DPoint(radius, 0, 0);
+	Arc3DPoint coneTopPoint(0, 0, height);
+	Arc3DPoint prevDrawPoint = Arc3DPoint(radius, 0.0, 0.0);
+
+	ArcVector currDrawVector;
+	ArcVector prevDrawVector = ArcVector(radius, 0.0, vecAngleZ);
 
 	Arc3DAttributedPointList pointList;
 
@@ -324,12 +351,12 @@ void ArcWindow::drawCone(const double height, const double radius, const double 
 		double y = radius * sin(theta2);
 
 		currDrawPoint = Arc3DPoint(x, y, 0);
+		currDrawVector = ArcVector(x, y, vecAngleZ);
 
-		// Close Face
-		pointList.push_back(new Arc3DAttributedPoint(currDrawPoint,            _currentColor));
-		pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(0, 0, height), _currentColor));
-		pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(0, 0, height), _currentColor));
-		pointList.push_back(new Arc3DAttributedPoint(prevDrawPoint,            _currentColor));
+		pointList.push_back(new Arc3DAttributedPoint(currDrawPoint, currDrawVector));
+		pointList.push_back(new Arc3DAttributedPoint(coneTopPoint,  currDrawVector));
+		pointList.push_back(new Arc3DAttributedPoint(coneTopPoint,  prevDrawVector));
+		pointList.push_back(new Arc3DAttributedPoint(prevDrawPoint, prevDrawVector));
 
 		drawPolygon(pointList);
 
@@ -341,6 +368,7 @@ void ArcWindow::drawCone(const double height, const double radius, const double 
 		pointList.clear();
 
 		prevDrawPoint = currDrawPoint;
+		prevDrawVector = currDrawVector;
 	}
 }
 
@@ -375,15 +403,30 @@ void ArcWindow::drawCube()
 //	linePipeline(Arc3DPoint(-1.0,  1.0, -1.0), true);
 ////	linePipeline(Arc3DPoint(-1.0, -1.0, -1.0), true);
 
+	_vertexColorFlag   = false;
+	_vertexTextureFlag = false;
+	_vertexNormalFlag  = false; // Don't have the normals for each face due to properties of a cube.
 
 	// Using solid fill //
+	Arc3DPoint origin(0, 0, 0);
+
+	Arc3DPoint vertex1;
+	Arc3DPoint vertex2;
+	Arc3DPoint vertex3;
+	Arc3DPoint vertex4;
+
 	Arc3DAttributedPointList pointList;
 
 	// Close Face
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0, -1.0,  1.0), _currentColor));
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0,  1.0), _currentColor));
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0,  1.0,  1.0), _currentColor));
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0,  1.0,  1.0), _currentColor));
+	vertex1 = Arc3DPoint(-1.0, -1.0,  1.0);
+	vertex2 = Arc3DPoint( 1.0, -1.0,  1.0);
+	vertex3 = Arc3DPoint( 1.0,  1.0,  1.0);
+	vertex4 = Arc3DPoint(-1.0,  1.0,  1.0);
+
+	pointList.push_back(new Arc3DAttributedPoint(vertex1));
+	pointList.push_back(new Arc3DAttributedPoint(vertex2));
+	pointList.push_back(new Arc3DAttributedPoint(vertex3));
+	pointList.push_back(new Arc3DAttributedPoint(vertex4));
 
 	drawPolygon(pointList);
 
@@ -395,10 +438,15 @@ void ArcWindow::drawCube()
 	pointList.clear();
 
 	// Right Face
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0,  1.0), _currentColor));
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0, -1.0), _currentColor));
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0,  1.0, -1.0), _currentColor));
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0,  1.0,  1.0), _currentColor));
+	vertex1 = Arc3DPoint( 1.0, -1.0,  1.0);
+	vertex2 = Arc3DPoint( 1.0, -1.0, -1.0);
+	vertex3 = Arc3DPoint( 1.0,  1.0, -1.0);
+	vertex4 = Arc3DPoint( 1.0,  1.0,  1.0);
+
+	pointList.push_back(new Arc3DAttributedPoint(vertex1));
+	pointList.push_back(new Arc3DAttributedPoint(vertex2));
+	pointList.push_back(new Arc3DAttributedPoint(vertex3));
+	pointList.push_back(new Arc3DAttributedPoint(vertex4));
 
 	drawPolygon(pointList);
 
@@ -410,10 +458,15 @@ void ArcWindow::drawCube()
 	pointList.clear();
 
 	// Far Face
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0, -1.0, -1.0), _currentColor));
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0, -1.0, -1.0), _currentColor));
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0,  1.0, -1.0), _currentColor));
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint( 1.0,  1.0, -1.0), _currentColor));
+	vertex1 = Arc3DPoint( 1.0, -1.0, -1.0);
+	vertex2 = Arc3DPoint(-1.0, -1.0, -1.0);
+	vertex3 = Arc3DPoint(-1.0,  1.0, -1.0);
+	vertex4 = Arc3DPoint( 1.0,  1.0, -1.0);
+
+	pointList.push_back(new Arc3DAttributedPoint(vertex1));
+	pointList.push_back(new Arc3DAttributedPoint(vertex2));
+	pointList.push_back(new Arc3DAttributedPoint(vertex3));
+	pointList.push_back(new Arc3DAttributedPoint(vertex4));
 
 	drawPolygon(pointList);
 
@@ -425,10 +478,15 @@ void ArcWindow::drawCube()
 	pointList.clear();
 
 	// Left Face
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0, -1.0, -1.0), _currentColor));
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0, -1.0,  1.0), _currentColor));
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0,  1.0,  1.0), _currentColor));
-	pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(-1.0,  1.0, -1.0), _currentColor));
+	vertex1 = Arc3DPoint(-1.0, -1.0, -1.0);
+	vertex2 = Arc3DPoint(-1.0, -1.0,  1.0);
+	vertex3 = Arc3DPoint(-1.0,  1.0,  1.0);
+	vertex4 = Arc3DPoint(-1.0,  1.0, -1.0);
+
+	pointList.push_back(new Arc3DAttributedPoint(vertex1));
+	pointList.push_back(new Arc3DAttributedPoint(vertex2));
+	pointList.push_back(new Arc3DAttributedPoint(vertex3));
+	pointList.push_back(new Arc3DAttributedPoint(vertex4));
 
 	drawPolygon(pointList);
 
@@ -442,13 +500,20 @@ void ArcWindow::drawCube()
 
 void ArcWindow::drawCylinder(const double radius, const double zmin, const double zmax, const double degrees)
 {
-	double theta2Rad = degrees * std::numbers::pi / 180;
-	double NSTEPS = 20;
+	_vertexColorFlag   = false;
+	_vertexTextureFlag = false;
+	_vertexNormalFlag  = true;
 
-	linePipeline(Arc3DPoint(radius, 0, zmin), false);
+	const double theta2Rad = degrees * std::numbers::pi / 180;
+	const double NSTEPS = 20;
 
 	Arc3DPoint currDrawPoint;
-	Arc3DPoint prevDrawPoint = Arc3DPoint(radius, 0, zmin);
+	Arc3DPoint oppCurrDrawPoint;
+	ArcVector  currVector;
+	Arc3DPoint prevDrawPoint    = Arc3DPoint(radius, 0.0, zmin);
+	Arc3DPoint prevOppDrawPoint = Arc3DPoint(radius, 0.0, zmax);
+	ArcVector  prevVector       =  ArcVector(radius, 0.0, 0.0);
+
 
 	Arc3DAttributedPointList pointList;
 
@@ -465,13 +530,14 @@ void ArcWindow::drawCylinder(const double radius, const double zmin, const doubl
 		double x = radius * cos(theta2);
 		double y = radius * sin(theta2);
 
-		currDrawPoint = Arc3DPoint(x, y, zmin);
+		currDrawPoint    = Arc3DPoint(x, y, zmin);
+		oppCurrDrawPoint = Arc3DPoint(x, y, zmax);
+		currVector       =  ArcVector(x, y, 0.0);
 
-		// Close Face
-		pointList.push_back(new Arc3DAttributedPoint(currDrawPoint, _currentColor));
-		pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(x, y, zmax), _currentColor));
-		pointList.push_back(new Arc3DAttributedPoint(Arc3DPoint(prevDrawPoint.x(), prevDrawPoint.y(), zmax), _currentColor));
-		pointList.push_back(new Arc3DAttributedPoint(prevDrawPoint, _currentColor));
+		pointList.push_back(new Arc3DAttributedPoint(currDrawPoint,    currVector));
+		pointList.push_back(new Arc3DAttributedPoint(oppCurrDrawPoint, currVector));
+		pointList.push_back(new Arc3DAttributedPoint(prevOppDrawPoint, prevVector));
+		pointList.push_back(new Arc3DAttributedPoint(prevDrawPoint,    prevVector));
 
 		drawPolygon(pointList);
 
@@ -482,17 +548,30 @@ void ArcWindow::drawCylinder(const double radius, const double zmin, const doubl
 
 		pointList.clear();
 
-		prevDrawPoint = currDrawPoint;
+		prevDrawPoint    = currDrawPoint;
+		prevOppDrawPoint = oppCurrDrawPoint;
+		prevVector       = currVector;
 	}
 }
 
 void ArcWindow::drawDisk(const double height, const double radius, const double thetaMax)
 {
-	const double theta2Rad = thetaMax * std::numbers::pi / 180;
-	const double NSTEPS = 360;
+	_vertexColorFlag   = false;
+	_vertexTextureFlag = false;
+	_vertexNormalFlag  = true;
 
-	linePipeline(Arc3DPoint(radius, 0.0, height), false);
-	for (double i = 1; i < NSTEPS; ++i)
+	double theta2Rad = thetaMax * std::numbers::pi / 180;
+	double NSTEPS = 20;
+
+	Arc3DPoint currDrawPoint;
+	Arc3DPoint prevDrawPoint = Arc3DPoint(radius, 0, height);
+	const Arc3DPoint diskCenter    = Arc3DPoint(0, 0, height);
+	const ArcVector  diskVector    = ArcVector(0.0, 0.0, 1.0);
+
+	Arc3DAttributedPointList pointList;
+
+	// TODO Remove <= to <. Why is that broken?
+	for (double i = 1; i <= NSTEPS; ++i)
 	{
 		double theta2 = (i / NSTEPS) * (2 * std::numbers::pi);
 
@@ -504,7 +583,23 @@ void ArcWindow::drawDisk(const double height, const double radius, const double 
 		double x = radius * cos(theta2);
 		double y = radius * sin(theta2);
 
-		linePipeline(Arc3DPoint(x, y, height), true);
+		currDrawPoint = Arc3DPoint(x, y, height);
+
+		pointList.push_back(new Arc3DAttributedPoint(currDrawPoint, diskVector));
+		pointList.push_back(new Arc3DAttributedPoint(diskCenter,    diskVector));
+		pointList.push_back(new Arc3DAttributedPoint(diskCenter,    diskVector));
+		pointList.push_back(new Arc3DAttributedPoint(prevDrawPoint, diskVector));
+
+		drawPolygon(pointList);
+
+		for (Arc3DAttributedPointList::iterator it = pointList.begin(); it != pointList.end(); ++it)
+		{
+			delete(*it);
+		}
+
+		pointList.clear();
+
+		prevDrawPoint = currDrawPoint;
 	}
 }
 
@@ -526,6 +621,8 @@ bool ArcWindow::drawPolygon(const Arc3DAttributedPointList& pointList)
 			return false;
 		}
 	}
+
+	_surfaceNormal = ArcVector(pointList[0]->position(), pointList[1]->position()).crossProduct(ArcVector(pointList[1]->position(), pointList[2]->position()));
 
 	return polygonPipeline(vertex_list, *itEnd, true);
 }
@@ -695,9 +792,13 @@ void ArcWindow::drawSphere(const double radius, const double zMin, const double 
 
 void ArcWindow::drawSphere2(double radius, double zMin, double zMax, double degrees)
 {
+	_vertexColorFlag   = false;
+	_vertexTextureFlag = false;
+	_vertexNormalFlag  = true;
+
 	const uint NSTEPS_LONG = 20U; // Should be multiple of 4 (4 quadrents).
 	const uint NSTEPS_LAT  = 10U; // Should be multiple of 2 (2 halves).
-			
+
 	Arc3DAttributedPointList pointList;
 
 	for (uint i = 0U; i < NSTEPS_LAT; ++i)
@@ -717,11 +818,10 @@ void ArcWindow::drawSphere2(double radius, double zMin, double zMax, double degr
 			const Arc3DPoint point3(radius * cos(phi2) * cos(theta2), radius * cos(phi2) * sin(theta2), radius * sin(phi2));
 			const Arc3DPoint point4(radius * cos(phi2) * cos(theta1), radius * cos(phi2) * sin(theta1), radius * sin(phi2));
 		
-			// Close Face
-			pointList.push_back(new Arc3DAttributedPoint(point1, _currentColor));
-			pointList.push_back(new Arc3DAttributedPoint(point2, _currentColor));
-			pointList.push_back(new Arc3DAttributedPoint(point3, _currentColor));
-			pointList.push_back(new Arc3DAttributedPoint(point4, _currentColor));
+			pointList.push_back(new Arc3DAttributedPoint(point1, ArcVector(point1)));
+			pointList.push_back(new Arc3DAttributedPoint(point2, ArcVector(point2)));
+			pointList.push_back(new Arc3DAttributedPoint(point3, ArcVector(point3)));
+			pointList.push_back(new Arc3DAttributedPoint(point4, ArcVector(point4)));
 		
 			drawPolygon(pointList);
 		
@@ -761,10 +861,11 @@ void ArcWindow::fill(const Arc2DPoint& startPoint)
 
 void ArcWindow::fillBackground(const ArcColor& color)
 {
+	uint memoryColor = color.colorToUint();
 	UINT32* pixel = _pMemory;
 	for (int i = 0; i < _width * _height; ++i, ++pixel)
 	{
-		*pixel = color.color();
+		*pixel = memoryColor;
 	}
 }
 
@@ -825,11 +926,23 @@ void ArcWindow::popTransformation()
 		_pCurrentTransform = _transformationStack.top();
 		_transformationStack.pop();
 	}
+
+	if (!_normalTransformationStack.empty())
+	{
+		if (_pNormalTransform)
+		{
+			delete(_pNormalTransform);
+		}
+
+		_pNormalTransform = _normalTransformationStack.top();
+		_normalTransformationStack.pop();
+	}
 }
 
 void ArcWindow::pushTransformation()
 {
 	_transformationStack.push(new ArcTransformMatrixH(*_pCurrentTransform));
+	_normalTransformationStack.push(new ArcTransformMatrixH(*_pNormalTransform));
 }
 
 void ArcWindow::translateTransformation(const double t1, const double t2, const double t3)
@@ -840,21 +953,25 @@ void ArcWindow::translateTransformation(const double t1, const double t2, const 
 void ArcWindow::scaleTransformation(const double s1, const double s2, const double s3)
 {
 	_pCurrentTransform->scale(s1, s2, s3);
+	(*_pNormalTransform) * ArcTransformMatrixH::scaleInverseMatrix(s1, s2, s3);
 }
 
 void ArcWindow::rotateTransformationXY(const double degrees)
 {
-	_pCurrentTransform->rotate_xy(degrees);
+	_pCurrentTransform->rotateXY(degrees);
+	(*_pNormalTransform)* ArcTransformMatrixH::rotateXYInverseMatrix(degrees);
 }
 
 void ArcWindow::rotateTransformationYZ(const double degrees)
 {
-	_pCurrentTransform->rotate_yz(degrees);
+	_pCurrentTransform->rotateYZ(degrees);
+	(*_pNormalTransform)* ArcTransformMatrixH::rotateYZInverseMatrix(degrees);
 }
 
 void ArcWindow::rotateTransformationZX(const double degrees)
 {
-	_pCurrentTransform->rotate_zx(degrees);
+	_pCurrentTransform->rotateZX(degrees);
+	(*_pNormalTransform)* ArcTransformMatrixH::rotateZXInverseMatrix(degrees);
 }
 
 
@@ -1161,10 +1278,15 @@ Arc3DAttributedPointList ArcWindow::polygonClip(Arc3DAttributedPointList& pointL
 bool ArcWindow::polygonPipeline(Arc3DAttributedPointList& vertexList, Arc3DAttributedPoint* point, const bool endFlag)
 {
 	Arc3DPointH geom(point->position());
+	ArcVector   vec(point->normalVector());
 	const uint MAX_VERTEX_LIST_SIZE = 50U;
 
 	// Run geometry through current transform
 	geom = (*_pCurrentTransform) * geom;
+	vec  = (*_pNormalTransform)  * vec;
+
+	point->normalVector(vec);
+	point->updateWorldPosition(geom);
 	
 	// Run through world to clip
 	geom = ArcTransformMatrixH::world_to_camera(geom, _cameraEyePoint, _cameraAtPoint, _cameraUpVector);
@@ -1185,6 +1307,9 @@ bool ArcWindow::polygonPipeline(Arc3DAttributedPointList& vertexList, Arc3DAttri
 	{
 		return true;
 	}
+	
+	// Put the surface normal to world coordinates.
+	_surfaceNormal = (*_pNormalTransform) * _surfaceNormal;
 
 	Arc3DAttributedPointList clipped_list = polygonClip(vertexList);
 
@@ -1200,11 +1325,24 @@ bool ArcWindow::polygonPipeline(Arc3DAttributedPointList& vertexList, Arc3DAttri
 
 			dev = ArcTransformMatrixH::clip_to_device(dev, _width, _height);
 
+			// Normalize and update.
 			clipped_list[i]->updatePosition(dev.toCartesianPoint());
+
+			// Normalize the rest of the points.
+			clipped_list[i]->constant(     clipped_list[i]->constant()      / dev.w());
+			clipped_list[i]->color(        clipped_list[i]->color()         / dev.w());
+			clipped_list[i]->opacity(      clipped_list[i]->opacity()       / dev.w());
+			clipped_list[i]->textureS(     clipped_list[i]->textureS()      / dev.w());
+			clipped_list[i]->textureT(     clipped_list[i]->textureT()      / dev.w());
+			clipped_list[i]->normalVector( clipped_list[i]->normalVector()  / dev.w());
+			clipped_list[i]->weight(       clipped_list[i]->weight()        / dev.w());
+			clipped_list[i]->worldPosition(clipped_list[i]->worldPosition() / dev.w());
 		}
 
 		_edgeTable->scan_convert(clipped_list);
 	}
+
+	return true;
 }
 
 void ArcWindow::pointPipeline(const Arc3DPoint& point)
@@ -1232,14 +1370,85 @@ void ArcWindow::pointPipeline(const Arc3DPoint& point)
 	draw3DPixel(mutablePoint.toCartesianPoint());
 }
 
-void ArcWindow::matte(ArcColor& color)
+void ArcWindow::matte(ArcColor& color, const ArcVector& vertexVector)
 {
+	ArcWindow* pWindow = ArcWindow::window();
+	ArcVector normalVector = pWindow->_surfaceNormal;
+
+	if (pWindow->_vertexNormalFlag && pWindow->_useInterpolationFlag)
+	{
+		normalVector = vertexVector;
+	}
+
+	// Splitting up for visual benefit.
+
+
+	// Calculating ambient values.
+	const double redAmbientIntensity   = pWindow->_ambientCoefficient * color.red()   * pWindow->_ambientLight->color.red();
+	const double greenAmbientIntensity = pWindow->_ambientCoefficient * color.green() * pWindow->_ambientLight->color.green();
+	const double blueAmbientIntensity  = pWindow->_ambientCoefficient * color.blue()  * pWindow->_ambientLight->color.blue();
+
+	// Calculating diffuse values.
+	//    Loop through lights and multiply by normal.
+	double redDiffuseSum   = 0.0;
+	double greenDiffuseSum = 0.0;
+	double blueDiffuseSum  = 0.0;
+	for (ArcFarLightList::iterator it = pWindow->_farLightList.begin(); it != pWindow->_farLightList.end(); ++it)
+	{
+		double vecSum = max(normalVector.normalized().dot((*it)->vector.normalized()), 0.0);
+		redDiffuseSum   += vecSum * (*it)->color.red();
+		greenDiffuseSum += vecSum * (*it)->color.green();
+		blueDiffuseSum  += vecSum * (*it)->color.blue();
+	}
+
+	for (ArcPointLightList::iterator it = pWindow->_pointLightList.begin(); it != pWindow->_pointLightList.end(); ++it)
+	{
+		// Where does this vector go to?
+		//double vecSum max(normalVector.normalized().dot((*it)->.normalized()), 0.0);
+		// redDiffuseSum   += vecSum * (*it)->color.red();
+		// greenDiffuseSum += vecSum * (*it)->color.green();
+		// blueDiffuseSum  += vecSum * (*it)->color.blue();
+	}
+
+	const double redDiffuse   = pWindow->_diffuseCoefficient * color.red()   * redDiffuseSum;
+	const double greenDiffuse = pWindow->_diffuseCoefficient * color.green() * greenDiffuseSum;
+	const double blueDiffuse  = pWindow->_diffuseCoefficient * color.blue()  * blueDiffuseSum;
+
+	// Calculating specular values;
+	double redSpecularSum   = 0.0;
+	double greenSpecularSum = 0.0;
+	double blueSpecularSum  = 0.0;
+	
+	for (ArcFarLightList::iterator it = pWindow->_farLightList.begin(); it != pWindow->_farLightList.end(); ++it)
+	{
+	}
+
+	for (ArcPointLightList::iterator it = pWindow->_pointLightList.begin(); it != pWindow->_pointLightList.end(); ++it)
+	{
+	}
+
+	//color = window()->_surfaceColor;
+	color = ArcColor(redAmbientIntensity, greenAmbientIntensity, blueAmbientIntensity);
 }
 
-void ArcWindow::metal(ArcColor& color)
+void ArcWindow::metal(ArcColor& color, const ArcVector& vertexVector)
 {
+	ArcVector normalVector = ArcWindow::window()->_surfaceNormal;
+
+	if (ArcWindow::window()->_vertexNormalFlag && ArcWindow::window()->_useInterpolationFlag)
+	{
+		normalVector = vertexVector;
+	}
+
 }
 
-void ArcWindow::plastic(ArcColor& color)
+void ArcWindow::plastic(ArcColor& color, const ArcVector& vertexVector)
 {
+	ArcVector normalVector = ArcWindow::window()->_surfaceNormal;
+
+	if (ArcWindow::window()->_vertexNormalFlag && ArcWindow::window()->_useInterpolationFlag)
+	{
+		normalVector = vertexVector;
+	}
+
 }

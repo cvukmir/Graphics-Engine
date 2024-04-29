@@ -13,8 +13,8 @@ public: // Constructor/Destructor //
 
 public: // Methods - Static //
 
-	void  clamp(float& value, const float min, const float max);
-	float clamp(const float value, const float min, const float max);
+	static void  clamp(double& value, const double min, const double max);
+	static double clamp(const double value, const double min, const double max);
 
 };
 

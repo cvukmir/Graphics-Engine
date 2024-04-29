@@ -73,8 +73,8 @@ Arc3DPoint Arc3DPoint::operator-(const Arc3DPoint& point) const
 Arc3DPoint Arc3DPoint::operator/(const Arc3DPoint& point) const
 {
 	return Arc3DPoint(point._x != 0.0 ? this->_x / point._x : 0.0,
-		              point._y != 0.0 ? this->_x / point._y : 0.0,
-		              point._z != 0.0 ? this->_x / point._z : 0.0);
+		              point._y != 0.0 ? this->_y / point._y : 0.0,
+		              point._z != 0.0 ? this->_z / point._z : 0.0);
 }
 
 Arc3DPoint Arc3DPoint::operator*(const Arc3DPoint& point) const
@@ -82,6 +82,34 @@ Arc3DPoint Arc3DPoint::operator*(const Arc3DPoint& point) const
 	return Arc3DPoint(this->_x * point._x,
 		              this->_y * point._y,
 		              this->_z * point._z);
+}
+
+Arc3DPoint Arc3DPoint::operator/(const double rhs) const
+{
+	return Arc3DPoint(rhs != 0.0 ? this->_x / rhs : 0.0,
+		              rhs != 0.0 ? this->_y / rhs : 0.0,
+		              rhs != 0.0 ? this->_z / rhs : 0.0);
+}
+
+Arc3DPoint Arc3DPoint::operator*(const double rhs) const
+{
+	return Arc3DPoint(this->_x * rhs,
+		              this->_y * rhs,
+		              this->_z * rhs);
+}
+
+Arc3DPoint Arc3DPoint::operator+(const double rhs) const
+{
+	return Arc3DPoint(this->_x + rhs,
+		              this->_y + rhs,
+		              this->_z + rhs);
+}
+
+Arc3DPoint Arc3DPoint::operator-(const double rhs) const
+{
+	return Arc3DPoint(this->_x - rhs,
+		              this->_y - rhs,
+		              this->_z - rhs);
 }
 
 void Arc3DPoint::operator*(const double scalar)

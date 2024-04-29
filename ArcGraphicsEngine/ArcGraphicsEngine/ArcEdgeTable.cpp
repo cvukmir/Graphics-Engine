@@ -3,6 +3,8 @@
 #include "ArcWindow.h"
 #include <vector>
 #include <math.h>
+#include "ArcColor.h"
+#include "Arc3DAttributedPoint.h"
 
 // Constructor/Destructor(s) //
 
@@ -102,18 +104,11 @@ void ArcEdgeTable::makeEdgeRec(Arc3DAttributedPoint* upper, Arc3DAttributedPoint
 	pNewEdge->p = *lower + (pNewEdge->inc * factor);
 	
 	// Find the last scanline for the edge
-	pNewEdge->yLast = ceil(upper->position().y()) - 1;
+	pNewEdge->yLast = static_cast<int>(ceil(upper->position().y())) - 1;
 	
 	// Insert e into the edge table list of edges starting on scanline ceil(lower.y)
-	// IS THIS CORRECT?
 	if (ArcEdge* pExistingEdge = _edgeTable[ceil(lower->position().y())])
 	{
-		// while (pExistingEdge->next)
-		// {
-		// 	pExistingEdge = pExistingEdge->next;
-		// }
-		// 
-		// pExistingEdge->next = pNewEdge;
 		insertEdge(_edgeTable[ceil(lower->position().y())], pNewEdge);
 	}
 	else
@@ -127,7 +122,6 @@ void ArcEdgeTable::addActiveList(const uint scanLine, ArcEdge* pEdge)
 	ArcEdge* p = nullptr;
 	ArcEdge* q = nullptr;
 
-	// THIS WAS CHANGED FROM .next yes or no?
 	p = _edgeTable[scanLine]; // Get the edges starting on this scan line
 	
 	while (p)
@@ -231,8 +225,13 @@ void ArcEdgeTable::fillBetweenEdges(const uint scanLine)
 
 			while (value.position().x() < endx)
 			{
+				_surfacePointValues = value;
+				_surfacePointValues = _surfacePointValues / _surfacePointValues.constant();
+				ArcWindow::window()->_pSurfaceShader(_surfacePointValues.colorM(), _surfacePointValues.normalVector());
+
 				//Calculate the color for the pixel and plot it. x and z come from the current values, y is the current scanline
-				ArcWindow::window()->draw3DPixel(Arc3DPoint(value.position().x(), scanLine, value.position().z()), value.color());
+				//ArcWindow::window()->draw3DPixel(Arc3DPoint(value.position().x(), scanLine, value.position().z()), value.color());
+				ArcWindow::window()->draw3DPixel(Arc3DPoint(_surfacePointValues.position().x(), _surfacePointValues.position().y(), _surfacePointValues.position().z()), _surfacePointValues.color());
 
 				// Increment the values
 				value = value + inc;

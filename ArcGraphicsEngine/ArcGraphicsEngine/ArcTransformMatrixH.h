@@ -24,6 +24,7 @@ public: // Overload(s) //
 
 	void operator*(const ArcTransformMatrixH& matrix);
 	Arc3DPointH operator*(const Arc3DPointH& point);
+	ArcVector operator*(const ArcVector& vector);
 
 public: // Methods - Static //
 
@@ -36,23 +37,68 @@ public: // Methods - Static //
 	/* Transforms this matrix using the world to camera transformation. */
 	static Arc3DPointH world_to_camera(const Arc3DPointH& point, const Arc3DPoint& eye, const Arc3DPoint& at, const ArcVector& up);
 
+	/* Rotates this matrix on the xy plane. */
+	static ArcTransformMatrixH rotateXYMatrix(const double theta);
+
+	/* Rotates this matrix on the xy plane. */
+	static ArcTransformMatrixH rotateXYInverseMatrix(const double theta);
+
+	/* Rotates this matrix on the yz plane. */
+	static ArcTransformMatrixH rotateYZMatrix(const double theta);
+
+	/* Rotates this matrix on the yz plane. */
+	static ArcTransformMatrixH rotateYZInverseMatrix(const double theta);
+
+	/* Rotates this matrix on the zx plane. */
+	static ArcTransformMatrixH rotateZXMatrix(const double theta);
+
+	/* Rotates this matrix on the zx plane. */
+	static ArcTransformMatrixH rotateZXInverseMatrix(const double theta);
+
+	/* Scales this matrix by the given values. */
+	static ArcTransformMatrixH scaleMatrix(const double sx, const double sy, const double sz);
+
+	/* Scales this matrix by the given values. */
+	static ArcTransformMatrixH scaleInverseMatrix(const double sx, const double sy, const double sz);
+
+	/* Translates this matrix by the given values. */
+	static ArcTransformMatrixH translateMatrix(const double tx, const double ty, const double tz);
+
+	/* Translates this matrix by the given values. */
+	static ArcTransformMatrixH translateInverseMatrix(const double tx, const double ty, const double tz);
+
 
 public: // Methods - Instance//
 
 	/* Rotates this matrix on the xy plane. */
-	void rotate_xy(const double theta);
+	void rotateXY(const double theta);
+
+	/* Rotates this matrix on the xy plane. */
+	void rotateXYInverse(const double theta);
 
 	/* Rotates this matrix on the yz plane. */
-	void rotate_yz(const double theta);
+	void rotateYZ(const double theta);
+
+	/* Rotates this matrix on the yz plane. */
+	void rotateYZInverse(const double theta);
 
 	/* Rotates this matrix on the zx plane. */
-	void rotate_zx(const double theta);
+	void rotateZX(const double theta);
+
+	/* Rotates this matrix on the zx plane. */
+	void rotateZXInverse(const double theta);
 
 	/* Scales this matrix by the given values. */
 	void scale(const double sx, const double sy, const double sz);
 
+	/* Scales this matrix by the given values. */
+	void scaleInverse(const double sx, const double sy, const double sz);
+
 	/* Translates this matrix by the given values. */
 	void translate(const double tx, const double ty, const double tz);
+
+	/* Translates this matrix by the given values. */
+	void translateInverse(const double tx, const double ty, const double tz);
 
 
 private: // Variables //

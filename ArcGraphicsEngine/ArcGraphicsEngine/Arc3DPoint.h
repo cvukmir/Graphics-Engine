@@ -49,6 +49,18 @@ public: // Methods - Overload //
 	/* Multiplication operator for two points. */
 	Arc3DPoint operator*(const Arc3DPoint& point) const;
 
+	/* Multiplication operator for two points. */
+	Arc3DPoint operator/(const double rhs) const;
+
+	/* Multiplication operator for two points. */
+	Arc3DPoint operator*(const double rhs) const;
+
+	/* Multiplication operator for two points. */
+	Arc3DPoint operator+(const double rhs) const;
+
+	/* Multiplication operator for two points. */
+	Arc3DPoint operator-(const double rhs) const;
+
 	/* Scales this object by the given value. */
 	void operator*(const double scalar);
 

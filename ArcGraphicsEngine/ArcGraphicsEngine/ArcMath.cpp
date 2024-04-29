@@ -9,7 +9,7 @@ ArcMath::~ArcMath()
 {
 }
 
-void ArcMath::clamp(float& value, const float min, const float max)
+void ArcMath::clamp(double& value, const double min, const double max)
 {
 	if (value < min)
 	{
@@ -21,7 +21,7 @@ void ArcMath::clamp(float& value, const float min, const float max)
 	}
 }
 
-float ArcMath::clamp(const float value, const float min, const float max)
+double ArcMath::clamp(const double value, const double min, const double max)
 {
 	if (value < min)
 	{
@@ -31,4 +31,6 @@ float ArcMath::clamp(const float value, const float min, const float max)
 	{
 		return max;
 	}
+
+	return value;
 }
