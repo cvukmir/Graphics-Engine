@@ -197,8 +197,8 @@ void ArcVector::reflect(const ArcVector& reflectAbout)
 	// ReflectedVector = R
 	// NormalVector (reflect about axis vector) = N
 	// OriginalVector = L
-	// R = 2 * ((N.dot(L)) / ||N||^2) * (N - L)
-	(*this) =  (reflectAbout - (*this)) * ((reflectAbout.dot(*this) * 2) / reflectAbout.magnitudeSquared());
+	// R = (2 * ((N.dot(L)) / ||N||^2) * N) - L)
+	(*this) =  (reflectAbout * ((reflectAbout.dot(*this) * 2) / reflectAbout.magnitudeSquared())) - (*this);
 }
 
 void ArcVector::selfInterpolateTo(const ArcVector& vector, const double alpha)

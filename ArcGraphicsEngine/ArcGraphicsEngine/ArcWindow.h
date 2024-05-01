@@ -42,7 +42,7 @@ public: // Static Methods (Singleton) //
 
 public: // Variables - Shading //
 	
-	void (*_pSurfaceShader)(ArcColor&, const ArcVector&);
+	void (*_pSurfaceShader)(Arc3DAttributedPoint*);
 
 
 public: // Properties //
@@ -251,11 +251,11 @@ private: // Static Variables //
 
 private: // Static Methods //
 
-	static void matte(ArcColor& color, const ArcVector& vertexVector);
+	static void matte(Arc3DAttributedPoint* pPoint);
 
-	static void metal(ArcColor& color, const ArcVector& vertexVector);
+	static void metal(Arc3DAttributedPoint* pPoint);
 
-	static void plastic(ArcColor& color, const ArcVector& vertexVector);
+	static void plastic(Arc3DAttributedPoint* pPoint);
 
 
 private: // Variables //

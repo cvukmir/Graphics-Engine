@@ -6,7 +6,7 @@
 
 // Constructor/Destructor(s) //
 
-const double MAX_COLOR_VAL = 254.999;
+const double MAX_COLOR_VAL = 255.999;
 
 ArcColor::ArcColor()
 	: _blue (1.0)
@@ -23,9 +23,9 @@ ArcColor::ArcColor(const uint color)
 }
 
 ArcColor::ArcColor(const double red, const double green, const double blue)
-	: _blue (blue)
-	, _green(green)
-	, _red  (red)
+	: _blue (ArcMath::clamp(blue,  0.0, 1.0))
+	, _green(ArcMath::clamp(green, 0.0, 1.0))
+	, _red  (ArcMath::clamp(red,   0.0, 1.0))
 {
 }
 

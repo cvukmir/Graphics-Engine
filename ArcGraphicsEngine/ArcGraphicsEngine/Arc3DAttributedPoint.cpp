@@ -94,7 +94,7 @@ const Arc3DPoint  Arc3DAttributedPoint::worldPosition() const                  {
 
 void Arc3DAttributedPoint::operator=(const Arc3DAttributedPoint& rhs)
 {
-	//this->_constant = rhs._constant;
+	this->_constant = rhs._constant;
 	this->_color    = rhs._color;
 	this->_opacity  = rhs._opacity;
 	this->_position = rhs._position;
@@ -127,7 +127,7 @@ Arc3DAttributedPoint Arc3DAttributedPoint::operator-(const Arc3DAttributedPoint&
 {
 	Arc3DAttributedPoint newPoint;
 
-	//newPoint._constant = this->_constant;
+	newPoint._constant = this->_constant;
 	newPoint._position     = this->_position - rhs._position;
 	newPoint._color        = this->_color    - rhs._color;
 	newPoint._normalVector = this->_normalVector   - rhs._normalVector;
@@ -145,7 +145,7 @@ Arc3DAttributedPoint Arc3DAttributedPoint::operator/(const Arc3DAttributedPoint&
 {
 	Arc3DAttributedPoint newPoint;
 
-	//newPoint._constant = this->_constant;
+	newPoint._constant = this->_constant;
 	newPoint._position = this->_position / rhs._position;
 	newPoint._color    = this->_color    / rhs._color;
 	newPoint._normalVector   = this->_normalVector   / rhs._normalVector;
@@ -163,7 +163,7 @@ Arc3DAttributedPoint Arc3DAttributedPoint::operator*(const Arc3DAttributedPoint&
 {
 	Arc3DAttributedPoint newPoint;
 
-	//newPoint._constant = this->_constant;
+	newPoint._constant = this->_constant;
 	newPoint._position = this->_position * rhs._position;
 	newPoint._color    = this->_color    * rhs._color;
 	newPoint._normalVector   = this->_normalVector   * rhs._normalVector;
@@ -181,7 +181,7 @@ Arc3DAttributedPoint Arc3DAttributedPoint::operator+(const Arc3DAttributedPoint&
 {
 	Arc3DAttributedPoint newPoint;
 
-	//newPoint._constant = this->_constant;
+	newPoint._constant = this->_constant;
 	newPoint._position = this->_position + rhs._position;
 	newPoint._color    = this->_color    + rhs._color;
 	newPoint._normalVector   = this->_normalVector   + rhs._normalVector;
@@ -204,7 +204,7 @@ Arc3DAttributedPoint Arc3DAttributedPoint::operator/(const double rhs) const
 		return newPoint;
 	}
 
-	//newPoint._constant = this->_constant;
+	newPoint._constant = this->_constant;
 	newPoint._position = this->_position / rhs;
 	newPoint._color    = this->_color    / rhs;
 	newPoint._normalVector   = this->_normalVector   / rhs;
@@ -227,7 +227,7 @@ Arc3DAttributedPoint Arc3DAttributedPoint::operator*(const double rhs) const
 		return newPoint;
 	}
 
-	//newPoint._constant = this->_constant;
+	newPoint._constant = this->_constant;
 	newPoint._position = this->_position * rhs;
 	newPoint._color    = this->_color    * rhs;
 	newPoint._normalVector   = this->_normalVector   * rhs;
@@ -250,7 +250,7 @@ Arc3DAttributedPoint Arc3DAttributedPoint::operator-(const double rhs) const
 		return newPoint;
 	}
 
-	//newPoint._constant = this->_constant;
+	newPoint._constant = this->_constant;
 	newPoint._position = this->_position - rhs;
 	newPoint._color    = this->_color    - rhs;
 	newPoint._normalVector   = this->_normalVector   - rhs;
@@ -273,7 +273,7 @@ Arc3DAttributedPoint Arc3DAttributedPoint::operator+(const double rhs) const
 		return newPoint;
 	}
 
-	//newPoint._constant = this->_constant;
+	newPoint._constant = this->_constant;
 	newPoint._position = this->_position + rhs;
 	newPoint._color    = this->_color    + rhs;
 	newPoint._normalVector   = this->_normalVector   + rhs;
@@ -294,7 +294,7 @@ Arc3DAttributedPoint Arc3DAttributedPoint::interpolateTo(const Arc3DAttributedPo
 {
 	Arc3DAttributedPoint newPoint;
 
-	//newPoint._constant = startPoint._constant;
+	newPoint._constant = startPoint._constant + ((endPoint._constant - startPoint._constant) * alpha);
 	newPoint._position      = Arc3DPointH::interpolateTo(startPoint._position,      endPoint._position,      alpha);
 	newPoint._color         =    ArcColor::interpolateTo(startPoint._color,         endPoint._color,         alpha);
 	newPoint._normalVector  =   ArcVector::interpolateTo(startPoint._normalVector,  endPoint._normalVector,  alpha);
@@ -313,7 +313,7 @@ Arc3DAttributedPoint Arc3DAttributedPoint::interpolateTo(const Arc3DAttributedPo
 
 void Arc3DAttributedPoint::selfInterpolateTo(const Arc3DAttributedPoint& point, const double alpha)
 {
-	//this->_constant = point._constant;
+	this->_constant += ((point._constant - this->_constant) * alpha);
 	this->_position.    selfInterpolateTo(point._position,     alpha);
 	this->_color.       selfInterpolateTo(point._color,        alpha);
 	this->_normalVector.selfInterpolateTo(point._normalVector, alpha);

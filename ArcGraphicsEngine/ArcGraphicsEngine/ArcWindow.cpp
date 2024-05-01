@@ -5,7 +5,7 @@
 #include "ArcEnums.h"
 #include "ArcBoundaryCodes.hpp"
 #include "Arc3DAttributedPoint.h"
-
+#include "ArcMath.h"
 
 // Private Constructor //
 
@@ -948,6 +948,7 @@ void ArcWindow::pushTransformation()
 void ArcWindow::translateTransformation(const double t1, const double t2, const double t3)
 {
 	_pCurrentTransform->translate(t1, t2, t3);
+	// Don't need to multiply the normal transformation since they are not affected by translates.
 }
 
 void ArcWindow::scaleTransformation(const double s1, const double s2, const double s3)
@@ -959,19 +960,19 @@ void ArcWindow::scaleTransformation(const double s1, const double s2, const doub
 void ArcWindow::rotateTransformationXY(const double degrees)
 {
 	_pCurrentTransform->rotateXY(degrees);
-	(*_pNormalTransform)* ArcTransformMatrixH::rotateXYInverseMatrix(degrees);
+	(*_pNormalTransform) * ArcTransformMatrixH::rotateXYMatrix(degrees);
 }
 
 void ArcWindow::rotateTransformationYZ(const double degrees)
 {
 	_pCurrentTransform->rotateYZ(degrees);
-	(*_pNormalTransform)* ArcTransformMatrixH::rotateYZInverseMatrix(degrees);
+	(*_pNormalTransform) * ArcTransformMatrixH::rotateYZMatrix(degrees);
 }
 
 void ArcWindow::rotateTransformationZX(const double degrees)
 {
 	_pCurrentTransform->rotateZX(degrees);
-	(*_pNormalTransform)* ArcTransformMatrixH::rotateZXInverseMatrix(degrees);
+	(*_pNormalTransform) * ArcTransformMatrixH::rotateZXMatrix(degrees);
 }
 
 
@@ -1370,23 +1371,24 @@ void ArcWindow::pointPipeline(const Arc3DPoint& point)
 	draw3DPixel(mutablePoint.toCartesianPoint());
 }
 
-void ArcWindow::matte(ArcColor& color, const ArcVector& vertexVector)
+void ArcWindow::matte(Arc3DAttributedPoint* pPoint)
 {
 	ArcWindow* pWindow = ArcWindow::window();
 	ArcVector normalVector = pWindow->_surfaceNormal;
+	ArcColor& colorMutable = pPoint->colorM();
 
 	if (pWindow->_vertexNormalFlag && pWindow->_useInterpolationFlag)
 	{
-		normalVector = vertexVector;
+		normalVector = pPoint->normalVector();
 	}
 
 	// Splitting up for visual benefit.
 
 
 	// Calculating ambient values.
-	const double redAmbientIntensity   = pWindow->_ambientCoefficient * color.red()   * pWindow->_ambientLight->color.red();
-	const double greenAmbientIntensity = pWindow->_ambientCoefficient * color.green() * pWindow->_ambientLight->color.green();
-	const double blueAmbientIntensity  = pWindow->_ambientCoefficient * color.blue()  * pWindow->_ambientLight->color.blue();
+	const double redAmbientIntensity   = pWindow->_ambientCoefficient * colorMutable.red()   * pWindow->_ambientLight->color.red();
+	const double greenAmbientIntensity = pWindow->_ambientCoefficient * colorMutable.green() * pWindow->_ambientLight->color.green();
+	const double blueAmbientIntensity  = pWindow->_ambientCoefficient * colorMutable.blue()  * pWindow->_ambientLight->color.blue();
 
 	// Calculating diffuse values.
 	//    Loop through lights and multiply by normal.
@@ -1395,7 +1397,8 @@ void ArcWindow::matte(ArcColor& color, const ArcVector& vertexVector)
 	double blueDiffuseSum  = 0.0;
 	for (ArcFarLightList::iterator it = pWindow->_farLightList.begin(); it != pWindow->_farLightList.end(); ++it)
 	{
-		double vecSum = max(normalVector.normalized().dot((*it)->vector.normalized()), 0.0);
+		// Clamp all vectors between 0 and 1.
+		double vecSum = ArcMath::clamp(normalVector.normalized().dot((*it)->vector.normalized()), 0.0, 1.0);
 		redDiffuseSum   += vecSum * (*it)->color.red();
 		greenDiffuseSum += vecSum * (*it)->color.green();
 		blueDiffuseSum  += vecSum * (*it)->color.blue();
@@ -1403,52 +1406,72 @@ void ArcWindow::matte(ArcColor& color, const ArcVector& vertexVector)
 
 	for (ArcPointLightList::iterator it = pWindow->_pointLightList.begin(); it != pWindow->_pointLightList.end(); ++it)
 	{
-		// Where does this vector go to?
-		//double vecSum max(normalVector.normalized().dot((*it)->.normalized()), 0.0);
-		// redDiffuseSum   += vecSum * (*it)->color.red();
-		// greenDiffuseSum += vecSum * (*it)->color.green();
-		// blueDiffuseSum  += vecSum * (*it)->color.blue();
+		// Where does this vector go to? From the point light to the world xyz
+		ArcVector pointVec((*it)->point, pPoint->worldPosition());
+
+		double vecSum = ArcMath::clamp(normalVector.normalized().dot(pointVec.normalized()), 0.0, 1.0);
+		redDiffuseSum   += vecSum * (*it)->color.red();
+		greenDiffuseSum += vecSum * (*it)->color.green();
+		blueDiffuseSum  += vecSum * (*it)->color.blue();
 	}
 
-	const double redDiffuse   = pWindow->_diffuseCoefficient * color.red()   * redDiffuseSum;
-	const double greenDiffuse = pWindow->_diffuseCoefficient * color.green() * greenDiffuseSum;
-	const double blueDiffuse  = pWindow->_diffuseCoefficient * color.blue()  * blueDiffuseSum;
+	const double redDiffuseIntensity   = pWindow->_diffuseCoefficient * colorMutable.red()   * redDiffuseSum;
+	const double greenDiffuseIntensity = pWindow->_diffuseCoefficient * colorMutable.green() * greenDiffuseSum;
+	const double blueDiffuseIntensity  = pWindow->_diffuseCoefficient * colorMutable.blue()  * blueDiffuseSum;
 
 	// Calculating specular values;
 	double redSpecularSum   = 0.0;
 	double greenSpecularSum = 0.0;
 	double blueSpecularSum  = 0.0;
+
+	const ArcVector camera = pWindow->cameraAt();
 	
 	for (ArcFarLightList::iterator it = pWindow->_farLightList.begin(); it != pWindow->_farLightList.end(); ++it)
 	{
+		ArcVector vec = (*it)->vector.normalized();
+		vec.reflect(normalVector);
+		double vecSum = ArcMath::clamp(camera.normalized().dot(vec), 0.0, 1.0);
+		// TODO: Multiply by specular exponent
+		redSpecularSum   += (*it)->color.red()   * vecSum;
+		greenSpecularSum += (*it)->color.green() * vecSum;
+		blueSpecularSum  += (*it)->color.blue()  * vecSum;
 	}
 
 	for (ArcPointLightList::iterator it = pWindow->_pointLightList.begin(); it != pWindow->_pointLightList.end(); ++it)
 	{
 	}
 
-	//color = window()->_surfaceColor;
-	color = ArcColor(redAmbientIntensity, greenAmbientIntensity, blueAmbientIntensity);
+	const double redSpecularIntensity   = pWindow->_specularCoefficient * pWindow->_specularColor.red()   * redSpecularSum;
+	const double greenSpecularIntensity = pWindow->_specularCoefficient * pWindow->_specularColor.green() * greenSpecularSum;
+	const double blueSpecularIntensity  = pWindow->_specularCoefficient * pWindow->_specularColor.blue()  * blueSpecularSum;
+
+	// Sum all values
+	const double   redIntensity =   redAmbientIntensity +   redDiffuseIntensity +   redSpecularIntensity;
+	const double greenIntensity = greenAmbientIntensity + greenDiffuseIntensity + greenSpecularIntensity;
+	const double  blueIntensity =  blueAmbientIntensity +  blueDiffuseIntensity +  blueSpecularIntensity;
+
+	//color = ArcColor(redIntensity, greenIntensity, blueIntensity);
+	colorMutable = ArcColor(redAmbientIntensity, greenAmbientIntensity, blueAmbientIntensity);
 }
 
-void ArcWindow::metal(ArcColor& color, const ArcVector& vertexVector)
+void ArcWindow::metal(Arc3DAttributedPoint* pPoint)
 {
 	ArcVector normalVector = ArcWindow::window()->_surfaceNormal;
 
 	if (ArcWindow::window()->_vertexNormalFlag && ArcWindow::window()->_useInterpolationFlag)
 	{
-		normalVector = vertexVector;
+		normalVector = pPoint->normalVector();
 	}
 
 }
 
-void ArcWindow::plastic(ArcColor& color, const ArcVector& vertexVector)
+void ArcWindow::plastic(Arc3DAttributedPoint* pPoint)
 {
 	ArcVector normalVector = ArcWindow::window()->_surfaceNormal;
 
 	if (ArcWindow::window()->_vertexNormalFlag && ArcWindow::window()->_useInterpolationFlag)
 	{
-		normalVector = vertexVector;
+		normalVector = pPoint->normalVector();
 	}
 
 }

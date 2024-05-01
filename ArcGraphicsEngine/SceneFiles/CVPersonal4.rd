@@ -2,7 +2,7 @@ Display "Axis System" "Screen" "rgbsingle"
 
 # Testing filling and double buffering
 
-Background 1.0 1.0 1.0
+#Background 1.0 1.0 1.0
 
 ObjectBegin "Axis"
 

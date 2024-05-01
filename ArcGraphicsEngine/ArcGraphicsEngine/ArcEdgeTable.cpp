@@ -227,7 +227,7 @@ void ArcEdgeTable::fillBetweenEdges(const uint scanLine)
 			{
 				_surfacePointValues = value;
 				_surfacePointValues = _surfacePointValues / _surfacePointValues.constant();
-				ArcWindow::window()->_pSurfaceShader(_surfacePointValues.colorM(), _surfacePointValues.normalVector());
+				ArcWindow::window()->_pSurfaceShader(&_surfacePointValues);
 
 				//Calculate the color for the pixel and plot it. x and z come from the current values, y is the current scanline
 				//ArcWindow::window()->draw3DPixel(Arc3DPoint(value.position().x(), scanLine, value.position().z()), value.color());
