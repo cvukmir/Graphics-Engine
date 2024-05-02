@@ -226,12 +226,30 @@ void ArcEdgeTable::fillBetweenEdges(const uint scanLine)
 			while (value.position().x() < endx)
 			{
 				_surfacePointValues = value;
-				_surfacePointValues = _surfacePointValues / _surfacePointValues.constant();
-				ArcWindow::window()->_pSurfaceShader(&_surfacePointValues);
+				//_surfacePointValues = _surfacePointValues / _surfacePointValues.constant();
+
+				Arc3DAttributedPoint newPoint;
+
+				newPoint.position(_surfacePointValues.position());
+
+				if (_surfacePointValues.constant() != 0.0)
+				{
+					// TODO: Change division method of attributed point (or create different version) that doesn't divide point.
+					newPoint.color(_surfacePointValues.color() / _surfacePointValues.constant());
+					newPoint.normalVector(_surfacePointValues.normalVector() / _surfacePointValues.constant());
+
+					newPoint.opacity(_surfacePointValues.opacity() / _surfacePointValues.constant());
+					newPoint.textureS(_surfacePointValues.textureS() / _surfacePointValues.constant());
+					newPoint.textureT(_surfacePointValues.textureT() / _surfacePointValues.constant());
+					newPoint.weight(_surfacePointValues.weight() / _surfacePointValues.constant());
+					newPoint.worldPosition(_surfacePointValues.worldPosition() / _surfacePointValues.constant());
+				}
+
+				ArcWindow::window()->_pSurfaceShader(&newPoint);
 
 				//Calculate the color for the pixel and plot it. x and z come from the current values, y is the current scanline
 				//ArcWindow::window()->draw3DPixel(Arc3DPoint(value.position().x(), scanLine, value.position().z()), value.color());
-				ArcWindow::window()->draw3DPixel(Arc3DPoint(_surfacePointValues.position().x(), _surfacePointValues.position().y(), _surfacePointValues.position().z()), _surfacePointValues.color());
+				ArcWindow::window()->draw3DPixel(Arc3DPoint(newPoint.position().x(), newPoint.position().y(), newPoint.position().z()), newPoint.color());
 
 				// Increment the values
 				value = value + inc;

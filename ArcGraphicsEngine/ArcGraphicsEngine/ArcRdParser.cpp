@@ -21,6 +21,7 @@
 
 #include "ArcFarLight.hpp"
 #include "ArcPointLight.hpp"
+#include "ArcMath.h"
 
 
 // Public Constructor/Destructor(s) //
@@ -254,9 +255,9 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 				case ArcRdCommandType::OptionBool:
 					if (argumentSize == 2U)
 					{
-						if (argumentList[0] == "Interpolate")
+						if (argumentList[0] == "\"Interpolate\"")
 						{
-							pWindow->useInterpolation(argumentList[1] == "True");
+							pWindow->useInterpolation(argumentList[1] == "On");
 						}
 					}
 					break;
@@ -886,11 +887,41 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 				// Surface Attributes //
 				////////////////////////
 
-				case ArcRdCommandType::Ka: break;
-				case ArcRdCommandType::Kd: break;
-				case ArcRdCommandType::Ks: break;
-				case ArcRdCommandType::Specular: break;
-				case ArcRdCommandType::Surface: break;
+				case ArcRdCommandType::Ka:
+					if (argumentSize == 1U)
+					{
+						pWindow->ambientCoefficient(ArcMath::clamp(std::stod(argumentList[0]), 0.0, 1.0));
+					}
+					break;
+				case ArcRdCommandType::Kd:
+					if (argumentSize == 1U)
+					{
+						pWindow->diffuseCoefficient(ArcMath::clamp(std::stod(argumentList[0]), 0.0, 1.0));
+					}
+					break;
+				case ArcRdCommandType::Ks:
+					if (argumentSize == 1U)
+					{
+						pWindow->specularCoefficient(ArcMath::clamp(std::stod(argumentList[0]), 0.0, 1.0));
+
+					}
+					break;
+				case ArcRdCommandType::Specular:
+					if (argumentSize == 4U)
+					{
+						pWindow->specularColor(ArcColor(std::stod(argumentList[0]),
+							                            std::stod(argumentList[1]),
+							                            std::stod(argumentList[2])));
+
+						pWindow->specularExponent(std::stod(argumentList[3]));
+					}
+					break;
+				case ArcRdCommandType::Surface:
+					if (argumentSize == 1U)
+					{
+						pWindow->setMaterialType(argumentList[0]);
+					}
+					break;
 
 				///////////////////////
 				// Attribute Mapping //

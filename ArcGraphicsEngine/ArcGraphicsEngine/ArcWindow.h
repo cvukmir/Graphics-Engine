@@ -6,6 +6,8 @@
 // Windows
 #include <Windows.h>
 
+#include <string>
+
 
 #include "Arc2DPoint.h"
 #include "Arc3DPoint.h"
@@ -78,7 +80,7 @@ public: // Properties //
 	void                         diffuseCoefficient(double value);        // Sets the diffuse coefficient.
 	const double                 diffuseCoefficient() const;              // Gets the diffuse coefficient.
 
-	ArcFarLightList              farLightList() const;                    // Gets the far light list.
+	ArcFarLightList&             farLightList();                          // Gets the far light list.
 
 	void                         frameNumber(const int value);            // Sets the current frame number.
 	const int                    frameNumber() const;                     // Gets the current frame number.
@@ -91,10 +93,16 @@ public: // Properties //
 
 	const UINT32*                memory() const;                          // Gets the current memory color map.
 
-	ArcPointLightList            pointLightList() const;                  // Gets the point light list.
+	ArcPointLightList&           pointLightList();                        // Gets the point light list.
 
 	void                         specularCoefficient(double value);       // Sets the diffuse coefficient.
 	const double                 specularCoefficient() const;             // Gets the diffuse coefficient.
+
+	void                         specularColor(const ArcColor value);     // Sets the specular color.
+	const ArcColor               specularColor() const;                   // Gets the specular color.
+
+	void                         specularExponent(double value);          // Sets the diffuse exponent.
+	const double                 specularExponent() const;                // Gets the diffuse exponent.
 
 	void                         surfaceColor(const ArcColor value);      // Sets the surface drawing color.
 	const ArcColor               surfaceColor() const;                    // Gets the surface drawing color.
@@ -193,6 +201,8 @@ public: // Methods //
 
 	/* Scales the current transformation matrix by the given values. */
 	void scaleTransformation(const double s1, const double s2, const double s3);
+
+	void setMaterialType(const std::string& type);
 
 	/* Translates the current transformation matrix by the given values. */
 	void translateTransformation(const double t1, const double t2, const double t3);

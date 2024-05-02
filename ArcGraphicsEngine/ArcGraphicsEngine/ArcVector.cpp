@@ -36,9 +36,9 @@ ArcVector::ArcVector(const Arc3DPointH& startPoint, const Arc3DPointH& endPoint)
 	Arc3DPoint point1 = startPoint.toCartesianPoint();
 	Arc3DPoint point2 =   endPoint.toCartesianPoint();
 
-	_x = (point1.x() - point2.x());
-	_y = (point1.y() - point2.y());
-	_z = (point1.z() - point2.z());
+	_x = (point2.x() - point1.x());
+	_y = (point2.y() - point1.y());
+	_z = (point2.z() - point1.z());
 }
 
 ArcVector::~ArcVector()
