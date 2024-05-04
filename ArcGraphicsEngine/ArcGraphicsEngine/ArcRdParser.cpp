@@ -595,6 +595,7 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 						}
 						else if (isInWorldBlock)
 						{
+							pWindow->vertexNormalFlag(false);
 							uint argumentIndex = 0;
 
 							const uint flags     = getVertexTypes(argumentList[  argumentIndex]);
@@ -701,23 +702,34 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 							std::vector<int> pointIndexList;
 							Arc3DAttributedPointList faceList;
 
+
 							for (int i = 0; i < numFaces; ++i)
 							{
+								++argumentIndex;
+
 								if (argumentIndex + 1U > argumentSize)
 								{
 									break;
 								}
 
-								while (argumentIndex + 1U > argumentSize && (currentVertex = std::stoi(argumentList[++argumentIndex])) != -1)
+								while (argumentIndex + 1U < argumentSize && (currentVertex = std::stoi(argumentList[argumentIndex])) != -1)
 								{
+									++argumentIndex;
 									// Ensure the current vertex is valid.
 									if (currentVertex < numPoints)
 									{
-										faceList.push_back(pointList[currentVertex]);
+										Arc3DAttributedPoint* newPoint = new Arc3DAttributedPoint(*pointList[currentVertex]);
+										faceList.push_back(newPoint);
 									}
 								}
 
 								pWindow->drawPolygon(faceList);
+
+								for (Arc3DAttributedPointList::iterator it = faceList.begin(); it != faceList.end(); ++it)
+								{
+									delete(*it);
+								}
+								faceList.clear();
 							}
 
 							for (Arc3DAttributedPointList::iterator it = pointList.begin(); it != pointList.end(); ++it)
@@ -863,9 +875,9 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 						pWindow->farLightList().push_back(new ArcFarLight( ArcColor(std::stod(argumentList[3]) * intensity,
 							                                                        std::stod(argumentList[4]) * intensity,
 							                                                        std::stod(argumentList[5]) * intensity),
-							                                              ArcVector(std::stod(argumentList[0]),
-							                                                        std::stod(argumentList[1]),
-							                                                        std::stod(argumentList[2]))));
+							                                              ArcVector(std::stod(argumentList[0]) * -1.0,
+							                                                        std::stod(argumentList[1]) * -1.0,
+							                                                        std::stod(argumentList[2]) * -1.0)));
 					}
 					break;
 				case ArcRdCommandType::PointLight:
@@ -932,6 +944,21 @@ const bool ArcRdParser::executeCommands(ArcWindow* pWindow)
 				case ArcRdCommandType::MapSample: break;
 				case ArcRdCommandType::MapBound: break;
 				case ArcRdCommandType::MapBorder: break;
+
+					
+				//////////////
+				// Personal //
+				//////////////
+
+				case ArcRdCommandType::Halo:
+					if (argumentSize == 4U)
+					{
+						pWindow->drawHaloRing(std::stod(argumentList[0]),
+							                  std::stod(argumentList[1]),
+							                  std::stod(argumentList[2]),
+							                  std::stod(argumentList[3]));
+					}
+					break;
 
 				/////////////
 				// Invalid //
@@ -1044,6 +1071,10 @@ const ArcRdCommandType ArcRdParser::commandTypeFromString(std::string value)
 	else if (value == RD_CMD_MAP_SAMPLE)      { return ArcRdCommandType::MapSample;       }
 	else if (value == RD_CMD_MAP_BOUND)       { return ArcRdCommandType::MapBound;        }
 	else if (value == RD_CMD_MAP_BORDER)      { return ArcRdCommandType::MapBorder;       }
+
+	// PERSONAL //
+	else if (value == RD_CMD_HALO)            { return ArcRdCommandType::Halo; }
+	
 	else                                      { return ArcRdCommandType::Invalid;         }
 }
 

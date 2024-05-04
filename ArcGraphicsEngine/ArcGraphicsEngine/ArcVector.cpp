@@ -198,7 +198,19 @@ void ArcVector::reflect(const ArcVector& reflectAbout)
 	// NormalVector (reflect about axis vector) = N
 	// OriginalVector = L
 	// R = (2 * ((N.dot(L)) / ||N||^2) * N) - L)
-	(*this) =  (reflectAbout * ((reflectAbout.dot(*this) * 2) / reflectAbout.magnitudeSquared())) - (*this);
+	double val1 = reflectAbout.dot(*this) * 2;
+	double val2 = reflectAbout.magnitudeSquared();
+	double val3 = val1 / val2;
+	ArcVector v1 = reflectAbout * val3;
+
+	_x = v1._x - this->_x;
+	_y = v1._y - this->_y;
+	_z = v1._z - this->_z;
+}
+
+ArcVector ArcVector::reversed() const
+{
+	return ArcVector(_x * -1.0, _y * -1.0, _z * -1.0);
 }
 
 void ArcVector::selfInterpolateTo(const ArcVector& vector, const double alpha)

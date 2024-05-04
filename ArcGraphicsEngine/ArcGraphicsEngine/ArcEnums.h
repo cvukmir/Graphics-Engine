@@ -103,6 +103,9 @@ enum class ArcRdCommandType
 	MapSample,
 	MapBound,
 	MapBorder,
+
+	// PERSONAL
+	Halo,
 };
 
 enum class VertexTypes

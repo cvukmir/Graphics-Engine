@@ -31,7 +31,7 @@ ObjectBegin "Tetrahedron"
 # Tetrahedron
 PolySet "P"
 4 # Vertices
-4 # Faces
+1 # Faces
 
 # Vertex points
  1.0  1.0  1.0
@@ -40,10 +40,10 @@ PolySet "P"
 -1.0 -1.0  1.0
 
 # Face indices
-3 2 1 -1
+#3 2 1 -1
 2 3 0 -1
-1 0 3 -1
-0 1 2 -1
+#1 0 3 -1
+#0 1 2 -1
 
 ObjectEnd # Tetrahedron
 

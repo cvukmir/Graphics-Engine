@@ -110,6 +110,8 @@ public: // Properties //
 	void                         useInterpolation(const bool value);      // Sets the surface drawing color.
 	const bool                   useInterpolation() const;                // Gets the surface drawing color.
 
+	void  vertexNormalFlag(const bool value);
+
 	void                         windowHeight(const int value);           // Sets the height of the display window.
 	const int                    windowHeight() const;                    // Gets the height of the display window.
 
@@ -168,6 +170,8 @@ public: // Methods //
 	void drawDisk(const double height, const double radius, const double thetaMax);
 
 	bool drawPolygon(const Arc3DAttributedPointList& pointList);
+
+	void drawHaloRing(double radius, double degrees, double width, double thickness);
 
 	/* Run a sphere(or some representation of a sphere) through the pipeline.The sphere should be centered at the origin and have a radius given by a parameter. */
 	void drawSphere(double radius, double zMin, double zMax, double degrees);
@@ -260,6 +264,13 @@ private: // Static Variables //
 
 
 private: // Static Methods //
+
+	static ArcColor calcAmbient(const ArcColor& color);
+
+	static ArcColor calcDiffuse(const ArcColor& color, const ArcVector& normalVector, const Arc3DPoint& position);
+
+	static ArcColor calcSpecular(const ArcColor& color, const ArcVector& normalVector, const Arc3DPoint& position, const bool isMetal = false);
+
 
 	static void matte(Arc3DAttributedPoint* pPoint);
 

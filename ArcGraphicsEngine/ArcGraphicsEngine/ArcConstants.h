@@ -90,7 +90,7 @@ const std::string RD_CMD_MAP_SAMPLE      = "MapSample";
 const std::string RD_CMD_MAP_BOUND       = "MapBound";
 const std::string RD_CMD_MAP_BORDER      = "MapBorder";
 
-
+const std::string RD_CMD_HALO            = "Halo";
 
 
 

@@ -92,6 +92,8 @@ public: // Methods //
 
 	void reflect(const ArcVector& reflectAbout);
 
+	ArcVector reversed() const;
+
 	/* Interpolates this vector a percentage distance to the given next vector. */
 	void selfInterpolateTo(const ArcVector& vector, const double alpha);
 

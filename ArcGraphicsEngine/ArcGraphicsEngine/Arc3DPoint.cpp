@@ -25,7 +25,7 @@ Arc3DPoint::~Arc3DPoint()
 
 // Public Properties //
 
-void         Arc3DPoint::x(const double value) { _y = value; }
+void         Arc3DPoint::x(const double value) { _x = value; }
 const double Arc3DPoint::x() const             { return _x;  }
 
 void         Arc3DPoint::y(const double value) { _y = value; }

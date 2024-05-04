@@ -245,6 +245,11 @@ void ArcEdgeTable::fillBetweenEdges(const uint scanLine)
 					newPoint.worldPosition(_surfacePointValues.worldPosition() / _surfacePointValues.constant());
 				}
 
+				if (newPoint.position().x() == 472.0 && newPoint.position().y() == 155.0)
+				{
+					bool test = true;
+				}
+
 				ArcWindow::window()->_pSurfaceShader(&newPoint);
 
 				//Calculate the color for the pixel and plot it. x and z come from the current values, y is the current scanline
