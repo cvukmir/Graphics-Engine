@@ -235,19 +235,14 @@ void ArcEdgeTable::fillBetweenEdges(const uint scanLine)
 				if (_surfacePointValues.constant() != 0.0)
 				{
 					// TODO: Change division method of attributed point (or create different version) that doesn't divide point.
-					newPoint.color(_surfacePointValues.color() / _surfacePointValues.constant());
-					newPoint.normalVector(_surfacePointValues.normalVector() / _surfacePointValues.constant());
+					newPoint.color(        _surfacePointValues.color()         / _surfacePointValues.constant());
+					newPoint.normalVector( _surfacePointValues.normalVector()  / _surfacePointValues.constant());
 
-					newPoint.opacity(_surfacePointValues.opacity() / _surfacePointValues.constant());
-					newPoint.textureS(_surfacePointValues.textureS() / _surfacePointValues.constant());
-					newPoint.textureT(_surfacePointValues.textureT() / _surfacePointValues.constant());
-					newPoint.weight(_surfacePointValues.weight() / _surfacePointValues.constant());
-					newPoint.worldPosition(_surfacePointValues.worldPosition() / _surfacePointValues.constant());
-				}
-
-				if (newPoint.position().x() == 472.0 && newPoint.position().y() == 155.0)
-				{
-					bool test = true;
+					newPoint.opacity(      _surfacePointValues.opacity()       / _surfacePointValues.constant());
+					newPoint.textureS(     _surfacePointValues.textureS()      / _surfacePointValues.constant());
+					newPoint.textureT(     _surfacePointValues.textureT()      / _surfacePointValues.constant());
+					newPoint.weight(       _surfacePointValues.weight()        / _surfacePointValues.constant());
+					newPoint.worldPosition(_surfacePointValues.worldPosition());// / _surfacePointValues.constant());
 				}
 
 				ArcWindow::window()->_pSurfaceShader(&newPoint);

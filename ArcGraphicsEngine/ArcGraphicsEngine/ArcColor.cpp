@@ -149,7 +149,6 @@ void ArcColor::selfInterpolateTo(const ArcColor& color, const double alpha)
 
 uint ArcColor::colorToUint() const
 {
-
 	//(Max – E) * x --> (256 - .001) * colorVal
 	const uint redComponent   = static_cast<uint>(MAX_COLOR_VAL * _red)   << 16;
 	const uint greenComponent = static_cast<uint>(MAX_COLOR_VAL * _green) << 8;

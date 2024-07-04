@@ -1486,7 +1486,7 @@ bool ArcWindow::polygonPipeline(Arc3DAttributedPointList& vertexList, Arc3DAttri
 			clipped_list[i]->textureT(     clipped_list[i]->textureT()      / dev.w());
 			clipped_list[i]->normalVector( clipped_list[i]->normalVector()  / dev.w());
 			clipped_list[i]->weight(       clipped_list[i]->weight()        / dev.w());
-			clipped_list[i]->worldPosition(clipped_list[i]->worldPosition() / dev.w());
+			//clipped_list[i]->worldPosition(clipped_list[i]->worldPosition() / dev.w());
 		}
 
 		_edgeTable->scan_convert(clipped_list);

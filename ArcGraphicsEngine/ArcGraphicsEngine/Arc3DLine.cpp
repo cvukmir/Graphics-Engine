@@ -8,7 +8,7 @@ Arc3DLine::Arc3DLine()
 Arc3DLine::Arc3DLine(const Arc3DPoint& startPoint, const Arc3DPoint& endPoint)
 {
 	_startPoint = startPoint;
-	_endPoint = endPoint;
+	_endPoint   = endPoint;
 }
 
 Arc3DLine::~Arc3DLine()
